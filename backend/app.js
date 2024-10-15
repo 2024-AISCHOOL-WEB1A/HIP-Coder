@@ -11,7 +11,7 @@ const mainRouter = require('./routes/mainRouter')
 // body-parser 미들웨어 설정(POST 허용)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+//
 app.use('/', mainRouter)
 
 app.listen(PORT, () => {
