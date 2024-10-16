@@ -16,7 +16,11 @@ const Home: React.FC<Props> = ({ navigation }) => {
         <Button
             title="Go to Join"
             onPress={() => navigation.navigate('Join')} // 'Join' 페이지로 이동
-      />
+        />
+        <Button
+            title="Go to Test"
+            onPress={() => navigation.navigate('Test')} // 'Join' 페이지로 이동
+        />
     </View>
   )
 }

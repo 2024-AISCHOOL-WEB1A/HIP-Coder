@@ -10,6 +10,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack'
 
 import Home from './src/screens/Home'
 import Join from './src/screens/Join';
+import Test from './src/screens/Test';
 
 const Stack = createNativeStackNavigator();
 
@@ -19,8 +20,9 @@ function App() {
     <Stack.Navigator initialRouteName="Home">
       <Stack.Screen name='Home' component={Home} />
       <Stack.Screen name='Join' component={Join} />
+      <Stack.Screen name='Test' component={Test} />
     </Stack.Navigator>
   )
 }
 
-export default App;
+export default App
