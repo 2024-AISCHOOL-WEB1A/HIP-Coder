@@ -8,8 +8,8 @@
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack'
 
-import Home from './screens/Home'
-import Join from './screens/Join';
+import Home from './src/screens/Home'
+import Join from './src/screens/Join';
 
 const Stack = createNativeStackNavigator();
 
