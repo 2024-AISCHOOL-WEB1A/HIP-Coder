@@ -2,21 +2,20 @@ import React, { useState } from 'react';
 import { View, TextInput, Button, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import commonStyles from '../styles/commonStyles';
-import CustomButton from '../components/CustomButton';
 
-const Join = () => {
+const Login = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const navigation = useNavigation();
 
-  const handleJoin = () => {
-    console.log("회원 가입 정보:", { email, password });
-    navigation.navigate('Login');
+  const handleLogin = () => {
+    console.log("로그인 정보:", { email, password });
+    navigation.navigate('Home');
   };
 
   return (
     <View style={commonStyles.container}>
-      <Text style={commonStyles.header}>Join</Text>
+      <Text style={commonStyles.header}>Login</Text>
       <TextInput
         style={commonStyles.input}
         placeholder="Email"
@@ -30,12 +29,12 @@ const Join = () => {
         value={password}
         onChangeText={setPassword}
       />
-      <Button title="Join" onPress={handleJoin} />
-      <Text style={commonStyles.link} onPress={() => navigation.navigate('Login')}>
-        이미 계정이 있으십니까? 로그인하시려면 여기를 클릭하세요.
+      <Button title="Login" onPress={handleLogin} />
+      <Text style={commonStyles.link} onPress={() => navigation.navigate('Join')}>
+        회원가입을 원하시면 여기를 누르세요.
       </Text>
     </View>
   );
 };
 
-export default Join;
+export default Login;
