@@ -3,12 +3,13 @@ const express = require('express')
 const router = express.Router()
 const conn = require('../config/db')
 
-
 // 메인
 router.get('/', (req, res) => {
     log('test')
 })
 
+
+// 테스트
 router.get('/test', (req, res) => {
     res.json({ message: '서버로부터 응답입니다!' })
 })
