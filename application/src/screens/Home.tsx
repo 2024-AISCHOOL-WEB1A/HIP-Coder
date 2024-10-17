@@ -30,18 +30,23 @@ import { useNavigation } from '@react-navigation/native';
 import commonStyles from '../styles/commonStyles';
 import CustomButton from '../components/CustomButton';
 
+interface Props {
+  csrfToken: string | null;  // CSRF 토큰을 string 또는 null로 정의
+}
 
-const Home = () => {
+const Home: React.FC<Props> = ({ csrfToken }) => {
   const navigation = useNavigation();
 
   return (
     <View style={commonStyles.container}>
       <Text style={commonStyles.header}>Welcome to the Anti-Phishing QR Scanner App</Text>
+      {csrfToken ? <Text>CSRF Token: {csrfToken}</Text> : <Text>No CSRF Token Available</Text>}
       <Button title="Join" style={CustomButton.CustomButton} onPress={() => navigation.navigate('Join')} />
       <Button title="Login" style={CustomButton.CustomButton} onPress={() => navigation.navigate('Login')} />
       <Button title="My Page" style={CustomButton.CustomButton} onPress={() => navigation.navigate('MyPage')} />
       <Button title="QR Scan" style={CustomButton.CustomButton} onPress={() => navigation.navigate('QrScan')} />
       <Button title="URL Check" style={CustomButton.CustomButton} onPress={() => navigation.navigate('UrlCheck')} />
+      <Button title="테스트 지우지마세요!" style={CustomButton.CustomButton} onPress={() => navigation.navigate('Test')} />
     </View>
   );
 };
