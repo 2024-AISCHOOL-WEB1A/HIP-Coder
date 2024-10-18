@@ -1,16 +1,35 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text } from 'react-native';
+import { View, TextInput, Button, Text, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import commonStyles from '../styles/commonStyles';
 import CustomButton from '../components/CustomButton';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../types';
+import api from '../../axios'
 
-const Join = () => {
+type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
+
+interface Props {
+  navigation: HomeScreenNavigationProp;
+}
+
+const Join : React.FC<Props> = ({csrfToken}) => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const navigation = useNavigation();
 
-  const handleJoin = () => {
-    console.log("회원 가입 정보:", { email, password });
+  const handleJoin = async () => {
+    if (!csrfToken) {
+      Alert.alert('오류', 'CSRF 토큰을 먼저 가져오세요.');
+      return;
+    }
+
+    const res = await api.post('/user/joindata', {
+      email : email,
+      password : password
+    },
+    {headers : {'X-CSRF-Token' : csrfToken}, withCredentials : true}
+  )
     navigation.navigate('Login');
   };
 

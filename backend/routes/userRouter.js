@@ -7,4 +7,10 @@ router.get('/tt', (req, res) => {
     log('ta')
 })
 
+/** 회원가입 */
+router.post('/joindata', (req, res) => {
+    const {email, password} = req.body
+    log('프론트',email, password)
+})
+
 module.exports = router

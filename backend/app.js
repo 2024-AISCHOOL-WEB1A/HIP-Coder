@@ -12,6 +12,7 @@ const applySessionManagement = require('./config/session');
 const mainRouter = require('./routes/mainRouter')
 const userRouter = require('./routes/userRouter')
 const configRouter = require('./routes/configRouter')
+const scanRouter = require('./routes/scanRouter')
 
 // 미들웨어 설정
 
@@ -31,6 +32,7 @@ applyCsrfProtection(app);
 app.use('/', mainRouter)
 app.use('/user', userRouter)
 app.use('/config', configRouter)
+app.use('/scan', scanRouter)
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
