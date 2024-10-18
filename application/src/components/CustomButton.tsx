@@ -11,27 +11,34 @@ interface CustomButtonProps {
   paddingVertical?: number;
   paddingHorizontal?: number;
   fontSize?: number;
+  marginBottom?: number;
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
   title,
   onPress,
-  backgroundColor = 'blue',
+//   width = '30%',
+//   height = '10%',
+  backgroundColor = '#7a87c9',
   textColor = 'white',
-  borderRadius = 5,
-  paddingVertical = 10,
+  borderRadius = 20,
+  paddingVertical = 20,
   paddingHorizontal = 20,
   fontSize = 16,
+  marginBottom = 20,
 }) => {
   return (
     <TouchableOpacity
       style={[
         styles.button,
         {
+        //   width,
+        //   height,
           backgroundColor,
           borderRadius,
           paddingVertical,
           paddingHorizontal,
+          marginBottom,
         },
       ]}
       onPress={onPress}
@@ -55,7 +62,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2, // iOS에서 그림자 반경
   },
   buttonText: {
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
     textAlign: 'center',
   },
 });

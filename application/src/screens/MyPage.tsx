@@ -4,13 +4,13 @@ import commonStyles from '../styles/commonStyles';
 
 const MyPage = () => {
   const urlRecords = [
-    { id: '1', url: 'http://example.com', status: 'Safe' },
-    { id: '2', url: 'http://phishing-site.com', status: 'Phishing' },
+    { id: '1', url: 'http://example.com', status: '안전' },
+    { id: '2', url: 'http://phishing-site.com', status: '피싱' },
   ];
 
   return (
     <View style={commonStyles.container}>
-      <Text style={commonStyles.header}>My Page</Text>
+      <Text style={commonStyles.header}>내 정보</Text>
       <FlatList
         data={urlRecords}
         keyExtractor={(item) => item.id}

@@ -36,12 +36,12 @@ const Home = () => {
 
   return (
     <View style={commonStyles.container}>
-      <Text style={commonStyles.header}>Welcome to the Anti-Phishing QR Scanner App</Text>
-      <Button title="Join" style={CustomButton.CustomButton} onPress={() => navigation.navigate('Join')} />
-      <Button title="Login" style={CustomButton.CustomButton} onPress={() => navigation.navigate('Login')} />
-      <Button title="My Page" style={CustomButton.CustomButton} onPress={() => navigation.navigate('MyPage')} />
-      <Button title="QR Scan" style={CustomButton.CustomButton} onPress={() => navigation.navigate('QrScan')} />
-      <Button title="URL Check" style={CustomButton.CustomButton} onPress={() => navigation.navigate('UrlCheck')} />
+      <Text style={commonStyles.header}>HIP - GUARD</Text>
+      <CustomButton title="회원가입" onPress={() => navigation.navigate('Join')} />
+      <CustomButton title="로그인" onPress={() => navigation.navigate('Login')} />
+      <CustomButton title="내 정보" onPress={() => navigation.navigate('MyPage')} />
+      <CustomButton title="QR 스캔" onPress={() => navigation.navigate('QrScan')} />
+      <CustomButton title="URL 검사" onPress={() => navigation.navigate('UrlCheck')} />
     </View>
   );
 };
