@@ -14,7 +14,11 @@ const userRouter = require('./routes/userRouter')
 const configRouter = require('./routes/configRouter')
 
 // 미들웨어 설정
-app.use(cors())
+
+app.use(cors({
+    origin: 'http://localhost:8081',  // 프론트엔드 도메인
+    credentials: true  // 쿠키 허용
+  }))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
