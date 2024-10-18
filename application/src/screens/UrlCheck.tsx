@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, TextInput, Button, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import commonStyles from '../styles/commonStyles';
+import CustomButton from '../components/CustomButton';
 
 const UrlCheck = () => {
   const [url, setUrl] = useState<string>('');
@@ -9,20 +10,20 @@ const UrlCheck = () => {
 
   const checkUrl = () => {
     console.log("URL 체크:", url);
-    setResult("Safe");
+    setResult("안전");
   };
 
   return (
     <View style={commonStyles.container}>
-      <Text style={commonStyles.header}>URL Check</Text>
+      <Text style={commonStyles.header}>URL 검사</Text>
       <TextInput
         style={commonStyles.input}
         placeholder="Enter URL"
         value={url}
         onChangeText={setUrl}
       />
-      <Button title="Check URL" onPress={checkUrl} />
-      {result ? <Text style={commonStyles.result}>Result: {result}</Text> : null}
+      <CustomButton title="Check URL" onPress={checkUrl} />
+      {result ? <Text style={commonStyles.result}>결과: {result}</Text> : null}
     </View>
   );
 };

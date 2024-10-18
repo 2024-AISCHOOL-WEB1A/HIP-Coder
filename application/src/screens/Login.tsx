@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, TextInput, Button, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import commonStyles from '../styles/commonStyles';
+import CustomButton from '../components/CustomButton';
 
 const Login = () => {
   const [email, setEmail] = useState<string>('');
@@ -15,7 +16,7 @@ const Login = () => {
 
   return (
     <View style={commonStyles.container}>
-      <Text style={commonStyles.header}>Login</Text>
+      <Text style={commonStyles.header}>로그인</Text>
       <TextInput
         style={commonStyles.input}
         placeholder="Email"
@@ -29,10 +30,11 @@ const Login = () => {
         value={password}
         onChangeText={setPassword}
       />
-      <Button title="Login" onPress={handleLogin} />
-      <Text style={commonStyles.link} onPress={() => navigation.navigate('Join')}>
+      <CustomButton title="로그인" onPress={handleLogin} />
+      <CustomButton title="회원가입" onPress={() => navigation.navigate('Join')} />
+      {/* <Text style={commonStyles.link} onPress={() => navigation.navigate('Join')}>
         회원가입을 원하시면 여기를 누르세요.
-      </Text>
+      </Text> */}
     </View>
   );
 };
