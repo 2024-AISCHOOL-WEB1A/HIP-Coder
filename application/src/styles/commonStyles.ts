@@ -42,10 +42,7 @@ const commonStyles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   radioButton: {
-    // borderColor: 'hidden',
     backgroundColor: '#f0f2f9',
-    // borderWidth: 1,
-    borderRadius: 20,
     marginRight: 15,
     padding: 10,
   },
