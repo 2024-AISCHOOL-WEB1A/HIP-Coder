@@ -49,19 +49,21 @@ const Test: React.FC<Props> = ({ navigation, csrfToken }) => {
     }
   };
 
-  /** URL 검사 및 처리 함수 */
-  const urlData = async () => {
-    console.log(urlValue);
-    try {
-      const res = await api.post(
-        '/scan/urltest', 
-        { url: urlValue },
-        { headers: { 'X-CSRF-Token': csrfToken }, withCredentials: true }
-      );
+ /** URL 검사 및 처리 함수 */
+const urlData = async () => {
+  console.log("입력된 URL:", urlValue);
+  try {
+    const res = await api.post(
+      '/scan/urltest', 
+      { url: urlValue },
+      { headers: { 'X-CSRF-Token': csrfToken }, withCredentials: true }
+    );
 
-      if (res.data.message === '안전') {
+    switch (res.data.status) {
+      case 'safe':
         openURL(urlValue);
-      } else if (res.data.message === '위험') {
+        break;
+      case 'danger':
         Alert.alert(
           '경고', '이 URL은 위험할 수 있습니다. 그래도 접속하시겠습니까?',
           [
@@ -69,32 +71,52 @@ const Test: React.FC<Props> = ({ navigation, csrfToken }) => {
             { text: '접속', onPress: () => openURL(urlValue) }
           ]
         );
-      } else if (res.data.message === '잘못된 url 형식입니다.') {
+        break;
+      case 'invalid':
         Alert.alert('서버 응답', 'URL을 확인 해주세요.');
-      }
-    } catch (error) {
-      console.error('URL 검사 오류:', error);
-      Alert.alert('오류', 'URL 검사에 실패했습니다.');
+        break;
+      case 'error':
+        Alert.alert('서버 응답', '잘못된 URL입니다.');
+        break;
+      default:
+        Alert.alert('서버 응답', '알 수 없는 응답입니다.');
     }
+  } catch (error) {
+    console.error('URL 검사 오류:', error);
+    Alert.alert('오류', 'URL 검사에 실패했습니다.');
+  }
+};
+
+// URL 열기 함수에서 canOpenURL 생략
+const openURL = async (url: string) => {
+  let formattedURL = url.trim(); // 공백 제거
+
+  // 잘못된 문자 제거 (예: 쉼표 등)
+  formattedURL = formattedURL.replace(/,/g, '');
+
+  // URL이 유효한지 검사
+  const isValidURL = (url: string) => {
+    const urlRegex = /^(https?:\/\/)?([\w\-]+\.)+[a-zA-Z]{2,}(\/\S*)?$/;
+    return urlRegex.test(url);
   };
 
-  const openURL = async (url: string) => {
-    let formattedURL = url.trim(); // 공백 제거
- 
-    // URL이 http:// 또는 https://로 시작하는지 확인
-    if (!/^https?:\/\//i.test(formattedURL)) {
-       formattedURL = `http://${formattedURL}`; // http:// 또는 https://가 없을 때만 추가
-    }
- 
-    const supported = await Linking.canOpenURL(formattedURL);
-    if (supported) {
-       await Linking.openURL(formattedURL); // URL을 기본 브라우저에서 열기
-    } else {
-       Alert.alert(`URL을 열 수 없습니다: ${formattedURL}`);
-    }
- };
- 
-  
+  if (!isValidURL(formattedURL)) {
+    Alert.alert('잘못된 URL 형식입니다.');
+    return;
+  }
+
+  // URL이 http:// 또는 https://로 시작하는지 확인
+  if (!/^https?:\/\//i.test(formattedURL)) {
+    formattedURL = `http://${formattedURL}`; // http:// 또는 https://가 없을 때만 추가
+  }
+
+  try {
+    await Linking.openURL(formattedURL); // URL을 기본 브라우저에서 열기
+  } catch (error) {
+    Alert.alert(`URL을 열 수 없습니다: ${formattedURL}`);
+    console.error('URL 열기 오류:', error);
+  }
+};
 
   return (
     <View>

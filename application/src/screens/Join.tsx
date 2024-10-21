@@ -16,7 +16,7 @@ interface Props {
 
 const Join : React.FC<Props> = ({csrfToken}) => {
   
-  const [Id, setId] = useState<string>('');
+  const [id, setId] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [passwordCheck, setPasswordCheck] = useState<string>('');
   const [name, setName] = useState<string>('');
@@ -48,7 +48,7 @@ const Join : React.FC<Props> = ({csrfToken}) => {
         <TextInput
           style={commonStyles.input1}
           placeholder="ID를 입력해주세요."
-          value={Id}
+          value={id}
           onChangeText={setId}
         />
         <TouchableOpacity
