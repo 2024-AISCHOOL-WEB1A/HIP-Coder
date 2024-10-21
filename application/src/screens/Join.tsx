@@ -44,7 +44,7 @@ const Join : React.FC<Props> = ({csrfToken}) => {
 
   return (
     <View style={commonStyles.container}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
+      <View style={commonStyles.view1}>
         <TextInput
           style={commonStyles.input1}
           placeholder="ID를 입력해주세요."
@@ -57,5 +57,66 @@ const Join : React.FC<Props> = ({csrfToken}) => {
           <Text>중복 확인</Text>
         </TouchableOpacity>
       </View>
+      <TextInput
+        style={commonStyles.input}
+        placeholder="비밀번호를 입력해주세요."
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+      />
+      <TextInput
+        style={commonStyles.input}
+        placeholder="비밀번호를 확인해주세요."
+        secureTextEntry
+        value={passwordCheck}
+        onChangeText={setPasswordCheck}
+      />
+    <View style={commonStyles.view1}>
+      <TextInput
+        style={commonStyles.input1}
+        placeholder="이름을 입력해주세요."
+        value={name}
+        onChangeText={setName}
+      />
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginBottom: 20 }}>
+        <TouchableOpacity
+          onPress={() => setGender('남성')}
+          style={[commonStyles.radioButton, gender === '남성' && commonStyles.activeButton]}>
+          <Text>남성</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setGender('여성')}
+          style={[commonStyles.radioButton, gender === '여성' && commonStyles.activeButton]}>
+          <Text>여성</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+      <TextInput
+        style={commonStyles.input}
+        placeholder="Email을 입력해주세요."
+        value={email}
+        onChangeText={setEmail}
+      />
+      <TextInput
+        style={commonStyles.input}
+        placeholder="생년월일을 입력해주세요. (예: 1990-01-01)"
+        value={birth}
+        onChangeText={setBirth}
+      />
+      <TextInput
+        style={commonStyles.input}
+        placeholder="핸드폰 번호를 입력해주세요."
+        value={phone}
+        onChangeText={setPhone}
+      />
+
+      <CustomButton title="회원가입" onPress={handleJoin} />
+      <CustomButton title="로그인" onPress={() => navigation.navigate('Login')} />
+    </View>
+  );
+};
+
+export default Join;
+
 
 
