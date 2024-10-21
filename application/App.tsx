@@ -102,7 +102,7 @@ const App = () => {
   }, []);
 
   return (
-    <Stack.Navigator initialRouteName="Home">
+    <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Home">
         {props => <Home {...props} csrfToken={csrfToken} />}
       </Stack.Screen>
