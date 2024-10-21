@@ -9,8 +9,7 @@ router.get('/tt', (req, res) => {
 
 /** 회원가입 */
 router.post('/joindata', (req, res) => {
-    const {email, password} = req.body
-    log('프론트',email, password)
+    const { ID, PW, EMAIL, BIR_DATE, GEN } = req.body
 })
 
 module.exports = router
