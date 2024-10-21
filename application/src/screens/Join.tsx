@@ -12,6 +12,7 @@ type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'H
 
 interface Props {
   navigation: HomeScreenNavigationProp;
+  csrfToken: string | null;
 }
 
 const Join : React.FC<Props> = ({csrfToken}) => {
@@ -24,6 +25,7 @@ const Join : React.FC<Props> = ({csrfToken}) => {
   const [birth, setBirth] = useState<string>('');
   const [gender, setGender] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
+  const [idck, setIdck] = useState<boolean>(false)
 
   const navigation = useNavigation();
 
@@ -42,6 +44,29 @@ const Join : React.FC<Props> = ({csrfToken}) => {
     navigation.navigate('Login');
   };
 
+  /** 아이디 중복확인 함수 */
+  const id_redundancy_check = async () => {
+
+    // 아이디 길이확인
+    if (id.length > 4) { 
+      const res = await api.post(
+        '/user/idcheck',
+        {idck : id},
+        {headers : {'X-CSRF-Token': csrfToken}, withCredentials : true}
+      )
+      // 아이디 중복여부 체크
+      if(res.data.message === '중복') {
+        setIdck(false)
+        Alert.alert('중복', '이미 사용 중인 아이디입니다.')
+      } else if(res.data.message === '가능') {
+        setIdck(true)
+        Alert.alert('사용 가능한 아이디', '사용 가능한 아이디입니다.')
+      }
+    } else {
+      Alert.alert('경고', '아이디 길이가 짧습니다.')
+    }
+  }
+
   return (
     <View style={commonStyles.container}>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
@@ -53,7 +78,7 @@ const Join : React.FC<Props> = ({csrfToken}) => {
         />
         <TouchableOpacity
           style={commonStyles.input2}
-          onPress={() => console.log("중복 확인 버튼 클릭됨")}>
+          onPress={() => id_redundancy_check()}>
           <Text>중복 확인</Text>
         </TouchableOpacity>
       </View>

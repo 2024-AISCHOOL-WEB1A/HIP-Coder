@@ -37,18 +37,21 @@ router.post('/joindata', (req, res) => {
 })
 
 /** 아이디 중복확인 */ 
-router.post('idcheck', (req, res) => {
-    const {id} = req.body
+router.post('/idcheck', (req, res) => {
+    const {idck} = req.body
     
-    var sql = ``
+    var sql = `SELECT COUNT(*) as CNT
+                FROM USER
+                WHERE USER_ID = ?`
 
-    conn.query(sql, (err, r) => {
+    conn.query(sql, [idck], (err, r) => {
         if (err) {
             console.error('DB Count Error: ', err);
             return res.status(500).json({ error: 'DB Count Error' });
         } else {
-            const idck = r
-            if (idck[0] > 0) {
+            const idck = r[0].CNT
+
+            if (idck > 0) {
                 res.json({message : '중복'})
             } else {
                 res.json({message : '가능'})
