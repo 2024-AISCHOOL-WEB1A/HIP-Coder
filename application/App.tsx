@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { PermissionsAndroid, Alert, BackHandler, Linking } from 'react-native';
 import api from './axios';
+import { AxiosError } from 'axios';
 
 // 각 화면들 import
 import Home from './src/screens/Home';
@@ -72,16 +73,24 @@ const App = () => {
     }
   };
 
-  // CSRF 토큰 가져오는 함수
   const fetchCsrfToken = async () => {
     try {
       const response = await api.get('/config/get-csrf-token', { withCredentials: true });
-      setCsrfToken(response.data.csrfToken);
+      console.log('CSRF 토큰 가져오기 성공:', response.data.csrfToken);
+      setCsrfToken(response.data.csrfToken)
     } catch (error) {
-      console.error('CSRF 토큰 가져오기 실패:', error);
+      console.error('CSRF 토큰 가져오기 실패:', error); // Network Error 로그 출력
+      if (error.response) {
+        console.log('응답 오류 데이터:', error.response.data);
+      } else if (error.request) {
+        console.log('요청이 전송되었으나 응답이 없음:', error.request);
+      } else {
+        console.log('설정 에러:', error.message);
+      }
     }
-  };
+};
 
+  
   // useEffect로 권한 요청 및 CSRF 토큰 가져오기 처리
   useEffect(() => {
     const checkPermissions = async () => {
