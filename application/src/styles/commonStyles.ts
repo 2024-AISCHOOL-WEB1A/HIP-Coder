@@ -12,6 +12,12 @@ const commonStyles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 12,
   },
+  view1: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    marginBottom: 20,
+  },
   input: {
     height: 50,
     borderColor: '#7a87c9',
@@ -27,24 +33,25 @@ const commonStyles = StyleSheet.create({
     borderColor: '#7a87c9',
     borderWidth: 1,
     borderRadius: 20,
-    marginBottom: 20,
+    // marginBottom: 20,
     paddingHorizontal: 10,
   },
   input2: {
     width: '25%',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
     height: 50,
     borderColor: '#7a87c9',
     borderWidth: 1,
     borderRadius: 20,
-    marginBottom: 20,
     paddingHorizontal: 10,
   },
   radioButton: {
     backgroundColor: '#f0f2f9',
-    marginRight: 15,
-    padding: 10,
+    borderColor: '#f0f2f9',
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingHorizontal: 10,
+
+
   },
   activeButton: {
     backgroundColor: '#7a87c9',
