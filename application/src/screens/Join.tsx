@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, TextInput, Text, TouchableOpacity, Alert, ImageBackground, Keyboard, KeyboardAvoidingView, TouchableWithoutFeedback, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import commonStyles from '../styles/commonStyles';
 import CustomButton from '../components/CustomButton';
