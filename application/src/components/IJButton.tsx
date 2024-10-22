@@ -1,4 +1,3 @@
-// CustomButton.tsx
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
@@ -8,39 +7,32 @@ interface CustomButtonProps {
   backgroundColor?: string;
   textColor?: string;
   borderRadius?: number;
-  paddingVertical?: number;
-  paddingHorizontal?: number;
   fontSize?: number;
-  // marginBottom?: number;
-  style?: object;
+  marginBottom?: number;
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
   title,
   onPress,
-  backgroundColor = '#7a87c9',
+  backgroundColor = '#9C59B5',
   textColor = 'white',
-  borderRadius = 20,
-  paddingVertical = 5,
-  paddingHorizontal = 20,
+  borderRadius = 25,
   fontSize = 16,
-  // marginBottom = 20,
-  style,
+  marginBottom = 20,
+
 }) => {
   return (
     <TouchableOpacity
       style={[
         styles.button,
         {
-        //   width,
-        //   height,
+          width: '100%',
+          height: 55,
           backgroundColor,
           borderRadius,
-          paddingVertical,
-          paddingHorizontal,
-          // marginBottom
+
+          marginBottom
         },
-          style,
       ]}
       onPress={onPress}
     >
@@ -55,15 +47,13 @@ const styles = StyleSheet.create({
   button: {
     justifyContent: 'center',
     alignItems: 'center',
-    color:'#7a87c9',
-    elevation: 3, // 안드로이드의 그림자 효과
-    shadowColor: '#000', // iOS에서의 그림자 색상
-    shadowOffset: { width: 0, height: 2 }, // iOS에서 그림자 오프셋
-    shadowOpacity: 0.8, // iOS에서 그림자 투명도
-    shadowRadius: 2, // iOS에서 그림자 반경
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
   },
   buttonText: {
-    // fontWeight: 'bold',
     textAlign: 'center',
   },
 });
