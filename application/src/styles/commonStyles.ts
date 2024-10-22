@@ -55,9 +55,6 @@ const commonStyles = StyleSheet.create({
   },
   radioButton: {
     backgroundColor: '#f0f2f9',
-    marginRight: 15,
-    padding: 10,
-    height: 50,
     borderColor: '#f0f2f9',
     borderWidth: 1,
     borderRadius: 20,
