@@ -38,19 +38,10 @@ const commonStyles = StyleSheet.create({
   },
   input2: {
     width: '25%',
-    flexDirection: 'row',
-    backgroundColor: '#7a87c9',
-    alignItems: 'center',
-    justifyContent: 'center',
-    textAlign: 'center',
-    color: 'red',
-
-
     height: 50,
     borderColor: '#7a87c9',
     borderWidth: 1,
     borderRadius: 20,
-    // marginBottom: 20,
     paddingHorizontal: 10,
   },
   radioButton: {
