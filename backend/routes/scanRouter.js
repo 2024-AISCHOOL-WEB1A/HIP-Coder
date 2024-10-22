@@ -10,16 +10,24 @@ router.post('/urltest', (req, res) => {
         // URL이 유효한지 확인
         const parsedUrl = new URL(url);
 
+        let status = '';
+        let message = '';
+
         if (parsedUrl.protocol === 'https:') {
-            res.json({ message: '안전' });
+            status = 'safe';
+            message = '이 URL은 안전합니다.';
         } else if (parsedUrl.protocol === 'http:') {
-            res.json({ message: '위험' });
+            status = 'danger';
+            message = '이 URL은 보안 위험이 있을 수 있습니다.';
         } else {
-            res.json({ message: '잘못된 url 형식입니다.' });
+            status = 'invalid';
+            message = '잘못된 URL 형식입니다.';
         }
+
+        res.json({ status, message });
     } catch (err) {
-        res.status(400).json({ message: '잘못된 URL입니다.' });
+        res.status(400).json({ status: 'error', message: '잘못된 URL입니다.' });
     }
-});
+})
 
 module.exports = router

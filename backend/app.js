@@ -17,7 +17,7 @@ const scanRouter = require('./routes/scanRouter')
 // 미들웨어 설정
 
 app.use(cors({
-    origin: 'http://localhost:8081',  // 프론트엔드 도메인
+    origin: process.env.FRONT_PORT ,  // 프론트엔드 도메인
     credentials: true  // 쿠키 허용
   }))
 app.use(express.json())

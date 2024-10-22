@@ -4,6 +4,7 @@ const router = express.Router();
 
 // CSRF 토큰 발급 라우트
 router.get('/get-csrf-token', (req, res) => {
+    console.log('토큰요청')
     const csrfToken = req.csrfToken();  // CSRF 토큰 생성
     res.status(200).json({ message: 'CSRF 토큰 발급 완료', csrfToken });
 });
