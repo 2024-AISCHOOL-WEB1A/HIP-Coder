@@ -27,13 +27,13 @@ app.use(express.urlencoded({ extended: true }))
 applySessionManagement(app);
 
 // CSRF 보호 적용
-// applyCsrfProtection(app);
+applyCsrfProtection(app);
 
-// app.use('/', mainRouter)
-// app.use('/user', userRouter)
-// app.use('/config', configRouter)
-// app.use('/scan', scanRouter)
+app.use('/', mainRouter)
+app.use('/user', userRouter)
+app.use('/config', configRouter)
+app.use('/scan', scanRouter)
 
-// app.listen(PORT, () => {
-//     console.log(`Server running at http://localhost:${PORT}`);
-// })
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+})
