@@ -4,6 +4,13 @@ const router = express.Router()
 const conn = require('../config/db')
 const bcrypt = require('bcrypt')
 
+/** 회원가입 */
+router.post('/handleJoin', (req, res) => {
+    const { ID, PW, EMAIL, BIR_DATE, GEN } = req.body
+
+    let sql = "INSERT INTO USER VALUES ()"
+})
+
 // 비밀번호 해싱 함수
 async function hashpw(password) {
     const saltRounds = 10
@@ -28,13 +35,6 @@ async function verifypw(password, hashpassword) {
         console.error('비밀번호 검증오류 : ', error)
     }
 }
-
-
-
-/** 회원가입 */
-router.post('/joindata', (req, res) => {
-    const { ID, PW, EMAIL, BIR_DATE, GEN } = req.body
-})
 
 /** 아이디 중복확인 */ 
 router.post('/idcheck', (req, res) => {
