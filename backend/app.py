@@ -27,9 +27,9 @@ def predict():
         
         
         if prediction == 'good':
-            return jsonify({'status': 'safe', 'message': '이 URL은 안전합니다'})
+            return jsonify({'status': 'good', 'message': '이 URL은 안전합니다'})
         elif prediction == 'bad':
-            return jsonify({'status': 'danger', 'message': '이 URL은 보안 위험이 있을 수 있습니다'})
+            return jsonify({'status': 'bad', 'message': '이 URL은 보안 위험이 있을 수 있습니다'})
         
     except Exception as e:
         return jsonify({'status': 'error', 'message': f'예측 중 오류 발생: {str(e)}'}), 500

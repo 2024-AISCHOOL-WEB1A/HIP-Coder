@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "android": "npm run clean && react-native run-android",
+    "start-flask": "cd backend && flask run",
     "ios": "npm run clean && react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start --reset-cache",

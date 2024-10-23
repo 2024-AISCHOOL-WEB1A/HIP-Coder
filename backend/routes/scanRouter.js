@@ -34,8 +34,8 @@ router.post('/urltest', async (req, res) => {
     console.log(`검사할 URL: ${url}`);
 
     try {
-        const response = await axios.post('/urltest', { url }); // Flask 서버로 요청
-        res.json(response.data); // Flask 서버에서 온 응답을 그대로 반환
+        const response = await axios.post('/urltest', { url }); 
+        res.json(response.data); 
     } catch (error) {
         res.status(500).json({ status: 'error', message: 'URL 분석 중 오류 발생' });
     }
