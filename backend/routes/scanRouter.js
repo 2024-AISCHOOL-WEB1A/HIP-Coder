@@ -27,18 +27,22 @@ const router = express.Router();
 //     }
 // })
 
-const axios = require('axios');
+import axios from 'axios';
 
-router.post('/urltest', async (req, res) => {
-    const { url } = req.body;
-    console.log(`검사할 URL: ${url}`);
+const API_URL = 'http://<your-flask-server-url>'; // Flask 서버 URL
 
+//qr코드 스캔 시 테스트 용
+router.post('/scan', async (req, res) => {
     try {
-        const response = await axios.post('/urltest', { url }); 
-        res.json(response.data); 
+        const response = await axios.post(`${API_URL}/scan`, {
+            image: req.body.image, // 이미지 데이터를 전달
+        });
+
+        res.json(response.data); // Flask 서버로부터 받은 응답을 클라이언트에 전달
     } catch (error) {
-        res.status(500).json({ status: 'error', message: 'URL 분석 중 오류 발생' });
+        console.error('Error during QR scan:', error);
+        res.status(500).json({ status: 'error', message: 'QR 코드 스캔 중 오류 발생' });
     }
 });
 
-module.exports = router
+export default router;
