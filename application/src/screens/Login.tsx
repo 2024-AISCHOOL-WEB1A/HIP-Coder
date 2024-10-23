@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Text, StyleSheet, ImageBackground } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import CustomButton from '../components/CustomButton';
+import CustomButton from '../components/IJButton';
 import Header from '../components/Header';
 
 const Login = () => {
