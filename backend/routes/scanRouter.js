@@ -1,6 +1,7 @@
 const { log } = require('console');
 const express = require('express');
 const router = express.Router();
+const axios = require('axios');
 
 // router.post('/urltest', (req, res) => {
 //     const { url } = req.body;
@@ -27,9 +28,9 @@ const router = express.Router();
 //     }
 // })
 
-import axios from 'axios';
 
-const API_URL = 'http://<your-flask-server-url>'; // Flask 서버 URL
+
+const API_URL = 'http://127.0.0.1:5000'; // Flask 서버 URL
 
 //qr코드 스캔 시 테스트 용
 router.post('/scan', async (req, res) => {
@@ -45,4 +46,4 @@ router.post('/scan', async (req, res) => {
     }
 });
 
-export default router;
+module.exports = router;
