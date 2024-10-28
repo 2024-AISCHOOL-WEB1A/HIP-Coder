@@ -13,6 +13,21 @@ const MyPage = () => {
   const [emergencyContact2, setEmergencyContact2] = useState('');
   const navigation = useNavigation();
 
+  // 날짜 계산 함수
+  const getDateRange = () => {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setFullYear(endDate.getFullYear() - 1);
+    
+    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    return {
+      start: startDate.toLocaleDateString('ko-KR', options),
+      end: endDate.toLocaleDateString('ko-KR', options),
+    };
+  };
+
+  const { start, end } = getDateRange();
+
   return (
     <View style={styles.container}>
       <Header onBackPress={() => navigation.goBack()} />
@@ -66,7 +81,6 @@ const MyPage = () => {
           <CustomButton title="수정하기" onPress={() => { /* 수정 로직 */ }} />
         </View>
 
-        {/* 회원탈퇴 버튼 추가 */}
         <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('LogoutPage')}>
           <Text style={styles.logoutButtonText}>회원탈퇴</Text>
         </TouchableOpacity>
@@ -77,7 +91,6 @@ const MyPage = () => {
 
         <View style={styles.separator} />
 
-        {/* 왼쪽 정렬 텍스트 */}
         <View style={styles.historySection}>
           <Text style={styles.historyLabel}>최근 검사 이력을 확인하세요!</Text>
           <Text style={styles.historyDescription}>
@@ -85,12 +98,13 @@ const MyPage = () => {
           </Text>
         </View>
 
-        {/* 버튼 디자인 수정 */}
         <View style={styles.centeredSection}>
           <TouchableOpacity style={styles.historyButton}>
-            <Text style={styles.historyButtonText}>검사 이력 보기</Text>
-            <Icon name="search-outline" size={24} color="#FFFFFF" style={styles.icon} />
-            <Text style={styles.historyDate}>2024-07-10 ~ 2025-07-10</Text>
+            <View style={styles.historyButtonContent}>
+              <Text style={styles.historyButtonText}>검사 이력 보기</Text>
+              <Icon name="search-outline" size={24} color="#FFFFFF" style={styles.icon} />
+            </View>
+            <Text style={styles.historyDate}>{start} ~ {end}</Text>
             <Text style={styles.qrCodeText}>QR코드 / URL 검사 결과</Text>
           </TouchableOpacity>
         </View>
@@ -103,12 +117,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    paddingLeft: 20,
-    paddingRight: 20,
   },
   scrollContainer: {
-    padding: 20,
-    width: '100%',
+    flex: 1,
+    justifyContent: 'flex-start',
+    paddingHorizontal: 40, // 양쪽에 40 패딩 추가
+    width: '100%', // 전체 너비를 차지하도록 설정
   },
   textContainer: {
     alignItems: 'flex-start',
@@ -117,7 +131,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#000000',
-    paddingTop: 40,
+    paddingTop: 20,
   },
   separator: {
     height: 1,
@@ -174,12 +188,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     width: '100%',
     borderRadius: 25,
-    marginBottom: 10,
+    marginBottom: 5,
   },
   historyButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
     marginBottom: 5,
+  },
+  historyButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center', // 수직 정렬
+    justifyContent: 'space-between', // 텍스트와 아이콘 사이 공간 조절
+    width: '100%', // 버튼 전체 너비 사용
   },
   icon: {
     marginLeft: 5,
