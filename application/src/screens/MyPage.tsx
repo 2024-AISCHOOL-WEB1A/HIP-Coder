@@ -7,11 +7,26 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 const MyPage = () => {
   const [name, setName] = useState('');
-  const [birthdate, setBirthdate] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [emergencyContact1, setEmergencyContact1] = useState('');
   const [emergencyContact2, setEmergencyContact2] = useState('');
   const navigation = useNavigation();
+
+  // 날짜 계산 함수
+  const getDateRange = () => {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setFullYear(endDate.getFullYear() - 1);
+
+    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    return {
+      start: startDate.toLocaleDateString('ko-KR', options),
+      end: endDate.toLocaleDateString('ko-KR', options),
+    };
+  };
+
+  const { start, end } = getDateRange();
 
   return (
     <View style={styles.container}>
@@ -33,19 +48,19 @@ const MyPage = () => {
           />
           <TextInput
             style={[styles.input, styles.halfInput]}
-            placeholder="생년월일"
+            placeholder="핸드폰번호"
             placeholderTextColor="#838383"
-            value={birthdate}
-            onChangeText={setBirthdate}
+            value={phone}
+            onChangeText={setPhone}
           />
         </View>
 
         <TextInput
           style={styles.input}
-          placeholder="핸드폰번호"
+          placeholder="이메일"
           placeholderTextColor="#838383"
-          value={phone}
-          onChangeText={setPhone}
+          value={email}
+          onChangeText={setEmail}
         />
         <TextInput
           style={styles.input}
@@ -66,7 +81,6 @@ const MyPage = () => {
           <CustomButton title="수정하기" onPress={() => { /* 수정 로직 */ }} />
         </View>
 
-        {/* 회원탈퇴 버튼 추가 */}
         <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('LogoutPage')}>
           <Text style={styles.logoutButtonText}>회원탈퇴</Text>
         </TouchableOpacity>
@@ -77,7 +91,6 @@ const MyPage = () => {
 
         <View style={styles.separator} />
 
-        {/* 왼쪽 정렬 텍스트 */}
         <View style={styles.historySection}>
           <Text style={styles.historyLabel}>최근 검사 이력을 확인하세요!</Text>
           <Text style={styles.historyDescription}>
@@ -85,12 +98,13 @@ const MyPage = () => {
           </Text>
         </View>
 
-        {/* 버튼 디자인 수정 */}
         <View style={styles.centeredSection}>
           <TouchableOpacity style={styles.historyButton}>
-            <Text style={styles.historyButtonText}>검사 이력 보기</Text>
-            <Icon name="search-outline" size={24} color="#FFFFFF" style={styles.icon} />
-            <Text style={styles.historyDate}>2024-07-10 ~ 2025-07-10</Text>
+            <View style={styles.historyButtonContent}>
+              <Text style={styles.historyButtonText}>검사 이력 보기</Text>
+              <Icon name="search-outline" size={24} color="#FFFFFF" style={styles.icon} />
+            </View>
+            <Text style={styles.historyDate}>{start} ~ {end}</Text>
             <Text style={styles.qrCodeText}>QR코드 / URL 검사 결과</Text>
           </TouchableOpacity>
         </View>
@@ -103,11 +117,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    paddingLeft: 20,
-    paddingRight: 20,
   },
   scrollContainer: {
-    padding: 20,
+    flex: 1,
+    justifyContent: 'flex-start',
+    paddingHorizontal: 40,
     width: '100%',
   },
   textContainer: {
@@ -117,7 +131,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#000000',
-    paddingTop: 40,
+    paddingTop: 20,
   },
   separator: {
     height: 1,
@@ -149,7 +163,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   historySection: {
-    alignItems: 'flex-start', // 왼쪽 정렬
+    alignItems: 'flex-start',
     marginVertical: 10,
   },
   historyLabel: {
@@ -160,10 +174,10 @@ const styles = StyleSheet.create({
   historyDescription: {
     fontSize: 14,
     color: '#838383',
-    textAlign: 'left', // 왼쪽 정렬
+    textAlign: 'left',
   },
   centeredSection: {
-    alignItems: 'center', // 가운데 정렬
+    alignItems: 'center',
     marginVertical: 20,
   },
   historyButton: {
@@ -174,18 +188,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     width: '100%',
     borderRadius: 25,
-    marginBottom: 10,
+    marginBottom: 5,
   },
   historyButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
     marginBottom: 5,
   },
+  historyButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
   icon: {
     marginLeft: 5,
   },
   logoutButton: {
-    alignItems: 'flex-end', // 오른쪽 정렬
+    alignItems: 'flex-end',
   },
   logoutButtonText: {
     fontSize: 16,
@@ -197,7 +217,7 @@ const styles = StyleSheet.create({
   },
   qrCodeText: {
     color: '#FFFFFF',
-    textAlign: 'left', // 왼쪽 정렬
+    textAlign: 'left',
     marginTop: 5,
   },
 });

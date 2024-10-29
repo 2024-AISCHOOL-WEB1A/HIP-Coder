@@ -1,47 +1,43 @@
-const { log } = require('console');
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 
-// router.post('/urltest', (req, res) => {
-//     const { url } = req.body;
-//     log(`검사할 URL: ${url}`);
+const API_URL = process.env.FLASK_API_URL || 'http://127.0.0.1:5000';
 
-//     try {
-//         // URL이 유효한지 확인
-//         const parsedUrl = new URL(url);
-
-//         let type = '';
-//         let message = '';
-
-//         if (parsedUrl.protocol === 'https:') {
-//             type = 'good';
-//             message = '이 URL은 안전합니다.';
-//         } else if (parsedUrl.protocol === 'http:') {
-//             type = 'bad';
-//             message = '이 URL은 보안 위험이 있을 수 있습니다.';
-//         }
-
-//         res.json({ status, message });
-//     } catch (err) {
-//         res.status(400).json({ status: 'error', message: '잘못된 URL입니다.' });
-//     }
-// })
-
-
-
-const API_URL = 'http://127.0.0.1:5000'; // Flask 서버 URL
-
-//qr코드 스캔 시 테스트 용
-router.post('/scan', async (req, res) => {
+// URL 유효성 검사 함수
+const isValidUrl = (string) => {
     try {
-        const response = await axios.post(`${API_URL}/scan`, {
-            image: req.body.image, // 이미지 데이터를 전달
-        });
+        new URL(string);
+        return true;
+    } catch (_) {
+        return false;  
+    }
+};
 
-        res.json(response.data); // Flask 서버로부터 받은 응답을 클라이언트에 전달
+// QR 코드 스캔 요청 처리
+router.post('/upload', async (req, res) => {
+    try {
+        const { url } = req.body;
+
+        // URL 유효성 검사
+        if (!url || !isValidUrl(url)) {
+            return res.status(400).json({ status: 'error', message: '유효하지 않은 URL입니다.' });
+        }
+
+        // 여기서 필요한 처리를 수행할 수 있습니다.
+        // 예: URL을 기반으로 데이터베이스 검색, 추가적인 API 요청 등
+
+        // Flask 서버에 URL 데이터 전송
+        const response = await axios.post(`${API_URL}/scan`, { url });
+
+        // Flask 서버의 응답 확인 및 처리
+        if (response.data) {
+            return res.json(response.data); // Flask가 { recognized: true/false } 형태로 응답한다고 가정
+        } else {
+            return res.status(500).json({ status: 'error', message: 'Flask 서버 응답이 없습니다.' });
+        }
     } catch (error) {
-        console.error('Error during QR scan:', error);
+        console.error('Error during QR scan:', error.response ? error.response.data : error.message);
         res.status(500).json({ status: 'error', message: 'QR 코드 스캔 중 오류 발생' });
     }
 });

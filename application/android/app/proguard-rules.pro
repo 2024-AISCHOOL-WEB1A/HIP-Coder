@@ -8,3 +8,7 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+
+
+# ML Kit Barcode Scanning
+-keep class com.google.mlkit.vision.barcode.** { *; }

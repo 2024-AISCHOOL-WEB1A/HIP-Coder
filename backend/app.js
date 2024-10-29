@@ -33,6 +33,7 @@ app.use('/', mainRouter)
 app.use('/user', userRouter)
 app.use('/config', configRouter)
 app.use('/scan', scanRouter)
+app.use('/upload',scanRouter)
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
