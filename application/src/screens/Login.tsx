@@ -10,7 +10,7 @@ const Login = () => {
   const navigation = useNavigation();
 
   const handleLogin = () => {
-    console.log("로그인 정보:", { email, password });
+    console.log("로그인 정보:", { id, password });
     navigation.navigate('Home');
   };
 
