@@ -5,7 +5,7 @@ import CustomButton from '../components/IJButton';
 import Header from '../components/Header';
 
 const Login = () => {
-  const [email, setEmail] = useState<string>('');
+  const [id, setId] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const navigation = useNavigation();
 
@@ -30,8 +30,8 @@ const Login = () => {
           style={styles.input}
           placeholder="아이디"
           placeholderTextColor="#838383"
-          value={email}
-          onChangeText={setEmail}
+          value={id}
+          onChangeText={setId}
         />
         <TextInput
           style={styles.input}
