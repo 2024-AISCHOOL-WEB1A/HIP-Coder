@@ -2,6 +2,7 @@ package com.application;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.os.Handler; // 추가: Handler 임포트
 import android.util.Log;
 import android.util.Size;
 import android.view.ViewGroup;
@@ -34,6 +35,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
     private final ReactApplicationContext reactContext;
     private PreviewView previewView;
     private BarcodeScanner barcodeScanner;
+    private boolean isScanning = false; // 추가: 스캔 중 여부 확인
 
     public CameraModule(ReactApplicationContext context) {
         super(context);
@@ -51,42 +53,40 @@ public class CameraModule extends ReactContextBaseJavaModule {
     public void startCamera() {
         Activity activity = getCurrentActivity();
         if (activity != null) {
-            // 메인 스레드에서 실행
             reactContext.runOnUiQueueThread(() -> {
-                // Camera Preview 설정
                 previewView = new PreviewView(activity);
                 previewView.setLayoutParams(new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 ));
 
-                // PreviewView를 Activity의 ViewGroup에 추가
                 ViewGroup rootView = (ViewGroup) activity.findViewById(android.R.id.content);
-                rootView.addView(previewView); // PreviewView를 루트 뷰에 추가
+                rootView.addView(previewView);
 
                 ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(reactContext);
                 cameraProviderFuture.addListener(() -> {
                     try {
                         ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
 
-                        // Camera Preview 설정
                         Preview preview = new Preview.Builder().build();
                         preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
-                        // Image Analysis 설정
                         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
                             .setTargetResolution(new Size(1280, 720))
                             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                             .build();
 
                         imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(reactContext), image -> {
-                            scanQRCode(image);
+                            if (!isScanning) { // 스캔 중이 아닐 때만 분석 수행
+                                scanQRCode(image);
+                            } else {
+                                image.close(); // 스캔 중일 때는 이미지를 닫음
+                            }
                         });
 
                         CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
                         cameraProvider.unbindAll();
 
-                        // Activity를 LifecycleOwner로 캐스팅
                         cameraProvider.bindToLifecycle((LifecycleOwner) activity, cameraSelector, preview, imageAnalysis);
                     } catch (ExecutionException | InterruptedException e) {
                         Log.e(TAG, "카메라 초기화 중 오류 발생: ", e);
@@ -98,21 +98,28 @@ public class CameraModule extends ReactContextBaseJavaModule {
         }
     }
 
-    // QR 코드 스캔 성공 시 React Native에 이벤트 전송
+    @ReactMethod
     private void scanQRCode(ImageProxy image) {
-        Bitmap bitmap = previewView.getBitmap(); // 미리보기에서 Bitmap 가져오기
+        Bitmap bitmap = previewView.getBitmap();
         if (bitmap != null) {
             InputImage inputImage = InputImage.fromBitmap(bitmap, image.getImageInfo().getRotationDegrees());
             barcodeScanner.process(inputImage)
                 .addOnSuccessListener(barcodes -> {
-                    for (Barcode barcode : barcodes) {
-                        String qrText = barcode.getRawValue();
-                        Log.d(TAG, "QR Code detected: " + qrText);
+                    if (!isScanning) { // QR 코드가 감지되었을 때만 처리
+                        for (Barcode barcode : barcodes) {
+                            String qrText = barcode.getRawValue();
+                            Log.d(TAG, "QR Code detected: " + qrText);
 
-                        // QR 코드 스캔 성공 이벤트 전송
-                        WritableMap params = Arguments.createMap();
-                        params.putString("result", qrText);
-                        sendEvent("QRScanSuccess", params); // 이벤트 발생
+                            // QR 코드 스캔 성공 이벤트 전송
+                            WritableMap params = Arguments.createMap();
+                            params.putString("result", qrText);
+                            sendEvent("QRScanSuccess", params);
+
+                            isScanning = true; // 스캔 중 상태로 변경
+                            new Handler().postDelayed(() -> {
+                                isScanning = false; // 10초 후 스캔 가능
+                            }, 10000); // 10초 대기
+                        }
                     }
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "QR code scan error", e))
@@ -122,12 +129,23 @@ public class CameraModule extends ReactContextBaseJavaModule {
         }
     }
 
-    // 이벤트를 보내는 메서드 정의
     private void sendEvent(String eventName, WritableMap params) {
-        if (reactContext.hasActiveCatalystInstance()) {
-            reactContext
-                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                .emit(eventName, params);
-        }
+        reactContext
+            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+            .emit(eventName, params);
+    }
+
+    @ReactMethod
+    private void sendQRCodeDetected(String qrText) {
+        WritableMap params = Arguments.createMap();
+        params.putString("qrText", qrText);
+        sendEvent("QRCodeDetected", params);
     }
 }
+
+
+
+
+
+
+

@@ -7,8 +7,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 const MyPage = () => {
   const [name, setName] = useState('');
-  const [birthdate, setBirthdate] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [emergencyContact1, setEmergencyContact1] = useState('');
   const [emergencyContact2, setEmergencyContact2] = useState('');
   const navigation = useNavigation();
@@ -18,7 +18,7 @@ const MyPage = () => {
     const endDate = new Date();
     const startDate = new Date();
     startDate.setFullYear(endDate.getFullYear() - 1);
-    
+
     const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
     return {
       start: startDate.toLocaleDateString('ko-KR', options),
@@ -48,19 +48,19 @@ const MyPage = () => {
           />
           <TextInput
             style={[styles.input, styles.halfInput]}
-            placeholder="생년월일"
+            placeholder="핸드폰번호"
             placeholderTextColor="#838383"
-            value={birthdate}
-            onChangeText={setBirthdate}
+            value={phone}
+            onChangeText={setPhone}
           />
         </View>
 
         <TextInput
           style={styles.input}
-          placeholder="핸드폰번호"
+          placeholder="이메일"
           placeholderTextColor="#838383"
-          value={phone}
-          onChangeText={setPhone}
+          value={email}
+          onChangeText={setEmail}
         />
         <TextInput
           style={styles.input}
@@ -121,8 +121,8 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
     justifyContent: 'flex-start',
-    paddingHorizontal: 40, // 양쪽에 40 패딩 추가
-    width: '100%', // 전체 너비를 차지하도록 설정
+    paddingHorizontal: 40,
+    width: '100%',
   },
   textContainer: {
     alignItems: 'flex-start',
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   historySection: {
-    alignItems: 'flex-start', // 왼쪽 정렬
+    alignItems: 'flex-start',
     marginVertical: 10,
   },
   historyLabel: {
@@ -174,10 +174,10 @@ const styles = StyleSheet.create({
   historyDescription: {
     fontSize: 14,
     color: '#838383',
-    textAlign: 'left', // 왼쪽 정렬
+    textAlign: 'left',
   },
   centeredSection: {
-    alignItems: 'center', // 가운데 정렬
+    alignItems: 'center',
     marginVertical: 20,
   },
   historyButton: {
@@ -197,15 +197,15 @@ const styles = StyleSheet.create({
   },
   historyButtonContent: {
     flexDirection: 'row',
-    alignItems: 'center', // 수직 정렬
-    justifyContent: 'space-between', // 텍스트와 아이콘 사이 공간 조절
-    width: '100%', // 버튼 전체 너비 사용
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
   },
   icon: {
     marginLeft: 5,
   },
   logoutButton: {
-    alignItems: 'flex-end', // 오른쪽 정렬
+    alignItems: 'flex-end',
   },
   logoutButtonText: {
     fontSize: 16,
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
   },
   qrCodeText: {
     color: '#FFFFFF',
-    textAlign: 'left', // 왼쪽 정렬
+    textAlign: 'left',
     marginTop: 5,
   },
 });
