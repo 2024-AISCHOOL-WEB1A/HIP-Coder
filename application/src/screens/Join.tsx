@@ -5,10 +5,13 @@ import commonStyles from '../styles/commonStyles';
 import HEButton from '../components/HEButton';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
-import api from '../../axios';
+import api from '../../axios'
+import axios, { AxiosError } from 'axios';
 import Header from '../components/BGHeader';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
+type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
+
 
 interface Props {
   navigation: HomeScreenNavigationProp;
@@ -16,6 +19,7 @@ interface Props {
 }
 
 const Join: React.FC<Props> = ({ csrfToken }) => {
+
   const [step, setStep] = useState(1); // 단계 관리
   const [id, setId] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -34,14 +38,38 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
       return;
     }
 
-    const res = await api.post('/user/joindata', {
-      email: email,
-      password: password
-    }, {
-      headers: { 'X-CSRF-Token': csrfToken },
-      withCredentials: true
-    });
-    navigation.navigate('RegistrationComplete'); // 회원가입 완료 페이지로 이동
+    try {
+      const res = await api.post('/user/handleJoin', {
+        id: id,
+        password: password,
+        passwordCheck: passwordCheck,
+        name: name,
+        email: email,
+        phone: phone
+      }, {
+        headers: { 'X-CSRF-Token': csrfToken },
+        withCredentials: true
+      });
+
+      if (res.status === 200) {
+        Alert.alert('회원가입 성공', '로그인 페이지로 이동합니다.');
+        navigation.navigate('Login');
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        // AxiosError 타입에 맞게 처리
+        if (error.response && error.response.status === 400) {
+          Alert.alert('회원가입 실패', error.response.data.error);
+        } else {
+          Alert.alert('회원가입 실패', '서버에서 알 수 없는 오류가 발생했습니다.');
+        }
+      } else {
+        // Axios 오류가 아닐 때의 처리 (기타 오류)
+        console.error('회원가입 중 오류:', error);
+        Alert.alert('회원가입 실패', '오류가 발생했습니다.');
+      }
+    }
+
   };
 
   // const id_redundancy_check = async () => {
@@ -51,17 +79,27 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
   //       withCredentials: true
   //     });
 
-  //     if (res.data.message === '중복') {
-  //       setIdck(false);
-  //       Alert.alert('중복', '이미 사용 중인 아이디입니다.');
-  //     } else if (res.data.message === '가능') {
-  //       setIdck(true);
-  //       Alert.alert('사용 가능한 아이디', '사용 가능한 아이디입니다.');
-  //     }
-  //   } else {
-  //     Alert.alert('경고', '아이디 길이가 짧습니다.');
-  //   }
-  // };
+    // 아이디 길이확인
+    if (id.length > 4) {
+      const res = await api.post(
+        '/user/idcheck',
+        { idck: id },
+        { headers: { 'X-CSRF-Token': csrfToken }, withCredentials: true }
+      )
+
+      // console.log('응답', res.data)
+
+      // 아이디 중복여부 체크
+      if (res.data.message === '중복') {
+        setIdck(false)
+        Alert.alert('중복', '이미 사용 중인 아이디입니다.')
+      } else if (res.data.message === '가능') {
+        setIdck(true)
+        Alert.alert('사용 가능한 아이디', '사용 가능한 아이디입니다.')
+      }
+    } else {
+      Alert.alert('경고', '아이디 길이가 짧습니다.')
+    }
 
   const nextStep = () => {
     if (step === 1) {
@@ -78,6 +116,7 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
   };
 
   return (
+
     <View style={commonStyles.container}>
       <View style={commonStyles.headerContainer}>
         <Header onBackPress={() => navigation.goBack()} />
