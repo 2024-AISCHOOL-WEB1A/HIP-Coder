@@ -11,6 +11,7 @@ const Login = () => {
   const navigation = useNavigation();
 
   const handleLogin = () => {
+    console.log("로그인 정보:", { id, password });
     console.log("로그인 정보:", { id, password }); // email을 id로 변경
     setIsLoggedIn(true); 
     navigation.navigate('Home');
