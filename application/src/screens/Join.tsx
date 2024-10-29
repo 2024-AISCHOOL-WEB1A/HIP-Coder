@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, Alert, TouchableOpacity } from 'react-native';
+import { View, TextInput, Text, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import commonStyles from '../styles/commonStyles';
 import HEButton from '../components/HEButton';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
-import api from '../../axios'
-import axios, { AxiosError } from 'axios';
+import api from '../../axios';
+import axios from 'axios';
 import Header from '../components/BGHeader';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
-type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
-
 
 interface Props {
   navigation: HomeScreenNavigationProp;
@@ -19,8 +17,7 @@ interface Props {
 }
 
 const Join: React.FC<Props> = ({ csrfToken }) => {
-
-  const [step, setStep] = useState(1); // 단계 관리
+  const [step, setStep] = useState(1);
   const [id, setId] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [passwordCheck, setPasswordCheck] = useState<string>('');
@@ -41,12 +38,12 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
 
     try {
       const res = await api.post('/user/handleJoin', {
-        id: id,
-        password: password,
-        passwordCheck: passwordCheck,
-        name: name,
-        email: email,
-        phone: phone
+        id,
+        password,
+        passwordCheck,
+        name,
+        email,
+        phone
       }, {
         headers: { 'X-CSRF-Token': csrfToken },
         withCredentials: true
@@ -58,67 +55,53 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        // AxiosError 타입에 맞게 처리
         if (error.response && error.response.status === 400) {
           Alert.alert('회원가입 실패', error.response.data.error);
         } else {
           Alert.alert('회원가입 실패', '서버에서 알 수 없는 오류가 발생했습니다.');
         }
       } else {
-        // Axios 오류가 아닐 때의 처리 (기타 오류)
         console.error('회원가입 중 오류:', error);
         Alert.alert('회원가입 실패', '오류가 발생했습니다.');
       }
     }
-
   };
 
   const id_redundancy_check = async () => {
-  //   if (id.length > 4) {
-  //     const res = await api.post('/user/idcheck', { idck: id }, {
-  //       headers: { 'X-CSRF-Token': csrfToken },
-  //       withCredentials: true
-  //     });
-
-    // 아이디 길이확인
     if (id.length > 4) {
-      const res = await api.post(
-        '/user/idcheck',
-        { idck: id },
-        { headers: { 'X-CSRF-Token': csrfToken }, withCredentials: true }
-      )
+      try {
+        const res = await api.post('/user/idcheck', { idck: id }, {
+          headers: { 'X-CSRF-Token': csrfToken },
+          withCredentials: true
+        });
 
-      // console.log('응답', res.data)
-
-      // 아이디 중복여부 체크
-      if (res.data.message === '중복') {
-        setIdck(false)
-        Alert.alert('중복', '이미 사용 중인 아이디입니다.') 
-      } else if (res.data.message === '가능') {
-        setIdck(true)
-        Alert.alert('사용 가능한 아이디', '사용 가능한 아이디입니다.')
+        if (res.data.message === '중복') {
+          setIdck(false);
+          Alert.alert('중복', '이미 사용 중인 아이디입니다.');
+        } else if (res.data.message === '가능') {
+          setIdck(true);
+          Alert.alert('사용 가능한 아이디', '사용 가능한 아이디입니다.');
+        }
+      } catch (error) {
+        console.error('아이디 중복 확인 중 오류:', error);
+        Alert.alert('오류', '아이디 중복 확인 중 오류가 발생했습니다.');
       }
     } else {
-      Alert.alert('경고', '아이디 길이가 짧습니다.')
+      Alert.alert('경고', '아이디 길이가 짧습니다.');
     }
-  }
+  };
 
   const nextStep = () => {
     if (step === 1) {
-      setStep(2); // 이용약관 동의 후 2단계로
+      setStep(2);
     } else if (step === 2) {
-      // if (idck && password === passwordCheck) {
       setStep(3);
-      // } else {
-      //   Alert.alert('오류', '아이디 중복 확인과 비밀번호 확인이 필요합니다.');
-      // }
     } else if (step === 3) {
       handleJoin();
     }
   };
 
   return (
-
     <View style={commonStyles.container}>
       <View style={commonStyles.headerContainer}>
         <Header onBackPress={() => navigation.goBack()} />
@@ -128,11 +111,7 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
         <View style={commonStyles.innerContainer}>
           {step === 1 && (
             <>
-            {/* <View style={commonStyles.termsContainer}> */}
               <Text style={commonStyles.termsText}>이용약관에 동의하시겠습니까?{'\n'}</Text>
-              {/* 이용약관 내용을 여기에 추가 */}
-              {/* <HEButton title="동의합니다" onPress={nextStep} /> */}
-            {/* </View> */}
             </>
           )}
           {step === 2 && (
@@ -147,7 +126,7 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
                 />
                 <HEButton
                   title="중복확인"
-                  // onPress={id_redundancy_check}
+                  onPress={id_redundancy_check}
                   style={commonStyles.smallButton}
                 />
               </View>
@@ -155,7 +134,7 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
                 style={commonStyles.input}
                 placeholder="비밀번호를 입력해주세요."
                 secureTextEntry
-                value={password}
+                value={password} 
                 onChangeText={setPassword}
               />
               <TextInput
@@ -205,6 +184,7 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
                 onChangeText={setEmergencyContact2}
                 autoCapitalize="none"
               />
+
             </>
           )}
           <HEButton style={commonStyles.fullWidthButton} title="다음" onPress={nextStep} />
@@ -220,5 +200,3 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
 };
 
 export default Join;
-
-
