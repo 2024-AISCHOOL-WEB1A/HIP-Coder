@@ -7,11 +7,19 @@ import Header from '../components/Header';
 const Login = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); 
   const navigation = useNavigation();
 
   const handleLogin = () => {
     console.log("로그인 정보:", { email, password });
+    setIsLoggedIn(true); 
     navigation.navigate('Home');
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false); 
+    setEmail(''); 
+    setPassword(''); 
   };
 
   return (
@@ -26,29 +34,37 @@ const Login = () => {
           <Text style={styles.header}>Welcome</Text>
           <Text style={styles.subHeader}>Thing Q</Text>
         </View>
-        <TextInput
-          style={styles.input}
-          placeholder="아이디"
-          placeholderTextColor="#838383"
-          value={email}
-          onChangeText={setEmail}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="비밀번호"
-          secureTextEntry
-          placeholderTextColor="#838383"
-          value={password}
-          onChangeText={setPassword}
-        />
-        <View style={styles.buttonContainer}>
-          <CustomButton title="로그인" onPress={handleLogin}/>
-        </View>
-        <View style={styles.linkContainer}>
-          <Text style={styles.link} onPress={() => navigation.navigate('Join')}>
-            비밀번호를 잊으셨습니까?
-          </Text>
-        </View>
+        {!isLoggedIn ? ( // 로그인 여부에 따라 다른 UI 표시
+          <>
+            <TextInput
+              style={styles.input}
+              placeholder="아이디"
+              placeholderTextColor="#838383"
+              value={email}
+              onChangeText={setEmail}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="비밀번호"
+              secureTextEntry
+              placeholderTextColor="#838383"
+              value={password}
+              onChangeText={setPassword}
+            />
+            <View style={styles.buttonContainer}>
+              <CustomButton title="로그인" onPress={handleLogin}/>
+            </View>
+            <View style={styles.linkContainer}>
+              <Text style={styles.link} onPress={() => navigation.navigate('Join')}>
+                비밀번호를 잊으셨습니까?
+              </Text>
+            </View>
+          </>
+        ) : (
+          <View style={styles.buttonContainer}>
+            <CustomButton title="로그아웃" onPress={handleLogout} />
+          </View>
+        )}
       </View>
     </ImageBackground>
   );
@@ -64,12 +80,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingTop: 100, // Header 높이에 맞춰 여백 조정
-    paddingHorizontal: 40, // 양쪽에 40 패딩 추가
-    width: '100%', // 전체 너비를 차지하도록 설정
+    paddingTop: 100,
+    paddingHorizontal: 40,
+    width: '100%',
   },
   textContainer: {
-    marginTop: 40, // Welcome과 subHeader 사이 간격 추가
+    marginTop: 40,
     alignItems: 'flex-start',
     width: '100%',
   },
@@ -82,11 +98,11 @@ const styles = StyleSheet.create({
   subHeader: {
     fontSize: 32,
     color: '#6A1B9A',
-    paddingBottom: 40, // subHeader와 아래 요소 간격 추가
+    paddingBottom: 40,
     textAlign: 'left',
   },
   input: {
-    width: '100%', // input을 전체 너비로 설정
+    width: '100%',
     height: 55,
     borderColor: '#B490CA',
     borderWidth: 1,
@@ -98,8 +114,8 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: '100%', 
     alignItems: 'center', 
-    paddingTop: 20, // 버튼 위쪽 간격 조정
-    marginVertical: 10, // 버튼과 링크 사이 간격 추가
+    paddingTop: 20,
+    marginVertical: 10,
   },
   linkContainer: {
     width: '100%', 
