@@ -27,7 +27,8 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
-  const [emergencyContact, setEmergencyContact] = useState<string>(''); // 비상연락망
+  const [emergencyContact1, setEmergencyContact1] = useState<string>(''); // 비상연락망
+  const [emergencyContact2, setEmergencyContact2] = useState<string>(''); // 비상연락망
   const [idck, setIdck] = useState<boolean>(false);
 
   const navigation = useNavigation();
@@ -92,7 +93,7 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
       // 아이디 중복여부 체크
       if (res.data.message === '중복') {
         setIdck(false)
-        Alert.alert('중복', '이미 사용 중인 아이디입니다.')
+        Alert.alert('중복', '이미 사용 중인 아이디입니다.') 
       } else if (res.data.message === '가능') {
         setIdck(true)
         Alert.alert('사용 가능한 아이디', '사용 가능한 아이디입니다.')
@@ -192,15 +193,17 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
             <>
               <TextInput
                 style={commonStyles.input}
-                placeholder="비상연락망을 입력해주세요."
-                value={emergencyContact}
-                onChangeText={setEmergencyContact}
+                placeholder="비상연락망1 을 입력해주세요."
+                value={emergencyContact1}
+                onChangeText={setEmergencyContact1}
+                autoCapitalize="none"
               />
                <TextInput
                 style={commonStyles.input}
-                placeholder="비상연락망을 입력해주세요."
-                value={emergencyContact}
-                onChangeText={setEmergencyContact}
+                placeholder="비상연락망2 를 입력해주세요."
+                value={emergencyContact2}
+                onChangeText={setEmergencyContact2}
+                autoCapitalize="none"
               />
             </>
           )}
