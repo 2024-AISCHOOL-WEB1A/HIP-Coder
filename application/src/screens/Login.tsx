@@ -1,30 +1,50 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, ImageBackground } from 'react-native';
+import { View, TextInput, Text, StyleSheet, ImageBackground, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../components/IJButton';
 import Header from '../components/Header';
+import api from '../../axios';
 
-const Login = () => {
+interface Props {
+  csrfToken: string | null;
+}
+
+const Login: React.FC<Props> = ({ csrfToken }) => {
   const [id, setId] = useState<string>(''); // email을 id로 변경
   const [password, setPassword] = useState<string>('');
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); 
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const navigation = useNavigation();
 
-  const handleLogin = () => {
-    console.log("로그인 정보:", { id, password });
+  const handleLogin = async () => {
     console.log("로그인 정보:", { id, password }); // email을 id로 변경
-    setIsLoggedIn(true); 
     navigation.navigate('Home');
+    try {
+      const res = await api.post('/user/handleLogin', {
+        id: id,
+        password: password
+      }, {
+        headers: { 'X-CSRF-Token': csrfToken }
+      })
+      if (res.status === 200) {
+        Alert.alert('환영합니다')
+        setIsLoggedIn(true);
+      } else if(res.status === 400) {
+        Alert.alert('비밀번호가 일치하지 않습니다.')
+      };
+    }
+    catch (error) {
+      Alert.alert('예상치 못한 오류가 발생하였습니다.')
+    }
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false); 
+    setIsLoggedIn(false);
     setId(''); // email을 id로 변경
-    setPassword(''); 
+    setPassword('');
   };
 
   return (
-    <ImageBackground 
+    <ImageBackground
       source={require('../assets/background.jpg')}
       style={styles.container}
       resizeMode="cover"
@@ -51,7 +71,7 @@ const Login = () => {
           onChangeText={setPassword}
         />
         <View style={styles.buttonContainer}>
-          <CustomButton title="로그인" onPress={handleLogin}/>
+          <CustomButton title="로그인" onPress={handleLogin} />
         </View>
         <View style={styles.linkContainer}>
           <Text style={styles.link} onPress={() => navigation.navigate('Join')}>
@@ -66,8 +86,8 @@ const Login = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start', 
-    alignItems: 'center', 
+    justifyContent: 'flex-start',
+    alignItems: 'center',
   },
   innerContainer: {
     flex: 1,
@@ -105,14 +125,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   buttonContainer: {
-    width: '100%', 
-    alignItems: 'center', 
+    width: '100%',
+    alignItems: 'center',
     paddingTop: 20,
     marginVertical: 10,
   },
   linkContainer: {
-    width: '100%', 
-    alignItems: 'center', 
+    width: '100%',
+    alignItems: 'center',
   },
   link: {
     color: '#838383',

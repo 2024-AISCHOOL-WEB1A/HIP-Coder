@@ -10,7 +10,6 @@ import axios from 'axios';
 import Header from '../components/BGHeader';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
-
 interface Props {
   navigation: HomeScreenNavigationProp;
   csrfToken: string | null;
