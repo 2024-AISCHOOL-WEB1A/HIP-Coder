@@ -5,7 +5,7 @@ import CustomButton from '../components/IJButton';
 import Header from '../components/Header';
 
 const Login = () => {
-  const [email, setEmail] = useState<string>('');
+  const [id, setId] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); 
   const navigation = useNavigation();
@@ -34,37 +34,29 @@ const Login = () => {
           <Text style={styles.header}>Welcome</Text>
           <Text style={styles.subHeader}>Thing Q</Text>
         </View>
-        {!isLoggedIn ? ( // 로그인 여부에 따라 다른 UI 표시
-          <>
-            <TextInput
-              style={styles.input}
-              placeholder="아이디"
-              placeholderTextColor="#838383"
-              value={email}
-              onChangeText={setEmail}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="비밀번호"
-              secureTextEntry
-              placeholderTextColor="#838383"
-              value={password}
-              onChangeText={setPassword}
-            />
-            <View style={styles.buttonContainer}>
-              <CustomButton title="로그인" onPress={handleLogin}/>
-            </View>
-            <View style={styles.linkContainer}>
-              <Text style={styles.link} onPress={() => navigation.navigate('Join')}>
-                비밀번호를 잊으셨습니까?
-              </Text>
-            </View>
-          </>
-        ) : (
-          <View style={styles.buttonContainer}>
-            <CustomButton title="로그아웃" onPress={handleLogout} />
-          </View>
-        )}
+        <TextInput
+          style={styles.input}
+          placeholder="아이디"
+          placeholderTextColor="#838383"
+          value={email}
+          onChangeText={setEmail}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="비밀번호"
+          secureTextEntry
+          placeholderTextColor="#838383"
+          value={password}
+          onChangeText={setPassword}
+        />
+        <View style={styles.buttonContainer}>
+          <CustomButton title="로그인" onPress={handleLogin}/>
+        </View>
+        <View style={styles.linkContainer}>
+          <Text style={styles.link} onPress={() => navigation.navigate('Join')}>
+            비밀번호를 잊으셨습니까?
+          </Text>
+        </View>
       </View>
     </ImageBackground>
   );

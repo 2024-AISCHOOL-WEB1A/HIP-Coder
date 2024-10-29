@@ -11,8 +11,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 urlscan_bp = Blueprint('urlscan', __name__)
 
 # TF-IDF 벡터 변환기와 모델을 전역 변수로 설정
-tfidf_vectorizer = joblib.load(os.path.join(os.path.dirname(__file__), 'tfidf_vectorizer.pkl'))
-clf_model = joblib.load(os.path.join(os.path.dirname(__file__), 'MNB_TFIDF.pkl'))
+tfidf_vectorizer, clf_model = joblib.load(os.path.join(os.path.dirname(__file__), 'model_and_vectorizer.pkl'))
+
 
 # URL 토큰화 함수
 def tokenize_url(url):
@@ -24,27 +24,18 @@ def tokenize_url(url):
 # URL 예측 함수
 def predict_url(url):
     try:
-        url_as_object = url
-        tokenized_url = tokenize_url(url_as_object)
-        logging.info(f"토큰화된 URL: {tokenized_url}")
-
-        if not tokenized_url:
-            logging.error("토큰화된 URL이 비어 있습니다.")
-            return None
-
-        new_url = tokenized_url 
         
-        logging.info("토근화한 url: %s", new_url) # 1차원인지 2차원인지 리스트가 아닌지 모르겠음
-
+        
+        list_url = [url]
         vectorizer = tfidf_vectorizer
         logging.info("백터라이저: %s", vectorizer)
-        new_url_tfidf = vectorizer.transform(new_url)  # URL 변환
+        new_url_tfidf = vectorizer.transform(list_url) 
         logging.info("벡터화 완료: %s", new_url_tfidf)
-        pred_prob = clf_model.predict_proba(new_url_tfidf)  # 확률 예측
+        pred_prob = clf_model.predict_proba(new_url_tfidf)  
         logging.info("예측: %s", pred_prob)
         
         # 예측 결과에 따라 'good' 또는 'bad' 결정
-        prediction = 'good' if pred_prob[0][1] > 0.5 else 'bad'  # 예시로 확률이 0.5를 초과할 경우 'good'으로 분류
+        prediction = 'good' if pred_prob[0][1] > 0.8 else 'bad' 
         return prediction
 
     except Exception as e:
