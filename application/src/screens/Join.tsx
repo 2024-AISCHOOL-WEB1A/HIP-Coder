@@ -133,7 +133,7 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
                 style={commonStyles.input}
                 placeholder="비밀번호를 입력해주세요."
                 secureTextEntry
-                value={password}
+                value={password} 
                 onChangeText={setPassword}
               />
               <TextInput
