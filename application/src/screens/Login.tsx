@@ -5,13 +5,22 @@ import CustomButton from '../components/IJButton';
 import Header from '../components/Header';
 
 const Login = () => {
-  const [id, setId] = useState<string>('');
+  const [id, setId] = useState<string>(''); // email을 id로 변경
   const [password, setPassword] = useState<string>('');
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); 
   const navigation = useNavigation();
 
   const handleLogin = () => {
     console.log("로그인 정보:", { id, password });
+    console.log("로그인 정보:", { id, password }); // email을 id로 변경
+    setIsLoggedIn(true); 
     navigation.navigate('Home');
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false); 
+    setId(''); // email을 id로 변경
+    setPassword(''); 
   };
 
   return (
@@ -30,8 +39,8 @@ const Login = () => {
           style={styles.input}
           placeholder="아이디"
           placeholderTextColor="#838383"
-          value={id}
-          onChangeText={setId}
+          value={id} // email을 id로 변경
+          onChangeText={setId} // email을 setId로 변경
         />
         <TextInput
           style={styles.input}
@@ -64,12 +73,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingTop: 100, // Header 높이에 맞춰 여백 조정
-    paddingHorizontal: 40, // 양쪽에 40 패딩 추가
-    width: '100%', // 전체 너비를 차지하도록 설정
+    paddingTop: 100,
+    paddingHorizontal: 40,
+    width: '100%',
   },
   textContainer: {
-    marginTop: 40, // Welcome과 subHeader 사이 간격 추가
+    marginTop: 40,
     alignItems: 'flex-start',
     width: '100%',
   },
@@ -82,11 +91,11 @@ const styles = StyleSheet.create({
   subHeader: {
     fontSize: 32,
     color: '#6A1B9A',
-    paddingBottom: 40, // subHeader와 아래 요소 간격 추가
+    paddingBottom: 40,
     textAlign: 'left',
   },
   input: {
-    width: '100%', // input을 전체 너비로 설정
+    width: '100%',
     height: 55,
     borderColor: '#B490CA',
     borderWidth: 1,
@@ -98,8 +107,8 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: '100%', 
     alignItems: 'center', 
-    paddingTop: 20, // 버튼 위쪽 간격 조정
-    marginVertical: 10, // 버튼과 링크 사이 간격 추가
+    paddingTop: 20,
+    marginVertical: 10,
   },
   linkContainer: {
     width: '100%', 
