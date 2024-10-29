@@ -72,7 +72,7 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
 
   };
 
-  // const id_redundancy_check = async () => {
+  const id_redundancy_check = async () => {
   //   if (id.length > 4) {
   //     const res = await api.post('/user/idcheck', { idck: id }, {
   //       headers: { 'X-CSRF-Token': csrfToken },
@@ -100,6 +100,7 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
     } else {
       Alert.alert('경고', '아이디 길이가 짧습니다.')
     }
+  }
 
   const nextStep = () => {
     if (step === 1) {
