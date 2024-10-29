@@ -73,6 +73,14 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
   };
 
   const id_redundancy_check = async () => {
+<<<<<<< HEAD
+=======
+  //   if (id.length > 4) {
+  //     const res = await api.post('/user/idcheck', { idck: id }, {
+  //       headers: { 'X-CSRF-Token': csrfToken },
+  //       withCredentials: true
+  //     });
+>>>>>>> 5dfe49006c14d3850a408d8b1d60db718dc113c4
 
     // 아이디 길이확인
     if (id.length > 4) {
@@ -96,6 +104,10 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
       Alert.alert('경고', '아이디 길이가 짧습니다.')
     }
   }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5dfe49006c14d3850a408d8b1d60db718dc113c4
   const nextStep = () => {
     if (step === 1) {
       setStep(2); // 이용약관 동의 후 2단계로
