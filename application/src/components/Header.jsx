@@ -63,7 +63,7 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
               </TouchableOpacity>
             ) : (
               <TouchableOpacity onPress={() => {
-                console.log('로그인 클릭');
+                navigation.navigate('Login'); // 로그인 화면으로 이동
                 setModalVisible(false);
               }} style={styles.menuItem}>
                 <Text style={styles.menuItemText}>로그인</Text>

@@ -15,7 +15,8 @@ const Home = () => {
   };
 
   const handleLogin = () => {
-    setIsLoggedIn(true); // 로그인
+    navigation.navigate('Login'); // 로그인 화면으로 이동
+    setIsLoggedIn(true); // 로그인 상태 업데이트 (실제로는 로그인 성공 후에 호출해야 함)
   };
 
   const checkUrlSafety = (urlToCheck) => {
