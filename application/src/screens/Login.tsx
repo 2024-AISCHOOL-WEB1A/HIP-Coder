@@ -5,20 +5,20 @@ import CustomButton from '../components/IJButton';
 import Header from '../components/Header';
 
 const Login = () => {
-  const [id, setId] = useState<string>('');
+  const [id, setId] = useState<string>(''); // email을 id로 변경
   const [password, setPassword] = useState<string>('');
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); 
   const navigation = useNavigation();
 
   const handleLogin = () => {
-    console.log("로그인 정보:", { email, password });
+    console.log("로그인 정보:", { id, password }); // email을 id로 변경
     setIsLoggedIn(true); 
     navigation.navigate('Home');
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false); 
-    setEmail(''); 
+    setId(''); // email을 id로 변경
     setPassword(''); 
   };
 
@@ -38,8 +38,8 @@ const Login = () => {
           style={styles.input}
           placeholder="아이디"
           placeholderTextColor="#838383"
-          value={email}
-          onChangeText={setEmail}
+          value={id} // email을 id로 변경
+          onChangeText={setId} // email을 setId로 변경
         />
         <TextInput
           style={styles.input}
