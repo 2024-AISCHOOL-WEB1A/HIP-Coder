@@ -72,12 +72,7 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
 
   };
 
-  // const id_redundancy_check = async () => {
-  //   if (id.length > 4) {
-  //     const res = await api.post('/user/idcheck', { idck: id }, {
-  //       headers: { 'X-CSRF-Token': csrfToken },
-  //       withCredentials: true
-  //     });
+  const id_redundancy_check = async () => {
 
     // 아이디 길이확인
     if (id.length > 4) {
@@ -100,7 +95,7 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
     } else {
       Alert.alert('경고', '아이디 길이가 짧습니다.')
     }
-
+  }
   const nextStep = () => {
     if (step === 1) {
       setStep(2); // 이용약관 동의 후 2단계로
@@ -145,7 +140,7 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
                 />
                 <HEButton
                   title="중복확인"
-                  // onPress={id_redundancy_check}
+                  onPress={id_redundancy_check}
                   style={commonStyles.smallButton}
                 />
               </View>
@@ -216,5 +211,3 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
 };
 
 export default Join;
-
-
