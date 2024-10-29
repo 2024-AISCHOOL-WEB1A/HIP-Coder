@@ -97,7 +97,7 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
    * 
    * 
    * 회원가입 프론트 수정중에 값 입력하는거 걸리적거리면 여기부터 여기까지 라고 써진부분 주석처리 하시면 됩니다.
-   * 
+   * 총 2군데 있습니다.
    * 
    * 
    */
@@ -106,7 +106,7 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
     if (step === 1) {
       setStep(2);
     }  else if (step === 2) {
-      if (!idck) { // 여기부터
+      if (!idck) { // 여기부터 <==============================
         Alert.alert('경고', '아이디 중복 확인을 해주세요.');
         return;
       } if (!id) {
@@ -140,14 +140,16 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
       } if (phone.length !== 11) {
         Alert.alert('경고', '유효한 핸드폰 번호를 입력해주세요.')
         return;
-      } // 여기까지
+      } // 여기까지 <===========================
       setStep(3);
     } else if (step === 3) {
-      if (!emergencyContact1) {
+      if (!emergencyContact1) { // 여기부터 <==========================
         Alert.alert('경고', '비상연락망1을 입력해주세요.')
+        return;
       } if (!emergencyContact2) {
         Alert.alert('경고', '비상연락망2을 입력해주세요.')
-      }
+        return;
+      } // 여기까지 <====================================
       handleJoin();
     } 
   };
