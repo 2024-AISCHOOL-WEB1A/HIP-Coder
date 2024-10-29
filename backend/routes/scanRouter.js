@@ -42,4 +42,44 @@ router.post('/upload', async (req, res) => {
     }
 });
 
+/** 구글 세이프 브라우저 API 테스트 코드 */
+router.get('/checkurl', async (req, res) => {
+
+    const API_KEY = process.env.SAFE_API_KEY;
+    const url_check = 'http://example.com/malicious' // 임시 URL
+
+    const apiUrl = `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${API_KEY}`;
+    const payload = {
+        client: {
+            clientId: 'HIP-CODER',
+            clientVersion: "1.0"
+        },
+        threatInfo: {
+            threatTypes: ["MALWARE", "SOCIAL_ENGINEERING"],
+            platformTypes: ["ANY_PLATFORM"],
+            threatEntryTypes: ["URL"],
+            threatEntries: [
+                { url: url_check }
+            ]
+        }
+    };
+
+    try {
+        const response = await axios.post(apiUrl, payload);
+        const result = response.data;
+
+        if (result.matches) {
+            res.json({ safe: false, message: '위험한 URL 입니다.' });
+        } else {
+            res.json({ safe: true, message: '안전한 URL 입니다.' });
+        }
+    } catch (error) {
+        console.error('API 요청 오류', error);
+        res.status(500).json({ error: 'URL 검사 중 오류가 발생했습니다.' });
+    }
+
+});
+
+
+
 module.exports = router;

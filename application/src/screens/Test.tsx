@@ -123,30 +123,12 @@ const Test: React.FC<Props> = ({ navigation, csrfToken }) => {
 
       // 서버에서 받은 데이터를 'message' 키를 통해 접근 및 가공
       if (res.data && Array.isArray(res.data.message)) {
-        const processedData: UserData[] = [];
-
-        // 동일한 이름, 전화번호, 이메일을 가진 사용자 정보를 합치고 연락처를 배열로 관리
-        res.data.message.forEach((item: any) => {
-          const existingUser = processedData.find(
-            (user) =>
-              user.USER_NAME === item.USER_NAME &&
-              user.PHONE === item.PHONE &&
-              user.EMAIL === item.EMAIL
-          );
-
-          if (existingUser) {
-            // 연락처를 추가
-            existingUser.CONTACT_INFO.push(item.CONTACT_INFO);
-          } else {
-            // 새 사용자 추가
-            processedData.push({
-              USER_NAME: item.USER_NAME,
-              PHONE: item.PHONE,
-              EMAIL: item.EMAIL,
-              CONTACT_INFO: [item.CONTACT_INFO],
-            });
-          }
-        });
+        const processedData: UserData[] = res.data.message.map((item: any) => ({
+          USER_NAME: item.USER_NAME,
+          PHONE: item.PHONE,
+          EMAIL: item.EMAIL,
+          CONTACT_INFO: [item.CONTACT_INFO1, item.CONTACT_INFO2].filter(Boolean),
+        }));
 
         setUserData(processedData);
         Alert.alert('서버 응답', '사용자 데이터를 불러왔습니다.');

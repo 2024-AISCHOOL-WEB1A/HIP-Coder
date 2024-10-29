@@ -42,7 +42,9 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
         passwordCheck,
         name,
         email,
-        phone
+        phone,
+        emergencyContact1,
+        emergencyContact2
       }, {
         headers: { 'X-CSRF-Token': csrfToken },
         withCredentials: true
@@ -93,11 +95,51 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
   const nextStep = () => {
     if (step === 1) {
       setStep(2);
-    } else if (step === 2) {
+    }  else if (step === 2) {
+      if (!idck) {
+        Alert.alert('경고', '아이디 중복 확인을 해주세요.');
+        return;
+      } if (!id) {
+        Alert.alert('경고', '아이디를 입력해주세요.');
+        return;
+      } if (!password) {
+        Alert.alert('경고', '비밀번호를 입력해주세요.');
+        return;
+      } if (password !== passwordCheck) {
+        Alert.alert('경고', '비밀번호가 일치하지 않습니다.');
+        return;
+      } if (!name) {
+        Alert.alert('경고', '이름을 입력해주세요.')
+      }      
+      const nameRegex = /^[^0-9]*$/;
+      if (!nameRegex.test(name)) {
+        Alert.alert('경고', '이름에 숫자가 포함될 수 없습니다.');
+        return;
+      }
+       if (!email) {
+        Alert.alert('경고', '이메일을 입력해주세요.');
+        return;
+      }
+      const emailRegex = /^[\w-.]+@([\w-]+\.)+[a-zA-Z]{2,4}$/;
+      if (!emailRegex.test(email) || /@[\w-]*\d/.test(email)) {
+        Alert.alert('경고', '유효한 이메일 주소를 입력해주세요.');
+        return;
+      } if (!phone) {
+        Alert.alert('경고', '핸드폰 번호를 입력해주세요.');
+        return;
+      } if (phone.length !== 11) {
+        Alert.alert('경고', '유효한 핸드폰 번호를 입력해주세요.')
+        return;
+      }
       setStep(3);
     } else if (step === 3) {
+      if (!emergencyContact1) {
+        Alert.alert('경고', '비상연락망1을 입력해주세요.')
+      } if (!emergencyContact2) {
+        Alert.alert('경고', '비상연락망2을 입력해주세요.')
+      }
       handleJoin();
-    }
+    } 
   };
 
   return (

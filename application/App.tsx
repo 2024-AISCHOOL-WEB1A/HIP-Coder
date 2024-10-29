@@ -90,7 +90,6 @@ const App = () => {
     }
 };
 
-  
   // useEffect로 권한 요청 및 CSRF 토큰 가져오기 처리
   useEffect(() => {
     const checkPermissions = async () => {

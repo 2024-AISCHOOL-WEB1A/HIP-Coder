@@ -36,9 +36,10 @@ async function verifypw(password, hashpassword) {
 
 // 회원가입 라우터
 router.post('/handleJoin', async (req, res) => {
-    const { id, password, passwordCheck, name, email, phone } = req.body;
+    const { id, password, passwordCheck, name, email, phone, emergencyContact1, emergencyContact2 } = req.body;
     // log('d')
     // 비밀번호와 비밀번호 확인이 일치하는지 확인
+    log(req.body)
     if (password !== passwordCheck) {
         return res.status(400).json({ error: '비밀번호가 일치하지 않습니다.' });
     }
@@ -50,7 +51,10 @@ router.post('/handleJoin', async (req, res) => {
 
         // 사용자 정보를 DB에 삽입
         const sql = 'INSERT INTO USER (USER_ID, USER_PW, USER_NAME, EMAIL, PHONE, USER_IDX) VALUES (?, ?, ?, ?, ?, ?)';
+        const emergency1 = `INSERT INTO EMG_CON (USER_IDX, CONTACT_INFO1, CONTACT_INFO2) VALUES (?, ?, ?)` 
         await conn.promise().query(sql, [id, hashedPassword, name, email, phone, idx]);
+        await conn.promise().query(emergency1, [idx, emergencyContact1, emergencyContact2])
+
 
         return res.status(200).json({ message: '회원가입 성공!' });
 
@@ -64,7 +68,7 @@ router.post('/handleJoin', async (req, res) => {
 router.post('/idcheck', async (req, res) => {
     const { idck } = req.body;  // 프론트엔드와 동일하게 idck로 받아야 함
     try {
-        log('d')
+        // log('d')
         const sql = 'SELECT COUNT(*) AS CNT FROM USER WHERE USER_ID = ?';
         const [result] = await conn.promise().query(sql, [idck]);
 
@@ -82,7 +86,7 @@ router.post('/idcheck', async (req, res) => {
 /** 마이페이지 정보 불러오기 */
 router.post('/mypage', (req, res) => {
     const {idx} = req.body
-    var sql = `SELECT U.USER_NAME, U.PHONE, U.EMAIL, E.CONTACT_INFO
+    var sql = `SELECT U.USER_NAME, U.PHONE, U.EMAIL, E.CONTACT_INFO1, E.CONTACT_INFO2
                 FROM USER U INNER JOIN EMG_CON E
                 ON U.USER_IDX = E.USER_IDX
                 WHERE U.USER_IDX =  ?`
@@ -100,65 +104,67 @@ router.post('/mypage', (req, res) => {
 
 /** 비밀번호 찾기 요청 처리 */
 router.get('/forgot-password', async (req, res) => {
-    var idx = '5cfb4bbd-0c67-430e-8e81-7a888399728b' // 임시로 넣은 값
-    var pwsql = `SELECT EMAIL 
-                FROM USER
-                WHERE USER_IDX = ?`
-    conn.query(pwsql, [idx], (err, r) => {
+    const idx = '5cfb4bbd-0c67-430e-8e81-7a888399728b'; // 테스트용으로 임시 값 지정
+    const pwsql = `SELECT EMAIL FROM USER WHERE USER_IDX = ?`;
+
+    conn.query(pwsql, [idx], async (err, result) => {
         if (err) {
-            console.error('DB Count Error', err)
-            return res.status(500).json({error : 'DB Count Error'}) 
-        } else if (r.length === 0) {
-            return res.status(404).json({error : '사용자를 찾을 수 없습니다.'})
+            console.error('DB Query Error:', err);
+            return res.status(500).json({ error: 'DB Query Error' })
+        } else if (result.length === 0) {
+            return res.status(404).json({ error: '사용자를 찾을 수 없습니다.' })
         } else {
-            const email = r[0].EMAIL
+            const email = result[0].EMAIL
+
             try {
-                const token = crypto.randomBytes(32).toString('hex')
-                const resetLink = `http://yourfrontend.com/reset-password/${token}`
+                // 임시 비밀번호 생성 및 해싱
+                const temporaryPassword = crypto.randomBytes(4).toString('hex'); // 8자리 임시 비밀번호
+                const hashedPassword = await hashpw(temporaryPassword) // hashpw 함수 사용
 
-                const updatesql = `UPDATE USER SET RESET_PASSWORD_TOKEN = ?, 
-                                  RESET_PASSWORD_EXPIRES = ? 
-                                  WHERE USER_IDX = ?`;
+                const expires = new Date(Date.now() + 3600000) // 1시간 후 만료 시간 설정
 
-                const expires = new Date(Date.now() + 3600000) 
-                
-                conn.query(updatesql, [token, expires, idx], (err, r) => {
-                    if (err) {
-                        console.error('DB Count Error', err)
-                        return res.status(500).json({error : 'DB Count Error'})
+                // 데이터베이스에 임시 비밀번호와 만료 시간 저장
+                const updatesql = `UPDATE USER SET USER_PW = ?, TEMP_PASSWORD_EXPIRES = ? WHERE USER_IDX = ?`
+                conn.query(updatesql, [hashedPassword, expires, idx], (updateErr) => {
+                    if (updateErr) {
+                        console.error('DB Update Error:', updateErr);
+                        return res.status(500).json({ error: 'DB Update Error' })
                     } else {
+                        // 이메일 발송 설정
                         const transporter = nodemailer.createTransport({
-                            service : 'Gmail',
-                            auth : {
-                                user : process.env.EMAIL,
-                                pass : process.env.EMAIL_PASSWORD 
+                            service: 'Gmail',
+                            auth: {
+                                user: process.env.EMAIL,
+                                pass: process.env.EMAIL_PASSWORD
                             }
                         })
-                        const  mailOptiones = {
-                            to : email,
-                            from : process.env.EMAIL,
-                            subject : '비밀번호 재설정 요청',
-                            text : `비밀번호를 재설정 하려면 다음 링크를 클릭하세요 : ${resetLink}
-                            \n 이 링크는 1시간 동안 유효합니다.`
+
+                        const mailOptions = {
+                            to: email,
+                            from: process.env.EMAIL,
+                            subject: '임시 비밀번호 발급',
+                            text: `임시 비밀번호가 발급되었습니다. 다음 임시 비밀번호로 로그인하세요:\n ${temporaryPassword}\n\n임시 비밀번호는 1시간 동안 유효합니다. 로그인 후 반드시 비밀번호를 변경해 주세요.`
                         }
+
                         // 이메일 보내기
-                        transporter.sendMail(mailOptiones, (emailErr) => {
+                        transporter.sendMail(mailOptions, (emailErr) => {
                             if (emailErr) {
-                                console.error('Email send Error', emailErr)
-                                return res.status(500).json({error : '이메일 전송에 실패 했습니다.'})
+                                console.error('Email Send Error:', emailErr)
+                                return res.status(500).json({ error: '이메일 전송 실패' })
                             } else {
-                                res.status(200).json({message : '비밀번호 재설정 이메일이 전송되었습니다.'})
+                                res.status(200).json({ message: '임시 비밀번호가 이메일로 전송되었습니다.' })
                             }
                         })
                     }
                 })
             } catch (error) {
-                console.error('Token Generation Error' , error)
-                res.status(500).json({error : '토큰 생성 중 오류가 발생했습니다.'})
+                console.error('Temporary Password Generation Error:', error)
+                res.status(500).json({ error: '임시 비밀번호 생성 중 오류' })
             }
         }
     })
 })
+
 
 // 로그인 라우터
 router.post('/handleLogin', async (req, res) => {
@@ -193,5 +199,98 @@ router.post('/handleLogin', async (req, res) => {
         return res.status(500).json({ error: '로그인 중 오류가 발생했습니다.' });
     }
 });
+
+/** 아이디 찾기 */
+router.get('/forgot-id', (req, res) => {
+    // const {USER_NAME, EMAIL} = req.body
+    var USER_NAME = '조승혁' // 임시
+    var EMAIL = 'j2000star@naver.com' // 임시
+
+    const idsql = `SELECT USER_ID FROM USER WHERE USER_NAME = ? AND EMAIL = ?`
+
+    conn.query(idsql, [USER_NAME, EMAIL], (err, r) => {
+        if (err) {
+            console.error('DB Query Error:', err);
+            return res.status(500).json({ error: 'DB Query Error' });
+        } else if (r.length === 0) {
+            return res.status(404).json({ error: '사용자를 찾을 수 없습니다.' });
+        } else {
+            
+            // 인증 토큰 생성 및 저장
+            const verificationToken = crypto.randomBytes(32).toString('hex'); // 32바이트 토큰 생성
+            verificationTokens[verificationToken] = { EMAIL, expires: Date.now() + 3600000 }; // 1시간 후 만료
+
+            // 인증 링크 생성
+            const verifcationLink = `http://localhost:3000/user/verify-id/${verifcationToken}`
+
+            // 이메일 발송 설정
+            const transporter = nodemailer.createTransport({
+                service : 'Gmail',
+                auth : {
+                    user : process.env.EMAIL,
+                    pass : process.env.EMAIL_PASSWORD
+                }
+            })
+            const mailOptions = {
+                to : EMAIL,
+                from : process.env.EMAIL,
+                subject : '아이디 찾기 인증 링크',
+                html: `
+                <p>아이디를 찾으려면 아래 버튼을 클릭하세요:</p>
+                <a href="${verifcationLink}" style="
+                    display: inline-block;
+                    padding: 10px 20px;
+                    font-size: 16px;
+                    color: white;
+                    background-color: #4CAF50;
+                    text-decoration: none;
+                    border-radius: 5px;
+                ">아이디 찾기</a>
+                <p>이 링크는 1시간 동안 유효합니다.</p>
+            `
+            }
+            transporter.sendMail(mailOptions, (emailErr) => {
+                if (emailErr) {
+                    console.error('Email Send Error : ', emailErr)
+                    return res.status(500).json({errer : '이메일 전송 실패'})
+                } else {
+                    res.status(200).json({message : '인증 링크가 이메일로 전송'})
+                }
+             })
+        }
+    })    
+})
+
+/** 아이디 찾기 - 인증 링크(토큰)확인 */
+router.get('/verify-id/:token', (req, res) => {
+    const {token} = req.params
+
+    // 토큰 유효성 검사
+    const tokenData = verificationTokens[token]
+    if (!tokenData || tokenData.expires < Date.now()) {
+        return res.status(400).json({error : '유효하지 않거나 만료된 링크입니다.'})
+    }
+
+    const {EMAIL} = tokenData
+    
+    const idsql = `SELECT USER_ID FROM USER WHERE EMAIL = ?`
+    conn.query(idsql, [EMAIL], (err, r) => {
+        if (err) {
+            console.error('DB Query Error : ', err)
+            return res.status(500).json({error : 'DB Query Error'})
+        } else if (r.length === 0) {
+            return res.status(404).json({error : '사용자를 찾을 수 없습니다.'})
+        } else {
+            const user_id = r[0].USER_ID
+
+            // 인증 성공 후 토큰 삭제
+            delete verificationTokens[token]
+
+            res.status(200).json({message : '아이디 찾기 성공', user_id})
+        }
+    })
+})
+
+
 
 module.exports = router;
