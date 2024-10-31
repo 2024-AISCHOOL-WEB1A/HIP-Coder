@@ -5,6 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
 import Header from '../components/BGHeader';
 import commonStyles from '../styles/commonStyles';
+import HEButton from '../components/HEButton';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -63,7 +64,7 @@ const FindId: React.FC = () => {
                         keyboardType="email-address"
                         style={commonStyles.input}
                     />
-                    <Button title="아이디 찾기" onPress={handleFindId} />
+                    <HEButton style={commonStyles.fullWidthButton} title="아이디 찾기"  onPress={handleFindId} />
                     <Text style={commonStyles.text2}>
                         {'\n'}{'\n'}{'\n'}아이디 찾기를 통해 필요한 정보를 얻으세요.
                     </Text>

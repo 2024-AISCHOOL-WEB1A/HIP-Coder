@@ -5,6 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
 import Header from '../components/BGHeader';
 import commonStyles from '../styles/commonStyles';
+import HEButton from '../components/HEButton';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -69,7 +70,7 @@ const FindPw: React.FC = () => {
                         onChangeText={setEmail}
                         keyboardType="email-address"
                     />
-                    <Button title="비밀번호 찾기" onPress={handleFindPw} />
+                    <HEButton style={commonStyles.fullWidthButton} title="비밀번호 찾기"  onPress={handleFindPw} />
                     <Text style={commonStyles.text2}>
                         {'\n'}{'\n'}비밀번호 찾기를 통해 필요한 정보를 얻으세요.
                     </Text>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, Alert } from 'react-native';
+import { View, TextInput, Text, Alert, CheckBox } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import commonStyles from '../styles/commonStyles';
 import HEButton from '../components/HEButton';
@@ -23,9 +23,14 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
-  const [emergencyContact1, setEmergencyContact1] = useState<string>(''); // 비상연락망
-  const [emergencyContact2, setEmergencyContact2] = useState<string>(''); // 비상연락망
+  const [emergencyContact1, setEmergencyContact1] = useState<string>('');
+  const [emergencyContact2, setEmergencyContact2] = useState<string>('');
   const [idck, setIdck] = useState<boolean>(false);
+  const [terms1Accepted, setTerms1Accepted] = useState<boolean>(false);
+  const [terms2Accepted, setTerms2Accepted] = useState<boolean>(false);
+  const [terms3Accepted, setTerms3Accepted] = useState<boolean>(false);
+  const [allTermsAccepted, setAllTermsAccepted] = useState<boolean>(false);
+
 
   const navigation = useNavigation();
 
@@ -104,6 +109,10 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
 
   const nextStep = () => {
     if (step === 1) {
+      if (!allTermsAccepted) { // 모두 동의 체크 여부
+        Alert.alert('경고', '모든 이용약관에 동의하셔야 다음으로 넘어갈 수 있습니다.');
+        return;
+      }
       setStep(2);
     }  else if (step === 2) {
       if (!idck) { // 여기부터 <==============================
@@ -154,6 +163,12 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
     } 
   };
 
+  // 체크박스 상태 업데이트 함수
+  const updateTerms = () => {
+    const allAccepted = terms1Accepted && terms2Accepted && terms3Accepted;
+    setAllTermsAccepted(allAccepted);
+  };
+
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.headerContainer}>
@@ -162,9 +177,48 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
       </View>
       <View style={commonStyles.formContainer}>
         <View style={commonStyles.innerContainer}>
-          {step === 1 && (
+        {step === 1 && (
             <>
               <Text style={commonStyles.termsText}>이용약관에 동의하시겠습니까?{'\n'}</Text>
+              
+              <CheckBox 
+                value={terms1Accepted} 
+                onValueChange={() => { 
+                  setTerms1Accepted(!terms1Accepted); 
+                  updateTerms(); // 업데이트 호출
+                }} 
+              />
+              <Text>이용약관 1</Text>
+              
+              <CheckBox 
+                value={terms2Accepted} 
+                onValueChange={() => { 
+                  setTerms2Accepted(!terms2Accepted); 
+                  updateTerms(); // 업데이트 호출
+                }} 
+              />
+              <Text>이용약관 2</Text>
+
+              <CheckBox 
+                value={terms3Accepted} 
+                onValueChange={() => { 
+                  setTerms3Accepted(!terms3Accepted); 
+                  updateTerms(); // 업데이트 호출
+                }} 
+              />
+              <Text>이용약관 3</Text>
+
+              <CheckBox 
+                value={allTermsAccepted} 
+                onValueChange={() => { 
+                  const newValue = !allTermsAccepted;
+                  setAllTermsAccepted(newValue);
+                  setTerms1Accepted(newValue);
+                  setTerms2Accepted(newValue);
+                  setTerms3Accepted(newValue);
+                }} 
+              />
+              <Text>모두 동의</Text>
             </>
           )}
           {step === 2 && (
