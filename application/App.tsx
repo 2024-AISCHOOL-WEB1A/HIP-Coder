@@ -12,6 +12,8 @@ import MyPage from './src/screens/MyPage';
 import QrScan from './src/screens/QrScan';
 import UrlCheck from './src/screens/UrlCheck';
 import Test from './src/screens/Test';
+import FindId from './src/screens/FindId';
+import FindPw from './src/screens/FindPw';
 
 const Stack = createStackNavigator();
 
@@ -119,6 +121,12 @@ const App = () => {
       </Stack.Screen>
       <Stack.Screen name="UrlCheck">
         {props => <UrlCheck {...props} csrfToken={csrfToken} />}
+      </Stack.Screen>
+      <Stack.Screen name="FindId">
+        {props => <FindId {...props} csrfToken={csrfToken} />}
+      </Stack.Screen>
+      <Stack.Screen name="FindPw">
+        {props => <FindPw {...props} csrfToken={csrfToken} />}
       </Stack.Screen>
       <Stack.Screen name="Test">
         {props => <Test {...props} csrfToken={csrfToken} />}

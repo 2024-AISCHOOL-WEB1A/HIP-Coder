@@ -3,11 +3,9 @@ import { View, TextInput, Button, Alert, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
-import Header from '../components/Header';
+import Header from '../components/BGHeader';
 import commonStyles from '../styles/commonStyles';
 import HEButton from '../components/HEButton';
-// import { RNCamera } from 'react-native-camera';
-// import { launchImageLibrary } from 'react-native-image-picker';
 import axios from 'axios';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;

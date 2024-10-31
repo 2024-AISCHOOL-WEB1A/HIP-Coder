@@ -74,7 +74,10 @@ const Login: React.FC<Props> = ({ csrfToken }) => {
           <CustomButton title="로그인" onPress={handleLogin} />
         </View>
         <View style={styles.linkContainer}>
-          <Text style={styles.link} onPress={() => navigation.navigate('Join')}>
+        <Text style={styles.link} onPress={() => navigation.navigate('FindId')}>
+            ID를 잊으셨습니까?
+          </Text>
+          <Text style={styles.link} onPress={() => navigation.navigate('FindPw')}>
             비밀번호를 잊으셨습니까?
           </Text>
         </View>
