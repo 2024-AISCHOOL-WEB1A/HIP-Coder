@@ -4,6 +4,11 @@ import joblib
 import logging
 import os
 import numpy as np
+import cv2
+import tempfile
+from pyzbar.pyzbar import decode
+
+
 # 로깅 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -24,8 +29,6 @@ def tokenize_url(url):
 # URL 예측 함수
 def predict_url(url):
     try:
-        
-        
         list_url = [url]
         vectorizer = tfidf_vectorizer
         logging.info("백터라이저: %s", vectorizer)
@@ -44,9 +47,39 @@ def predict_url(url):
 
 
 # 테스트 엔드포인트
-@urlscan_bp.route('/test', methods=['GET'])
+@urlscan_bp.route('/test', methods=['POST'])
 def test():
-    return jsonify({'test': 'test'})
+    print('요청')
+    if 'photo' not in request.files:
+        return jsonify({'error': 'No photo uploaded'}), 400
+
+    photo = request.files['photo']
+    try:
+        # 임시 파일로 이미지 저장
+        temp_file = tempfile.NamedTemporaryFile(delete=False)
+        photo.save(temp_file.name)
+
+        # 이미지 읽기
+        image = cv2.imread(temp_file.name)
+
+        # QR 코드 디코딩
+        qr_codes = decode(image)
+        if len(qr_codes) == 0:
+            return jsonify({'error': 'No QR code detected'}), 400
+
+        # QR 코드 데이터 추출
+        qr_data = qr_codes[0].data.decode('utf-8')
+        print(f'QR 코드에서 추출한 URL: {qr_data}')  # QR 코드 URL 프린트
+        return jsonify({'qrCodeData': qr_data}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        # 임시 파일 삭제
+        if os.path.exists(temp_file.name):
+            os.remove(temp_file.name)
+
+    
+
 
 # URL 스캔 엔드포인트
 @urlscan_bp.route('/scan', methods=['POST'])
