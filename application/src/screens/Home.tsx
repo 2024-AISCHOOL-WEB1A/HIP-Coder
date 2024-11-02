@@ -1,173 +1,150 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import Header from '../components/Header';
-import UrlCheck from './UrlCheck'; // UrlCheck 컴포넌트를 임포트
+import AnimateNumber from 'react-native-animate-number';
 
 const Home = () => {
   const navigation = useNavigation();
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 관리
-  const [url, setUrl] = useState(''); // URL 상태 추가
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [urlCount, setUrlCount] = useState(100);
+  const [qrCount, setQrCount] = useState(50000);
 
   const handleLogout = () => {
-    setIsLoggedIn(false); // 로그아웃
+    setIsLoggedIn(false);
   };
 
   const handleLogin = () => {
-    navigation.navigate('Login'); // 로그인 화면으로 이동
-    setIsLoggedIn(true); // 로그인 상태 업데이트 (실제로는 로그인 성공 후에 호출해야 함)
+    navigation.navigate('Login');
+    setIsLoggedIn(true);
   };
 
-  const checkUrlSafety = (urlToCheck) => {
-    // URL 검사 로직을 여기에 구현
-    Alert.alert(`검사 중인 URL: ${urlToCheck}`);
+  const incrementUrlCount = () => {
+    setUrlCount((prevCount) => prevCount + 1);
   };
 
-  const handleSearch = () => {
-    if (url) {
-      checkUrlSafety(url); // URL 검사 함수 호출
-    } else {
-      Alert.alert("URL을 입력하세요!"); // URL이 비어있을 경우 알림
-    }
+  const incrementQrCount = () => {
+    setQrCount((prevCount) => prevCount + 1);
   };
 
   return (
     <View style={styles.container}>
-      {/* Header 컴포넌트 */}
-      <Header 
-        isLoggedIn={isLoggedIn} 
-        onLogout={handleLogout} 
-      />
+      <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} />
 
-      {/* 메인 컨텐츠 */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Header 아래 제목 */}
         <Text style={styles.mainTitle}>Thing Q</Text>
 
-        {/* URL 검사 검색 바 */}
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="URL을 입력하세요"
-            placeholderTextColor="#9DA3B4"
-            value={url} // URL 상태를 텍스트 입력에 연결
-            onChangeText={setUrl} // URL 상태 업데이트
-          />
-          <TouchableOpacity 
-            style={styles.searchButton} 
-            onPress={handleSearch} // URL 검색 함수 호출
-          >
-            <Icon name="search-outline" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
+        <View style={styles.counterContainer}>
+          <View style={styles.counterBox}>
+            <Text style={styles.counterTitle}>차단된 URL 수</Text>
+            <AnimateNumber 
+              value={urlCount}
+              formatter={(val) => {
+                return Math.floor(val).toString()
+              }}
+              timing="easeOut"
+              steps={30}
+              interval={16}
+              style={styles.counterValue}
+            />
+          </View>
+
+          <View style={styles.counterBox}>
+            <Text style={styles.counterTitle}>QR 코드 검사 수</Text>
+            <AnimateNumber 
+              value={qrCount}
+              formatter={(val) => {
+                return Math.floor(val).toString()
+              }}
+              timing="easeOut"
+              steps={30}
+              interval={16}
+              style={styles.counterValue}
+            />
+          </View>
         </View>
 
-        {/* 카테고리 버튼 섹션 */}
         <View style={styles.categoryContainer}>
-          <TouchableOpacity 
-            style={styles.categoryButton} 
-            onPress={() => navigation.navigate('Report')}
-          >
+          <TouchableOpacity style={styles.categoryButton} onPress={() => navigation.navigate('Report')}>
             <View style={styles.categoryIconContainer}>
               <Icon name="notifications-outline" size={24} color="#9C59B5" />
             </View>
             <Text style={styles.categoryText}>신고하기</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.categoryButton} 
-            onPress={() => navigation.navigate('MyPage')}
-          >
+          <TouchableOpacity style={styles.categoryButton} onPress={() => navigation.navigate('MyPage')}>
             <View style={styles.categoryIconContainer}>
               <Icon name="document-text-outline" size={24} color="#9C59B5" />
             </View>
             <Text style={styles.categoryText}>내 정보</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.categoryButton} 
-            onPress={isLoggedIn ? handleLogout : handleLogin} // 로그인 상태에 따라 로그아웃/로그인
+          <TouchableOpacity
+            style={styles.categoryButton}
+            onPress={isLoggedIn ? handleLogout : handleLogin}
           >
             <View style={styles.categoryIconContainer}>
-              <Icon name={isLoggedIn ? "log-out-outline" : "log-in-outline"} size={24} color="#9C59B5" /> 
+              <Icon name={isLoggedIn ? "log-out-outline" : "log-in-outline"} size={24} color="#9C59B5" />
             </View>
             <Text style={styles.categoryText}>{isLoggedIn ? "로그아웃" : "로그인"}</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Code Checker 섹션 */}
         <View style={styles.CodeCheckerSection}>
           <Text style={styles.CodeCheckerTitle}>큐싱 검사</Text>
-          
-          <TouchableOpacity 
-            style={styles.card} 
-            onPress={() => navigation.navigate('QrScan')}
-          >
+
+          <TouchableOpacity style={styles.card} onPress={() => { incrementQrCount(); navigation.navigate('QrScan'); }}>
             <View style={styles.cardIconContainer}>
               <Icon name="qr-code" size={32} color="#9C59B5" />
             </View>
             <View style={styles.cardTextContainer}>
               <Text style={styles.cardTitle}>QR 코드 검사</Text>
-              <Text style={styles.cardDescription}>
-                QR 코드를 스캔하여 안전하게 검사하세요 !
-              </Text>
+              <Text style={styles.cardDescription}>QR 코드를 스캔하여 안전하게 검사하세요!</Text>
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.card} 
-            onPress={() => navigation.navigate('UrlCheck')}
-          >
+          <TouchableOpacity style={styles.card} onPress={() => { incrementUrlCount(); navigation.navigate('UrlCheck'); }}>
             <View style={styles.cardIconContainer}>
               <Icon name="link" size={32} color="#9C59B5" />
             </View>
             <View style={styles.cardTextContainer}>
               <Text style={styles.cardTitle}>URL 검사</Text>
-              <Text style={styles.cardDescription}>
-                URL을 입력하여 안전하게 검사하세요 !
-              </Text>
+              <Text style={styles.cardDescription}>URL을 입력하여 안전하게 검사하세요!</Text>
             </View>
           </TouchableOpacity>
 
-          {/* 갤러리에서 QR 코드 검사 버튼 추가 */}
-          <TouchableOpacity 
-            style={styles.card} 
-            onPress={() => navigation.navigate('GalleryQrScan')} 
-          >
+          <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('GalleryQrScan')}>
             <View style={styles.cardIconContainer}>
-              <Icon name="image-outline" size={32} color="#9C59B5" /> 
+              <Icon name="image-outline" size={32} color="#9C59B5" />
             </View>
             <View style={styles.cardTextContainer}>
               <Text style={styles.cardTitle}>QR 코드 이미지 검사</Text>
-              <Text style={styles.cardDescription}>
-                갤러리에서 QR 코드를 선택하여 안전하게{"\n"}검사하세요 !
-              </Text>
+              <Text style={styles.cardDescription}>갤러리에서 QR 코드를 선택하여 안전하게 검사하세요!</Text>
             </View>
           </TouchableOpacity>
         </View>
 
-        {/* 테스트 버튼 */}
-        <TouchableOpacity 
-          style={styles.testButton} 
+        <TouchableOpacity
+          style={styles.testButton}
           onPress={() => navigation.navigate('Test')}
         >
           <Text style={styles.testButtonText}>테스트 지우지마세요!</Text>
         </TouchableOpacity>
       </ScrollView>
 
-      {/* 하단 네비게이션 바 */}
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navButton}>
           <Icon name="home" size={24} color="#9C59B5" />
         </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.navButton} 
-          onPress={() => navigation.navigate('History')} // 검사 이력 보기 페이지로 이동
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => navigation.navigate('History')}
         >
           <Icon name="time-outline" size={24} color="#9DA3B4" />
         </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.navButton} 
+        <TouchableOpacity
+          style={styles.navButton}
           onPress={() => navigation.navigate('MyPage')}
         >
           <Icon name="person-outline" size={24} color="#9DA3B4" />
@@ -187,40 +164,38 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   mainTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '700',
     color: '#1A1D1E',
     textAlign: 'center',
-    marginVertical: 24,
+    marginVertical: 20,
   },
-  searchContainer: {
+  counterContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    justifyContent: 'space-around',
+    marginBottom: 32,
+    padding: 16,
     borderRadius: 16,
-    padding: 4,
+    backgroundColor: '#E0E7FF',
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
     elevation: 4,
-    marginBottom: 24,
   },
-  searchInput: {
-    flex: 1,
+  counterBox: {
+    alignItems: 'center',
+  },
+  counterTitle: {
     fontSize: 16,
-    color: '#1A1D1E',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    fontWeight: '600',
+    color: '#4A4A4A',
+    marginBottom: 8,
   },
-  searchButton: {
-    backgroundColor: '#9C59B5',
-    padding: 12,
-    borderRadius: 12,
-    marginRight: 4,
+  counterValue: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#4A4A4A',
   },
   categoryContainer: {
     flexDirection: 'row',
@@ -263,10 +238,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
@@ -284,7 +256,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cardTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
     color: '#1A1D1E',
   },
