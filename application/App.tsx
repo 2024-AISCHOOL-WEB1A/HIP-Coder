@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { PermissionsAndroid, Alert, BackHandler, Linking } from 'react-native';
 import api from './axios';
-import { AxiosError } from 'axios';
 
 // 각 화면들 import
 import Home from './src/screens/Home';
@@ -15,6 +14,7 @@ import Test from './src/screens/Test';
 import FindId from './src/screens/FindId';
 import FindPw from './src/screens/FindPw';
 import GalleryQrScan from './src/screens/GalleryQrScan';
+import History from './src/screens/History'; 
 
 const Stack = createStackNavigator();
 
@@ -32,7 +32,6 @@ const App = () => {
     );
   };
 
-  // 권한 요청 함수
   const requestStoragePermission = async () => {
     console.log('권한 요청 시작');
 
@@ -47,7 +46,7 @@ const App = () => {
           buttonPositive: '허용',
         },
       );
-  
+
       const grantedRead = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
         {
@@ -58,11 +57,10 @@ const App = () => {
           buttonPositive: '허용',
         },
       );
-  
+
       if (grantedWrite === PermissionsAndroid.RESULTS.GRANTED && grantedRead === PermissionsAndroid.RESULTS.GRANTED) {
-        
+        // 권한이 허용됨
       } else if (grantedWrite === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN || grantedRead === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
-        // "다시 묻지 않음" 상태일 경우 설정으로 안내
         openAppSettings();
       } else {
         Alert.alert(
@@ -82,7 +80,7 @@ const App = () => {
       console.log('CSRF 토큰 가져오기 성공:', response.data.csrfToken);
       setCsrfToken(response.data.csrfToken)
     } catch (error) {
-      console.error('CSRF 토큰 가져오기 실패:', error); // Network Error 로그 출력
+      console.error('CSRF 토큰 가져오기 실패:', error);
       if (error.response) {
         console.log('응답 오류 데이터:', error.response.data);
       } else if (error.request) {
@@ -91,52 +89,33 @@ const App = () => {
         console.log('설정 에러:', error.message);
       }
     }
-};
+  };
 
-  // useEffect로 권한 요청 및 CSRF 토큰 가져오기 처리
   useEffect(() => {
     const checkPermissions = async () => {
       await requestStoragePermission(); // 권한 요청
       fetchCsrfToken(); // CSRF 토큰 가져오기
     };
-    
+
     checkPermissions();
   }, []);
 
   return (
     <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Home">
-        {props => <Home {...props} csrfToken={csrfToken} />}
-      </Stack.Screen>
-      <Stack.Screen name="Join">
-        {props => <Join {...props} csrfToken={csrfToken} />}
-      </Stack.Screen>
-      <Stack.Screen name="Login">
-        {props => <Login {...props} csrfToken={csrfToken} />}
-      </Stack.Screen>
-      <Stack.Screen name="MyPage">
-        {props => <MyPage {...props} csrfToken={csrfToken} />}
-      </Stack.Screen>
-      <Stack.Screen name="QrScan">
-        {props => <QrScan {...props} csrfToken={csrfToken} />}
-      </Stack.Screen>
-      <Stack.Screen name="UrlCheck">
-        {props => <UrlCheck {...props} csrfToken={csrfToken} />}
-      </Stack.Screen>
-      <Stack.Screen name="FindId">
-        {props => <FindId {...props} csrfToken={csrfToken} />}
-      </Stack.Screen>
-      <Stack.Screen name="FindPw">
-        {props => <FindPw {...props} csrfToken={csrfToken} />}
-      </Stack.Screen>
-      <Stack.Screen name="GalleryQrScan">
-        {props => <GalleryQrScan {...props} csrfToken={csrfToken} />}
-      </Stack.Screen>
-      <Stack.Screen name="Test">
-        {props => <Test {...props} csrfToken={csrfToken} />}
-      </Stack.Screen>
+      <Stack.Screen name="Home" component={Home} initialParams={{ csrfToken }} />
+      <Stack.Screen name="Join" component={Join} initialParams={{ csrfToken }} />
+      <Stack.Screen name="Login" component={Login} initialParams={{ csrfToken }} />
+      <Stack.Screen name="MyPage" component={MyPage} initialParams={{ csrfToken }} />
+      <Stack.Screen name="QrScan" component={QrScan} initialParams={{ csrfToken }} />
+      <Stack.Screen name="UrlCheck" component={UrlCheck} initialParams={{ csrfToken }} />
+      <Stack.Screen name="FindId" component={FindId} initialParams={{ csrfToken }} />
+      <Stack.Screen name="FindPw" component={FindPw} initialParams={{ csrfToken }} />
+      <Stack.Screen name="GalleryQrScan" component={GalleryQrScan} initialParams={{ csrfToken }} />
+      <Stack.Screen name="Test" component={Test} initialParams={{ csrfToken }} />
+      <Stack.Screen name="History" component={History} initialParams={{ csrfToken }} />
     </Stack.Navigator>
   );
+  
 };
 
 export default App;
