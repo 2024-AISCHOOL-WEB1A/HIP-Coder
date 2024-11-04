@@ -4,29 +4,23 @@ import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../components/IJButton';
 import Header from '../components/Header';
 import Icon from 'react-native-vector-icons/Ionicons';
-
-
-interface UserData {
-  USER_NAME: string;
-  PHONE: string;
-  EMAIL: string;
-  CONTACT_INFO: string[];
-}
-
-import { useCsrf } from '../../context/CsrfContext';
-import api from '../../axios';
-
+import axios from 'axios';
 
 const MyPage = () => {
-  const [userData, setUserData] = useState<UserData[]>([]);
+  const [profileData, setProfileData] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    emergencyContact1: '',
+    emergencyContact2: '',
+  });
   const [passwords, setPasswords] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
   });
   const navigation = useNavigation();
-
-  const { csrfToken } = useCsrf();
+  const csrfToken = ''; // CSRF 토큰을 여기에 설정하세요.
 
   // 사용자 데이터를 가져오는 함수
   const mypagelist = async () => {
@@ -36,36 +30,30 @@ const MyPage = () => {
         return;
       }
 
-      const res = await api.post(
+      const res = await axios.post(
         'http://your-api-url/user/mypage', 
-        { idx: '1' }, // 사용자 인덱스
+        { idx: '1' },
         { headers: { 'X-CSRF-Token': csrfToken }, withCredentials: true }
       );
 
-      // 서버에서 받은 데이터를 'message' 키를 통해 접근 및 가공
       if (res.data && Array.isArray(res.data.message)) {
-        const processedData: UserData[] = res.data.message.map((item: any) => ({
-          USER_NAME: item.USER_NAME,
-          PHONE: item.PHONE,
-          EMAIL: item.EMAIL,
-          CONTACT_INFO: [item.CONTACT_INFO1, item.CONTACT_INFO2].filter(Boolean),
-        }));
-
-        setUserData(processedData);
+        const userData = res.data.message[0];
+        setProfileData({
+          name: userData.USER_NAME,
+          phone: userData.PHONE,
+          email: userData.EMAIL,
+          emergencyContact1: userData.CONTACT_INFO1 || '',
+          emergencyContact2: userData.CONTACT_INFO2 || '',
+        });
         Alert.alert('서버 응답', '사용자 데이터를 불러왔습니다.');
       } else {
         console.error('잘못된 데이터 형식:', res.data);
         Alert.alert('오류', '서버로부터 잘못된 형식의 데이터가 반환되었습니다.');
       }
-    } catch (error: unknown) {
-      handleApiError(error);
+    } catch (error) {
+      console.error('API 오류 발생:', error);
+      Alert.alert('오류', '사용자 데이터를 가져오는 중 오류가 발생했습니다.');
     }
-  };
-
-  // API 오류 처리 함수
-  const handleApiError = (error: unknown) => {
-    console.error('API 오류 발생:', error);
-    Alert.alert('오류', '사용자 데이터를 가져오는 중 오류가 발생했습니다.');
   };
 
   // 컴포넌트가 마운트될 때 사용자 데이터 불러오기
@@ -104,40 +92,44 @@ const MyPage = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>프로필 정보</Text>
           <View style={styles.card}>
-            <TextInput
-              style={[styles.input, styles.fullInput]}
-              placeholder="이름"
-              placeholderTextColor="#838383"
-              value={userData[0]?.USER_NAME} // 첫 번째 사용자 데이터의 이름
-              onChangeText={(text) => setUserData([{ ...userData[0], USER_NAME: text }])}
-            />
-            <TextInput
-              style={[styles.input, styles.fullInput]}
-              placeholder="핸드폰번호"
-              placeholderTextColor="#838383"
-              value={userData[0]?.PHONE} // 첫 번째 사용자 데이터의 전화번호
-              onChangeText={(text) => setUserData([{ ...userData[0], PHONE: text }])}
-            />
+            <View style={styles.inputRow}>
+              <TextInput
+                style={[styles.input, styles.fullInput]}
+                placeholder="이름"
+                placeholderTextColor="#838383"
+                value={profileData.name}
+                onChangeText={(text) => setProfileData({ ...profileData, name: text })}
+              />
+            </View>
+            <View style={styles.inputRow}>
+              <TextInput
+                style={[styles.input, styles.fullInput]}
+                placeholder="핸드폰번호"
+                placeholderTextColor="#838383"
+                value={profileData.phone}
+                onChangeText={(text) => setProfileData({ ...profileData, phone: text })}
+              />
+            </View>
             <TextInput
               style={styles.input}
               placeholder="이메일"
               placeholderTextColor="#838383"
-              value={userData[0]?.EMAIL} // 첫 번째 사용자 데이터의 이메일
-              onChangeText={(text) => setUserData([{ ...userData[0], EMAIL: text }])}
+              value={profileData.email}
+              onChangeText={(text) => setProfileData({ ...profileData, email: text })}
             />
             <TextInput
               style={styles.input}
               placeholder="비상연락망(1)"
               placeholderTextColor="#838383"
-              value={userData[0]?.CONTACT_INFO[0]} // 첫 번째 비상연락망
-              onChangeText={(text) => setUserData([{ ...userData[0], CONTACT_INFO: [text, userData[0]?.CONTACT_INFO[1]] }])}
+              value={profileData.emergencyContact1}
+              onChangeText={(text) => setProfileData({ ...profileData, emergencyContact1: text })}
             />
             <TextInput
               style={styles.input}
               placeholder="비상연락망(2)"
               placeholderTextColor="#838383"
-              value={userData[0]?.CONTACT_INFO[1]} // 두 번째 비상연락망
-              onChangeText={(text) => setUserData([{ ...userData[0], CONTACT_INFO: [userData[0]?.CONTACT_INFO[0], text] }])}
+              value={profileData.emergencyContact2}
+              onChangeText={(text) => setProfileData({ ...profileData, emergencyContact2: text })}
             />
             <CustomButton 
               title="프로필 수정" 
@@ -247,63 +239,74 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  inputRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  fullInput: {
+    width: '100%', // 넓이 100%로 설정
+  },
   input: {
     height: 48,
+    borderColor: '#E0E0E0',
     borderWidth: 1,
-    borderColor: '#DDDDDD',
-    borderRadius: 8,
+    borderRadius: 12,
     paddingHorizontal: 16,
     marginBottom: 12,
     backgroundColor: '#FFFFFF',
-  },
-  fullInput: {
-    width: '100%',
+    color: '#000000',
   },
   actionButton: {
-    marginTop: 12,
+    marginTop: 8,
   },
   historyLabel: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333333',
+    fontWeight: '600',
+    color: '#000000',
+    marginBottom: 8,
   },
   historyDescription: {
     fontSize: 14,
     color: '#666666',
+    marginBottom: 16,
   },
   historyButton: {
-    backgroundColor: '#007BFF',
-    borderRadius: 8,
+    backgroundColor: '#9C59B5',
+    borderRadius: 12,
     padding: 16,
-    marginTop: 12,
+  },
+  historyButtonContent: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   historyButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
+    fontWeight: '600',
   },
   historyDate: {
     color: '#FFFFFF',
-    fontSize: 12,
+    marginTop: 8,
+    fontSize: 14,
   },
   qrCodeText: {
     color: '#FFFFFF',
-    fontSize: 12,
     marginTop: 4,
+    fontSize: 14,
   },
   withdrawalButton: {
+    alignSelf: 'center',
+    marginTop: 32,
+    paddingVertical: 8,
     backgroundColor: '#FF6347',
     borderRadius: 8,
     padding: 16,
-    marginTop: 24,
-    alignItems: 'center',
   },
   withdrawalText: {
-    color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
 });
 
