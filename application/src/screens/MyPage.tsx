@@ -4,7 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../components/IJButton';
 import Header from '../components/Header';
 import Icon from 'react-native-vector-icons/Ionicons';
-import axios from 'axios';
+import { useCsrf } from '../../context/CsrfContext';
+import api from '../../axios';
 
 const MyPage = () => {
   const [profileData, setProfileData] = useState({
@@ -20,7 +21,7 @@ const MyPage = () => {
     confirmPassword: '',
   });
   const navigation = useNavigation();
-  const csrfToken = ''; // CSRF 토큰을 여기에 설정하세요.
+  const { csrfToken } = useCsrf();
 
   // 사용자 데이터를 가져오는 함수
   const mypagelist = async () => {
@@ -30,8 +31,8 @@ const MyPage = () => {
         return;
       }
 
-      const res = await axios.post(
-        'http://your-api-url/user/mypage', 
+      const res = await api.post(
+        '/user/mypage', 
         { idx: '1' },
         { headers: { 'X-CSRF-Token': csrfToken }, withCredentials: true }
       );
@@ -99,6 +100,7 @@ const MyPage = () => {
                 placeholderTextColor="#838383"
                 value={profileData.name}
                 onChangeText={(text) => setProfileData({ ...profileData, name: text })}
+                readOnly
               />
             </View>
             <View style={styles.inputRow}>

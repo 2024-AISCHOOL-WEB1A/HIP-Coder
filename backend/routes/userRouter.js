@@ -7,7 +7,8 @@ const {v4 : uuidv4} = require('uuid')
 const nodemailer = require('nodemailer')
 const crypto = require('crypto')
 
-
+// userRouter.js 파일 최상단에 추가
+const verificationTokens = {}; // 인증 토큰을 저장할 빈 객체 정의
 
 // 비밀번호 해싱 함수
 async function hashpw(password) {
@@ -86,6 +87,7 @@ router.post('/idcheck', async (req, res) => {
 /** 마이페이지 정보 불러오기 */
 router.post('/mypage', (req, res) => {
     const {idx} = req.body
+    log('마이페이지', req.body)
     var sql = `SELECT U.USER_NAME, U.PHONE, U.EMAIL, E.CONTACT_INFO1, E.CONTACT_INFO2
                 FROM USER U INNER JOIN EMG_CON E
                 ON U.USER_IDX = E.USER_IDX
@@ -220,8 +222,7 @@ router.post('/forgot-id', (req, res) => {
             verificationTokens[verificationToken] = { EMAIL, expires: Date.now() + 3600000 }; // 1시간 후 만료
 
             // 인증 링크 생성
-            const verifcationLink = `http://localhost:3000/user/verify-id/${verifcationToken}`
-
+            const verificationLink = `http://127.0.0.1:3000/user/verify-id/${verificationToken}`
             // 이메일 발송 설정
             const transporter = nodemailer.createTransport({
                 service : 'Gmail',
@@ -236,7 +237,7 @@ router.post('/forgot-id', (req, res) => {
                 subject : '아이디 찾기 인증 링크',
                 html: `
                 <p>아이디를 찾으려면 아래 버튼을 클릭하세요:</p>
-                <a href="${verifcationLink}" style="
+                <a href="${verificationToken}" style="
                     display: inline-block;
                     padding: 10px 20px;
                     font-size: 16px;
