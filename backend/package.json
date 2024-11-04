@@ -1,7 +1,9 @@
 {
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.0.0",
     "axios": "^1.7.7",
     "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.3",
     "connect-redis": "^7.1.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
