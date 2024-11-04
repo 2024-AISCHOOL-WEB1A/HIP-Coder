@@ -13,7 +13,6 @@ const MyPage = () => {
   const [emergencyContact2, setEmergencyContact2] = useState('');
   const navigation = useNavigation();
 
-  // 날짜 계산 함수
   const getDateRange = () => {
     const endDate = new Date();
     const startDate = new Date();
@@ -35,9 +34,7 @@ const MyPage = () => {
         <View style={styles.textContainer}>
           <Text style={styles.title}>나의 정보 수정</Text>
         </View>
-
         <View style={styles.separator} />
-
         <View style={styles.inputRow}>
           <TextInput
             style={[styles.input, styles.halfInput]}
@@ -54,7 +51,6 @@ const MyPage = () => {
             onChangeText={setPhone}
           />
         </View>
-
         <TextInput
           style={styles.input}
           placeholder="이메일"
@@ -76,30 +72,24 @@ const MyPage = () => {
           value={emergencyContact2}
           onChangeText={setEmergencyContact2}
         />
-
         <View style={styles.buttonContainer}>
           <CustomButton title="수정하기" onPress={() => { /* 수정 로직 */ }} />
         </View>
-
         <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('LogoutPage')}>
           <Text style={styles.logoutButtonText}>회원탈퇴</Text>
         </TouchableOpacity>
-
         <View style={styles.textContainer}>
           <Text style={styles.title}>검사 이력 확인</Text>
         </View>
-
         <View style={styles.separator} />
-
         <View style={styles.historySection}>
           <Text style={styles.historyLabel}>최근 검사 이력을 확인하세요!</Text>
           <Text style={styles.historyDescription}>
             검사 결과를 통해 위험을 예방하세요.
           </Text>
         </View>
-
         <View style={styles.centeredSection}>
-          <TouchableOpacity style={styles.historyButton}>
+          <TouchableOpacity style={styles.historyButton} onPress={() => navigation.navigate('History')}>
             <View style={styles.historyButtonContent}>
               <Text style={styles.historyButtonText}>검사 이력 보기</Text>
               <Icon name="search-outline" size={24} color="#FFFFFF" style={styles.icon} />
