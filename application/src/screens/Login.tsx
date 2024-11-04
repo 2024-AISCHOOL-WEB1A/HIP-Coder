@@ -4,16 +4,14 @@ import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../components/IJButton';
 import Header from '../components/Header';
 import api from '../../axios';
+import { useCsrf } from '../../context/CsrfContext';
 
-interface Props {
-  csrfToken: string | null;
-}
-
-const Login: React.FC<Props> = ({ csrfToken }) => {
+const Login: React.FC<Props> = () => {
   const [id, setId] = useState<string>(''); // email을 id로 변경
   const [password, setPassword] = useState<string>('');
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const navigation = useNavigation();
+  const { csrfToken } = useCsrf();
 
   const handleLogin = async () => {
     console.log("로그인 정보:", { id, password }); // email을 id로 변경
