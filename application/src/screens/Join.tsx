@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, Alert} from 'react-native';
+import { View, TextInput, Text, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import commonStyles from '../styles/commonStyles';
 import HEButton from '../components/HEButton';
@@ -30,9 +30,18 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
   const [terms1Accepted, setTerms1Accepted] = useState<boolean>(false);
   const [terms2Accepted, setTerms2Accepted] = useState<boolean>(false);
   const [allTermsAccepted, setAllTermsAccepted] = useState<boolean>(false);
-
+  const [showTerms1, setShowTerms1] = useState<boolean>(false);
+  const [showTerms2, setShowTerms2] = useState<boolean>(false);
 
   const navigation = useNavigation();
+
+  const handleBackPress = () => {
+    if (step > 1) {
+      setStep(step - 1); // 이전 단계로 이동
+    } else {
+      navigation.goBack(); // 첫 번째 단계에서 뒤로 가기
+    }
+  };
 
   const handleJoin = async () => {
     if (!csrfToken) {
@@ -96,7 +105,7 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
       Alert.alert('경고', '아이디 길이가 짧습니다.');
     }
   };
- 
+
   /**
    * 
    * 
@@ -114,7 +123,7 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
         return;
       }
       setStep(2);
-    }  else if (step === 2) {
+    } else if (step === 2) {
       if (!idck) { // 여기부터 <==============================
         Alert.alert('경고', '아이디 중복 확인을 해주세요.');
         return;
@@ -129,13 +138,13 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
         return;
       } if (!name) {
         Alert.alert('경고', '이름을 입력해주세요.')
-      }      
+      }
       const nameRegex = /^[^0-9]*$/;
       if (!nameRegex.test(name)) {
         Alert.alert('경고', '이름에 숫자가 포함될 수 없습니다.');
         return;
       }
-       if (!email) {
+      if (!email) {
         Alert.alert('경고', '이메일을 입력해주세요.');
         return;
       }
@@ -160,7 +169,7 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
         return;
       } // 여기까지 <====================================
       handleJoin();
-    } 
+    }
   };
 
   // 체크박스 상태 업데이트 함수
@@ -169,46 +178,60 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
     setAllTermsAccepted(allAccepted);
   };
 
+    const toggleTerms1 = () => setShowTerms1(!showTerms1);
+    const toggleTerms2 = () => setShowTerms2(!showTerms2);
+
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.headerContainer}>
-        <Header onBackPress={() => navigation.goBack()} />
+        <Header onBackPress={handleBackPress} />
+
         <Text style={commonStyles.headerTitle}>Let's{'\n'}Start!</Text>
       </View>
       <View style={commonStyles.formContainer}>
         <View style={commonStyles.innerContainer}>
-        {step === 1 && (
-            <>
-              <Text style={commonStyles.termsText}>이용약관에 동의하시겠습니까?{'\n'}</Text>
-              
-              <BouncyCheckbox 
-                isChecked={terms1Accepted} 
-                onPress={() => { 
-                  setTerms1Accepted(!terms1Accepted); 
-                  updateTerms();
-                }} 
-              />
-              <Text>이용약관 1</Text>
-              
-              <BouncyCheckbox 
-                isChecked={terms2Accepted} 
-                onPress={() => { 
-                  setTerms2Accepted(!terms2Accepted); 
-                  updateTerms();
-                }} 
-              />
-              <Text>이용약관 2</Text>
-
-              <BouncyCheckbox 
-                isChecked={allTermsAccepted} 
-                onPress={() => { 
+          {step === 1 && (
+            <> 
+              <Text>이용약관에 동의하시겠습니까?{'\n'}</Text>
+              <View style={commonStyles.view2}>
+              <BouncyCheckbox
+                isChecked={allTermsAccepted}
+                onPress={() => {
                   const newValue = !allTermsAccepted;
                   setAllTermsAccepted(newValue);
                   setTerms1Accepted(newValue);
                   setTerms2Accepted(newValue);
-                }} 
+                }}
               />
               <Text>모두 동의</Text>
+              </View>
+              <View style={commonStyles.view2}>
+              <BouncyCheckbox
+                isChecked={terms1Accepted}
+                onPress={() => {
+                  const newValue = !terms1Accepted;
+                  setTerms1Accepted(newValue);
+                  setAllTermsAccepted(newValue && terms2Accepted);
+                }}
+              />
+              <Text onPress={toggleTerms1} style={{ color: 'blue' }}>(필수) 이용약관 1</Text>
+                <Text> > </Text>
+                {showTerms1 && <Text>이용약관 1 내용이 여기에 표시됩니다.</Text>}
+              </View>
+              <View style={commonStyles.view2}>
+              <BouncyCheckbox
+                isChecked={terms2Accepted}
+                onPress={() => {
+                  const newValue = !terms2Accepted;
+                  setTerms2Accepted(newValue);
+                  setAllTermsAccepted(newValue && terms1Accepted);
+                }}
+              />
+              <Text>(필수) 이용약관 2</Text>
+              <Text> > </Text>
+              </View>
+              
+              
             </>
           )}
           {step === 2 && (
@@ -231,7 +254,7 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
                 style={commonStyles.input}
                 placeholder="비밀번호를 입력해주세요."
                 secureTextEntry
-                value={password} 
+                value={password}
                 onChangeText={setPassword}
               />
               <TextInput
@@ -274,7 +297,7 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
                 onChangeText={setEmergencyContact1}
                 autoCapitalize="none"
               />
-               <TextInput
+              <TextInput
                 style={commonStyles.input}
                 placeholder="비상연락망2 를 입력해주세요."
                 value={emergencyContact2}
