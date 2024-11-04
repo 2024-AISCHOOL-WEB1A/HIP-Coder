@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
 import { launchImageLibrary, Asset, ImagePickerResponse } from 'react-native-image-picker';
 import axios from 'axios';
+import { useCsrf } from '../../context/CsrfContext';
 
 interface GalleryQrScanProps {
   navigation: any; // 타입을 더 구체적으로 지정할 수 있다면 지정하는 것이 좋습니다.
-  csrfToken: string;
 }
 
-const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation, csrfToken }) => {
+const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
+  const { csrfToken } = useCsrf();
 
   // 갤러리에서 이미지 선택하기
   const selectImageFromGallery = () => {
@@ -21,11 +22,7 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation, csrfToken }) 
     launchImageLibrary(options, (response: ImagePickerResponse) => {
       if (response.didCancel) {
         console.log('이미지 선택이 취소되었습니다.');
-        if (navigation.canGoBack()) {
-          navigation.goBack(); // 이미지 선택이 취소되면 이전 화면으로 돌아감
-        } else {
-          console.warn('돌아갈 화면이 없습니다.');
-        }
+        // 이미지 선택 취소 시 이전 선택한 이미지를 유지
       } else if (response.errorMessage) {
         console.log('에러: ', response.errorMessage);
       } else if (response.assets && response.assets.length > 0) {
@@ -86,9 +83,24 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation, csrfToken }) 
     <View style={styles.container}>
       <Text style={styles.title}>갤러리 QR 코드 검사</Text>
       
-      {selectedImageUri && (
-        <TouchableOpacity style={styles.button} onPress={uploadImageToBackend}>
-          <Text style={styles.buttonText}>선택한 이미지 업로드</Text>
+      {selectedImageUri ? (
+        <>
+          {/* 이미지 미리보기 */}
+          <Image source={{ uri: selectedImageUri }} style={styles.previewImage} />
+          
+          {/* 이미지 변경 버튼 */}
+          <TouchableOpacity style={styles.button} onPress={selectImageFromGallery}>
+            <Text style={styles.buttonText}>이미지 변경하기</Text>
+          </TouchableOpacity>
+
+          {/* 이미지 업로드 버튼 */}
+          <TouchableOpacity style={styles.button} onPress={uploadImageToBackend}>
+            <Text style={styles.buttonText}>선택한 이미지 업로드</Text>
+          </TouchableOpacity>
+        </>
+      ) : (
+        <TouchableOpacity style={styles.button} onPress={selectImageFromGallery}>
+          <Text style={styles.buttonText}>이미지 선택하기</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -119,6 +131,12 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  previewImage: {
+    width: 200,
+    height: 200,
+    marginBottom: 20,
+    borderRadius: 10,
   },
 });
 

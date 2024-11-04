@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../components/IJButton';
 import Header from '../components/Header';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useCsrf } from '../../context/CsrfContext';
 
 const MyPage = () => {
   const [name, setName] = useState('');
@@ -12,6 +13,7 @@ const MyPage = () => {
   const [emergencyContact1, setEmergencyContact1] = useState('');
   const [emergencyContact2, setEmergencyContact2] = useState('');
   const navigation = useNavigation();
+  const { csrfToken } = useCsrf();
 
   const getDateRange = () => {
     const endDate = new Date();

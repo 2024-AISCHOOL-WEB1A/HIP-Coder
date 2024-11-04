@@ -4,12 +4,12 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import api from '../../axios';
 import axios, { AxiosError } from 'axios';
 import { RootStackParamList } from '../../types';
+import { useCsrf } from '../../context/CsrfContext';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
 interface Props {
   navigation: HomeScreenNavigationProp;
-  csrfToken: string | null; // CSRF 토큰을 props로 받음
 }
 
 interface UserData {
@@ -19,10 +19,11 @@ interface UserData {
   CONTACT_INFO: string[];
 }
 
-const Test: React.FC<Props> = ({ navigation, csrfToken }) => {
+const Test: React.FC<Props> = ({ navigation }) => {
   const [inputValue, setInputValue] = useState<string>('');  // 일반 데이터 상태
   const [urlValue, setUrlValue] = useState<string>('');  // URL 데이터 상태
   const [userData, setUserData] = useState<UserData[]>([]);  // 사용자 데이터 상태
+  const { csrfToken } = useCsrf();
 
   // CSRF 토큰을 헤더에 포함하여 데이터를 전송하는 함수
   const sendData = async () => {
