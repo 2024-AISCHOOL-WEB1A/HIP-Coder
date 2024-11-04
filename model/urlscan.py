@@ -71,30 +71,40 @@ def test():
 
     photo = request.files['photo']
     try:
-        # 임시 파일로 이미지 저장
-        temp_file = tempfile.NamedTemporaryFile(delete=False)
-        photo.save(temp_file.name)
+        # 임시 파일로 이미지 저장 (with 문으로 자동으로 닫도록 설정)
+        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+            photo.save(temp_file.name)
 
-        # 이미지 읽기
-        image = cv2.imread(temp_file.name)
+            # 이미지 읽기
+            image = cv2.imread(temp_file.name)
 
-        # QR 코드 디코딩
-        qr_codes = decode(image)
-        if len(qr_codes) == 0:
-            return jsonify({'error': 'No QR code detected'}), 400
+            # 이미지 흑백 변환
+            gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        # QR 코드 데이터 추출
-        qr_data = qr_codes[0].data.decode('utf-8')
-        print(f'QR 코드에서 추출한 URL: {qr_data}')  # QR 코드 URL 프린트
-        return jsonify({'qrCodeData': qr_data}), 200
+            # QR 코드 디코딩
+            qr_codes = decode(gray_image)
+            if len(qr_codes) == 0:
+                print('QR 코드가 인식되지 않았습니다.')
+                return jsonify({'error': 'No QR code detected'}), 400
+
+            # 디버깅 로그 - 여러 QR 코드가 있을 경우 출력
+            for idx, qr_code in enumerate(qr_codes):
+                print(f'QR 코드 {idx + 1}: {qr_code.data.decode("utf-8")}')
+
+            # QR 코드 데이터 추출
+            qr_data = qr_codes[0].data.decode('utf-8')
+            print(f'QR 코드에서 추출한 URL: {qr_data}')
+            return jsonify({'qrCodeData': qr_data}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     finally:
         # 임시 파일 삭제
         if os.path.exists(temp_file.name):
-            os.remove(temp_file.name)
+            try:
+                os.remove(temp_file.name)
+            except PermissionError as pe:
+                print(f"Permission error when trying to delete {temp_file.name}: {str(pe)}")
 
-    
 
 
 
@@ -118,3 +128,12 @@ def scanurl():
         return jsonify({'status': 'bad', 'message': '이 URL은 보안 위험이 있을 수 있습니다.', 'url': url_data})
     else:
         return jsonify({'status': 'error', 'message': 'URL을 분류할 수 없습니다.', 'url': url_data}), 500
+
+
+
+@urlscan_bp.route('/tt', methods=['POST'])
+def tt():
+    print('dd')
+    data = request.get_json()
+    print(data)
+    return jsonify({'message': '1'})

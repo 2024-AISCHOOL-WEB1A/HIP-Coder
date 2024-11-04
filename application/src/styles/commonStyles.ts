@@ -54,6 +54,10 @@ const commonStyles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 20,
   },
+  view2: {
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
   input: {
     height: 50,
     borderColor: '#9C59B5',

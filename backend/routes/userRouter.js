@@ -201,10 +201,9 @@ router.post('/handleLogin', async (req, res) => {
 });
 
 /** 아이디 찾기 */
-router.get('/forgot-id', (req, res) => {
-    // const {USER_NAME, EMAIL} = req.body
-    var USER_NAME = '조승혁' // 임시
-    var EMAIL = 'j2000star@naver.com' // 임시
+router.post('/forgot-id', (req, res) => {
+    log('아이디 찾기 요청', req.body)
+    const {USER_NAME, EMAIL} = req.body
 
     const idsql = `SELECT USER_ID FROM USER WHERE USER_NAME = ? AND EMAIL = ?`
 
@@ -263,6 +262,7 @@ router.get('/forgot-id', (req, res) => {
 
 /** 아이디 찾기 - 인증 링크(토큰)확인 */
 router.get('/verify-id/:token', (req, res) => {
+    log('아이디 찾기 요청')
     const {token} = req.params
 
     // 토큰 유효성 검사

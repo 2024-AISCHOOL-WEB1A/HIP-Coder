@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../components/Header';
+import { useCsrf } from '../../context/CsrfContext';
 
 const History = () => {
   const navigation = useNavigation();
@@ -17,13 +18,57 @@ const History = () => {
     { id: '7', date: '2024-08-06', type: 'URL', status: '클린 URL' },
     { id: '8', date: '2024-07-10', type: 'QR 코드', status: '악성 코드' },
   ];
+  const { csrfToken } = useCsrf();
+
+  const getStatusBadgeStyle = (status) => {
+    return status.includes('악성') 
+      ? styles.dangerBadge 
+      : styles.safeBadge;
+  };
+
+  const getStatusTextStyle = (status) => {
+    return status.includes('악성') 
+      ? styles.dangerText 
+      : styles.safeText;
+  };
+
+  const getTypeIcon = (type) => {
+    return type === 'URL' ? 'link-outline' : 'qr-code-outline';
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ko-KR', { 
+      month: 'long',
+      day: 'numeric',
+    });
+  };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.historyItem} onPress={() => { /* 상세보기 로직 */ }}>
-      <Icon name="search-outline" size={24} color="#9C59B5" style={styles.icon} />
-      <View style={styles.textContainer}>
-        <Text style={styles.historyDate}>{item.date}</Text>
-        <Text style={styles.historyType}>감지된 {item.type} : {item.status}</Text>
+    <TouchableOpacity 
+      style={styles.historyItem} 
+      onPress={() => { /* 상세보기 로직 */ }}
+    >
+      <View style={styles.contentContainer}>
+        <View style={styles.mainInfo}>
+          <View style={styles.iconContainer}>
+            <Icon 
+              name={getTypeIcon(item.type)} 
+              size={24} 
+              color="#9C59B5"
+            />
+          </View>
+          <View style={styles.textContainer}>
+            <View style={styles.statusContainer}>
+              <Text style={styles.typeText}>{item.type}</Text>
+              <View style={getStatusBadgeStyle(item.status)}>
+                <Text style={getStatusTextStyle(item.status)}>{item.status}</Text>
+              </View>
+            </View>
+            <Text style={styles.dateText}>{formatDate(item.date)}</Text>
+          </View>
+        </View>
+        <Icon name="chevron-forward-outline" size={20} color="#9C59B5" />
       </View>
     </TouchableOpacity>
   );
@@ -32,13 +77,17 @@ const History = () => {
     <View style={styles.container}>
       <Header title="" onBackPress={() => navigation.goBack()} />
       <View style={styles.scrollContainer}>
-        <Text style={styles.subtitle}>QR코드 / URL 검사 결과</Text>
+        <View style={styles.headerContainer}>
+          <Text style={styles.subtitle}>검사 이력</Text>
+          <Text style={styles.description}>QR코드 / URL 검사 결과를 확인하세요</Text>
+        </View>
         <View style={styles.separator} />
         <FlatList
           data={data}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContainer}
+          showsVerticalScrollIndicator={false}
         />
       </View>
     </View>
@@ -54,11 +103,18 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
   },
+  headerContainer: {
+    marginTop: 20,
+  },
   subtitle: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#333333',
-    marginTop: 20,
+  },
+  description: {
+    fontSize: 14,
+    color: '#666666',
+    marginTop: 4,
   },
   separator: {
     height: 1,
@@ -70,34 +126,78 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   historyItem: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    marginBottom: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    borderWidth: 1,
+    borderColor: '#F0E6F5',
+  },
+  contentContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F9F9F9',
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    marginBottom: 12,
-    borderColor: '#E5E7EB',
-    borderWidth: 1,
+    justifyContent: 'space-between',
+    padding: 16,
   },
-  icon: {
-    backgroundColor: '#EFEFEF',
-    borderRadius: 16,
+  mainInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  iconContainer: {
+    backgroundColor: '#F0E6F5',
+    borderRadius: 12,
     padding: 10,
     marginRight: 12,
   },
   textContainer: {
     flex: 1,
   },
-  historyDate: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1A1D1E',
+  statusContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
   },
-  historyType: {
+  typeText: {
     fontSize: 16,
+    color: '#333333',
+    fontWeight: '500',
+    marginRight: 8,
+  },
+  dateText: {
+    fontSize: 14,
+    color: '#666666',
+  },
+  // 악성 상태 배지
+  dangerBadge: {
+    backgroundColor: '#FFE6E8',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  dangerText: {
+    color: '#D64B60',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  // 클린 상태 배지
+  safeBadge: {
+    backgroundColor: '#F0E6F5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  safeText: {
     color: '#9C59B5',
-    marginTop: 4,
+    fontSize: 12,
+    fontWeight: '600',
   },
 });
 
