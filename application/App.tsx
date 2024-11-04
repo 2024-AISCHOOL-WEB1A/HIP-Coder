@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { PermissionsAndroid, Alert, BackHandler, Linking } from 'react-native';
 import api from './axios';
+import { useCsrf } from './context/CsrfContext'; // CsrfProvider는 이미 최상위에서 감싸고 있으므로 useCsrf만 사용
 
 // 각 화면들 import
 import Home from './src/screens/Home';
@@ -19,7 +20,7 @@ import History from './src/screens/History';
 const Stack = createStackNavigator();
 
 const App = () => {
-  const [csrfToken, setCsrfToken] = useState<string | null>(null);
+  const { csrfToken, setCsrfToken } = useCsrf();
 
   const openAppSettings = () => {
     Alert.alert(
@@ -78,16 +79,9 @@ const App = () => {
     try {
       const response = await api.get('/config/get-csrf-token', { withCredentials: true });
       console.log('CSRF 토큰 가져오기 성공:', response.data.csrfToken);
-      setCsrfToken(response.data.csrfToken)
+      setCsrfToken(response.data.csrfToken);
     } catch (error) {
       console.error('CSRF 토큰 가져오기 실패:', error);
-      if (error.response) {
-        console.log('응답 오류 데이터:', error.response.data);
-      } else if (error.request) {
-        console.log('요청이 전송되었으나 응답이 없음:', error.request);
-      } else {
-        console.log('설정 에러:', error.message);
-      }
     }
   };
 
@@ -102,20 +96,19 @@ const App = () => {
 
   return (
     <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Home" component={Home} initialParams={{ csrfToken }} />
-      <Stack.Screen name="Join" component={Join} initialParams={{ csrfToken }} />
-      <Stack.Screen name="Login" component={Login} initialParams={{ csrfToken }} />
-      <Stack.Screen name="MyPage" component={MyPage} initialParams={{ csrfToken }} />
-      <Stack.Screen name="QrScan" component={QrScan} initialParams={{ csrfToken }} />
-      <Stack.Screen name="UrlCheck" component={UrlCheck} initialParams={{ csrfToken }} />
-      <Stack.Screen name="FindId" component={FindId} initialParams={{ csrfToken }} />
-      <Stack.Screen name="FindPw" component={FindPw} initialParams={{ csrfToken }} />
-      <Stack.Screen name="GalleryQrScan" component={GalleryQrScan} initialParams={{ csrfToken }} />
-      <Stack.Screen name="Test" component={Test} initialParams={{ csrfToken }} />
-      <Stack.Screen name="History" component={History} initialParams={{ csrfToken }} />
+      <Stack.Screen name="Home" component={Home} />
+      <Stack.Screen name="Join" component={Join} />
+      <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="MyPage" component={MyPage} />
+      <Stack.Screen name="QrScan" component={QrScan} />
+      <Stack.Screen name="UrlCheck" component={UrlCheck} />
+      <Stack.Screen name="FindId" component={FindId} />
+      <Stack.Screen name="FindPw" component={FindPw} />
+      <Stack.Screen name="GalleryQrScan" component={GalleryQrScan} />
+      <Stack.Screen name="Test" component={Test} />
+      <Stack.Screen name="History" component={History} />
     </Stack.Navigator>
   );
-  
 };
 
 export default App;

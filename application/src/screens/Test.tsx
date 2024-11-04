@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { View, Button, Alert, TextInput, Linking, FlatList, Text } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import api from '../../axios';
-import { AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 import { RootStackParamList } from '../../types';
+import { useCsrf } from '../../context/CsrfContext';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
 interface Props {
   navigation: HomeScreenNavigationProp;
-  csrfToken: string | null; // CSRF 토큰을 props로 받음
 }
 
 interface UserData {
@@ -19,10 +19,11 @@ interface UserData {
   CONTACT_INFO: string[];
 }
 
-const Test: React.FC<Props> = ({ navigation, csrfToken }) => {
+const Test: React.FC<Props> = ({ navigation }) => {
   const [inputValue, setInputValue] = useState<string>('');  // 일반 데이터 상태
   const [urlValue, setUrlValue] = useState<string>('');  // URL 데이터 상태
   const [userData, setUserData] = useState<UserData[]>([]);  // 사용자 데이터 상태
+  const { csrfToken } = useCsrf();
 
   // CSRF 토큰을 헤더에 포함하여 데이터를 전송하는 함수
   const sendData = async () => {
@@ -42,6 +43,17 @@ const Test: React.FC<Props> = ({ navigation, csrfToken }) => {
       handleApiError(error);
     }
   };
+
+  const sendData1 = async () => {
+    try {
+      const res = await axios.post('http://220.95.41.232:5000/tt', { data: inputValue });
+      Alert.alert('서버응답', res.data.message);
+    } catch (error) {
+      console.error(error);
+      Alert.alert('오류', '요청 중 문제가 발생했습니다.');
+    }
+  };
+
 
   // URL 검사 및 처리 함수
   const urlData = async () => {
@@ -207,6 +219,10 @@ const Test: React.FC<Props> = ({ navigation, csrfToken }) => {
       ) : (
         <Text>사용자 데이터가 없습니다.</Text>
       )}
+      <Button
+        title="플라스크 테스트"
+        onPress={sendData1}
+      />
     </View>
   );
 };

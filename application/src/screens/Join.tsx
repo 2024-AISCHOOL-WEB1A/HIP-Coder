@@ -9,14 +9,14 @@ import api from '../../axios';
 import axios from 'axios';
 import Header from '../components/BGHeader';
 import BouncyCheckbox from "react-native-bouncy-checkbox";
+import { useCsrf } from '../../context/CsrfContext';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 interface Props {
   navigation: HomeScreenNavigationProp;
-  csrfToken: string | null;
 }
 
-const Join: React.FC<Props> = ({ csrfToken }) => {
+const Join: React.FC<Props> = () => {
   const [step, setStep] = useState(1);
   const [id, setId] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -32,6 +32,7 @@ const Join: React.FC<Props> = ({ csrfToken }) => {
   const [allTermsAccepted, setAllTermsAccepted] = useState<boolean>(false);
   const [showTerms1, setShowTerms1] = useState<boolean>(false);
   const [showTerms2, setShowTerms2] = useState<boolean>(false);
+  const { csrfToken } = useCsrf();
 
   const navigation = useNavigation();
 

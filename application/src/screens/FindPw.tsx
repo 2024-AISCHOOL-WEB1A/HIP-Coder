@@ -6,6 +6,7 @@ import { RootStackParamList } from '../../types';
 import Header from '../components/BGHeader';
 import commonStyles from '../styles/commonStyles';
 import HEButton from '../components/HEButton';
+import { useCsrf } from '../../context/CsrfContext';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -14,6 +15,7 @@ const FindPw: React.FC = () => {
     const [userId, setUserId] = useState<string>('');
     const [userName, setUserName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
+    const { csrfToken } = useCsrf();
 
     const handleFindPw = async () => {
         if (!userId || !userName || !email) {

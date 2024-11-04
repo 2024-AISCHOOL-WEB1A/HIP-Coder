@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../components/Header';
+import { useCsrf } from '../../context/CsrfContext';
 
 const History = () => {
   const navigation = useNavigation();
@@ -17,6 +18,7 @@ const History = () => {
     { id: '7', date: '2024-08-06', type: 'URL', status: '클린 URL' },
     { id: '8', date: '2024-07-10', type: 'QR 코드', status: '악성 코드' },
   ];
+  const { csrfToken } = useCsrf();
 
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.historyItem} onPress={() => { /* 상세보기 로직 */ }}>
