@@ -56,6 +56,10 @@ const commonStyles = StyleSheet.create({
   },
   view2: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  view3: {
+    flexDirection: 'row',
     marginBottom: 20,
   },
   input: {
@@ -112,6 +116,9 @@ const commonStyles = StyleSheet.create({
   activeButton: {
     backgroundColor: '#9C59B5',
   },
+  modalView: {
+    borderColor: '#9C59B5',
+  },
   linkContainer:{
     paddingLeft: 5,
   },
@@ -130,6 +137,14 @@ const commonStyles = StyleSheet.create({
     fontWeight: '600',
     color: '#bd90ce',
     marginBottom: 10,
+  },
+  text3: {
+    fontSize: 12,
+    fontWeight: '400',
+    // color: '#2c2b2b',
+    color: '#ffffff',
+    paddingLeft: 20,
+    paddingRight: 20,
   },
 });
 

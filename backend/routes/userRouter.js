@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt')
 const {v4 : uuidv4} = require('uuid')
 const nodemailer = require('nodemailer')
 const crypto = require('crypto')
+const jwtoken = require('../config/jwt')
 
 // userRouter.js 파일 최상단에 추가
 const verificationTokens = {}; // 인증 토큰을 저장할 빈 객체 정의
@@ -183,14 +184,21 @@ router.post('/handleLogin', async (req, res) => {
             return res.status(400).json({ error: '존재하지 않는 사용자입니다.' });
         }
 
+        // 패스워드 해싱 불러오기
         const hashpassword = rows[0].USER_PW;
+        // 로그인 유저 정보
+        const user = rows[0];
 
         // 비밀번호 검증
         const isMatch = await verifypw(password, hashpassword);
 
         if (isMatch) {
-            // 비밀번호가 맞다면 성공 응답
-            return res.status(200).json({ message: '로그인 성공!' });
+            // 비밀번호가 맞다면 JWT 토큰 생성
+            const token = jwtoken.generateToken({ id : user.USER_ID });
+            console.log('jwt 토큰 확인:', token);
+
+            // 로그인 성공
+            res.status(200).json({ message: '로그안 성공!', token });
         } else {
             // 비밀번호가 틀리면 에러 반환
             return res.status(400).json({ error: '비밀번호가 일치하지 않습니다.' });
