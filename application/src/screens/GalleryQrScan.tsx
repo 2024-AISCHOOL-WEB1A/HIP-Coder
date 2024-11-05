@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useCsrf } from '../../context/CsrfContext';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { FLASK_URL } from '@env';
 interface GalleryQrScanProps {
   navigation: any;
 }
@@ -62,8 +62,9 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
 
     try {
       const response = await axios.post(
-        'http://220.95.41.232:5000/test',
-        formData,
+        //'http://220.95.41.232:5000/test', // 서버 URL
+        `${FLASK_URL}/test`,
+        formData, // 전송할 데이터
         {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -73,6 +74,23 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
         }
       );
 
+      console.log('서버 응답 데이터:', response.data);
+      console.log('서버 응답 데이터:', response.data.status);
+
+      if (response.data.qrCodeData) {
+        const url = response.data.qrCodeData;
+        const scanResponse = await axios.post(`${FLASK_URL}/scan`, { url });
+
+        if (scanResponse.data.status === 'good') {
+          Alert.alert('업로드 성공', `서버 응답: 이 URL은 안전합니다. (${scanResponse.data.url})`);
+        } else if (scanResponse.data.status === 'bad') {
+          Alert.alert('업로드 성공', `서버 응답: 이 URL은 보안 위험이 있을 수 있습니다. (${scanResponse.data.url})`);
+        } else {
+          Alert.alert('업로드 실패', '예측 결과를 확인할 수 없습니다.');
+        }
+      } else {
+        Alert.alert('업로드 실패', 'QR 코드 데이터가 없습니다.');
+      }
       // 스캔 이력에 추가
       const newScan: ScanHistory = {
         id: Date.now().toString(),
