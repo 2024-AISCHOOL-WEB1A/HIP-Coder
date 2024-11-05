@@ -4,7 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../components/IJButton';
 import Header from '../components/Header';
 import Icon from 'react-native-vector-icons/Ionicons';
-import axios from 'axios';
+import { useCsrf } from '../../context/CsrfContext';
+import api from '../../axios';
 
 const MyPage = () => {
   const [profileData, setProfileData] = useState({
@@ -19,8 +20,9 @@ const MyPage = () => {
     newPassword: '',
     confirmPassword: '',
   });
+  const [isEditing, setIsEditing] = useState(false); // 편집 모드 상태
   const navigation = useNavigation();
-  const csrfToken = ''; // CSRF 토큰을 여기에 설정하세요.
+  const { csrfToken } = useCsrf();
 
   // 사용자 데이터를 가져오는 함수
   const mypagelist = async () => {
@@ -30,8 +32,8 @@ const MyPage = () => {
         return;
       }
 
-      const res = await axios.post(
-        'http://your-api-url/user/mypage', 
+      const res = await api.post(
+        '/user/mypage',
         { idx: '1' },
         { headers: { 'X-CSRF-Token': csrfToken }, withCredentials: true }
       );
@@ -62,7 +64,14 @@ const MyPage = () => {
   }, []);
 
   const handleProfileUpdate = () => {
-    Alert.alert('알림', '프로필이 성공적으로 수정되었습니다.');
+    if (isEditing) {
+      // 프로필 수정 완료
+      Alert.alert('알림', '프로필이 성공적으로 수정되었습니다.');
+      setIsEditing(false); // 편집 모드 해제
+    } else {
+      // 편집 모드로 전환
+      setIsEditing(true);
+    }
   };
 
   const handlePasswordChange = () => {
@@ -94,45 +103,50 @@ const MyPage = () => {
           <View style={styles.card}>
             <View style={styles.inputRow}>
               <TextInput
-                style={[styles.input, styles.fullInput]}
+                style={[styles.input, styles.fullInput, { backgroundColor: '#F0F0F0' }]}
                 placeholder="이름"
                 placeholderTextColor="#838383"
                 value={profileData.name}
                 onChangeText={(text) => setProfileData({ ...profileData, name: text })}
+                editable={false} // 항상 readonly
               />
             </View>
             <View style={styles.inputRow}>
               <TextInput
-                style={[styles.input, styles.fullInput]}
+                style={[styles.input, styles.fullInput, { backgroundColor: '#F0F0F0' }]}
                 placeholder="핸드폰번호"
                 placeholderTextColor="#838383"
                 value={profileData.phone}
                 onChangeText={(text) => setProfileData({ ...profileData, phone: text })}
+                editable={false} // 항상 readonly
               />
             </View>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: '#F0F0F0' }]}
               placeholder="이메일"
               placeholderTextColor="#838383"
               value={profileData.email}
               onChangeText={(text) => setProfileData({ ...profileData, email: text })}
+              editable={false} // 항상 readonly
             />
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: isEditing ? '#FFFFFF' : '#F0F0F0' }]} // 비상 연락망 편집 가능
               placeholder="비상연락망(1)"
               placeholderTextColor="#838383"
               value={profileData.emergencyContact1}
               onChangeText={(text) => setProfileData({ ...profileData, emergencyContact1: text })}
+              editable={isEditing} // 편집 모드일 때만 수정 가능
             />
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: isEditing ? '#FFFFFF' : '#F0F0F0' }]} // 비상 연락망 편집 가능
               placeholder="비상연락망(2)"
               placeholderTextColor="#838383"
               value={profileData.emergencyContact2}
               onChangeText={(text) => setProfileData({ ...profileData, emergencyContact2: text })}
+              editable={isEditing} // 편집 모드일 때만 수정 가능
             />
-            <CustomButton 
-              title="프로필 수정" 
+            <CustomButton
+              title={isEditing ? "완료" : "프로필 수정"}
               onPress={handleProfileUpdate}
               style={styles.actionButton}
             />
@@ -167,8 +181,8 @@ const MyPage = () => {
               value={passwords.confirmPassword}
               onChangeText={(text) => setPasswords({ ...passwords, confirmPassword: text })}
             />
-            <CustomButton 
-              title="비밀번호 변경" 
+            <CustomButton
+              title="비밀번호 변경"
               onPress={handlePasswordChange}
               style={styles.actionButton}
             />
@@ -181,8 +195,8 @@ const MyPage = () => {
           <View style={styles.card}>
             <Text style={styles.historyLabel}>최근 검사 이력을 확인하세요!</Text>
             <Text style={styles.historyDescription}>검사 결과를 통해 위험을 예방하세요.</Text>
-            <TouchableOpacity 
-              style={styles.historyButton} 
+            <TouchableOpacity
+              style={styles.historyButton}
               onPress={() => navigation.navigate('History')}
             >
               <View style={styles.historyButtonContent}>
@@ -196,10 +210,7 @@ const MyPage = () => {
         </View>
 
         {/* 회원 탈퇴 섹션 */}
-        <TouchableOpacity 
-          style={styles.withdrawalButton} 
-          onPress={handleWithdrawal}
-        >
+        <TouchableOpacity onPress={handleWithdrawal}>
           <Text style={styles.withdrawalText}>회원 탈퇴</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -296,17 +307,12 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 14,
   },
-  withdrawalButton: {
+  withdrawalText: {
     alignSelf: 'center',
     marginTop: 32,
     paddingVertical: 8,
-    backgroundColor: '#FF6347',
-    borderRadius: 8,
-    padding: 16,
-  },
-  withdrawalText: {
+    color: '#838383',
     fontSize: 16,
-    color: '#FFFFFF',
   },
 });
 
