@@ -10,26 +10,41 @@ from pyzbar.pyzbar import decode
 import requests
 from urllib.parse import urlparse
 import pandas as pd
+from scipy.sparse import hstack
+from bs4 import BeautifulSoup
+#from tokenize_url_module import tokenize_url 
 
+# 로깅 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
 
 urlscan_bp = Blueprint('urlscan', __name__)
 
+# 신뢰 URL 로드
 trust_url = pd.read_csv('./data_with_trust_url.csv')
 trust_urls = trust_url[trust_url['type'] == 'trust']['url'].values
 
+trusted_tlds = {
+    '.com', '.org', '.net', '.gov', '.edu', '.mil', '.int',  # 일반적인 신뢰 TLD
+    '.co', '.us', '.uk', '.ca', '.de', '.fr', '.au', '.jp',  # 국가별 일반 TLD
+    '.eu', '.nz', '.ie', '.ch', '.nl', '.in', '.br', '.kr',  # 국가별 일반 TLD
+    '.cn', '.sg', '.hk', '.za', '.mx', '.es', '.it', '.se',  # 국가별 일반 TLD
+    '.fi', '.no', '.pl', '.pt', '.ru', '.be', '.gr', '.dk',  # 국가별 일반 TLD
+    '.cz', '.sk', '.tr', '.ar', '.tw', '.id', '.th', '.vn'   # 기타 국가별 TLD
+}
 
-clf_model, tfidf_vectorizer = joblib.load(os.path.join(os.path.dirname(__file__), 'model_final.pkl'))
+
+#model_path = os.path.join(os.path.dirname(__file__), 'mnb_model_with_vectorizer.pkl')
+#model_path = os.path.join(os.path.dirname(__file__), 'log_reg_model_with_vectorizer.pkl')
+model_path = os.path.join(os.path.dirname(__file__), 'ensemble_model_with_vectorizer.pkl')
+vectorizer, ensemble_model = joblib.load(model_path)
+
+
 
 def extract_domain(url):
-    from urllib.parse import urlparse
     parsed_url = urlparse(url)
     domain = parsed_url.netloc
-    
     if domain.startswith('www.'):
         domain = domain[4:]
-
     return domain
 
 def tokenize_url(url):
@@ -39,44 +54,63 @@ def tokenize_url(url):
     return ' '.join(tokens)
 
 
+
+# 추가 피처 추출 함수
+def extract_features(url):
+    features = {}
+    parsed_url = urlparse(url)
+
+    # URL 기반 특징
+    features['url_length'] = len(url)
+    features['hostname_length'] = len(parsed_url.hostname) if parsed_url.hostname else 0
+    features['num_slashes'] = url.count('/')
+    features['num_special_chars'] = sum([url.count(char) for char in ['-', '_', '.', '@', '&']])
+    features['is_https'] = 1 if parsed_url.scheme == 'https' else 0
+
+    # 도메인 기반 특징
+    hostname = parsed_url.hostname if parsed_url.hostname else ""
+    features['num_digits_in_domain'] = sum(char.isdigit() for char in hostname)
+
+    # 추가 특징
+    features['is_trusted_tld'] = 1 if any(hostname.endswith(tld) for tld in trusted_tlds) else 0
+    features['is_short_url'] = 1 if features['hostname_length'] <= 10 else 0
+
+    return pd.Series(features)
+
 def predict_url(url):
-    prediction = None 
-
+    prediction = None
+    
     try:
-        domain = extract_domain(url)
-        logging.info(f"추출된 도메인: {domain}")
+        # domain = extract_domain(url)
+        # logging.info(f"추출된 도메인: {domain}")
 
-        # 신뢰할 수 있는 도메인 검사
-        if domain in trust_urls:
-            logging.info(f"URL '{url}'는 신뢰할 수 있는 도메인 '{domain}'을 포함합니다.")
-            return 'good'  
+        # # 신뢰할 수 있는 도메인 검사
+        # if domain in trust_urls:
+        #     logging.info(f"URL '{url}'는 신뢰할 수 있는 도메인 '{domain}'을 포함합니다.")
+        #     return 'good'  
 
-        list_url = [url]
-        logging.info("벡터라이저 타입: %s", type(tfidf_vectorizer))
-        logging.info("모델 타입: %s", type(clf_model))
-        
+        new_url = [url]
+        new_feature_df = pd.DataFrame(new_url, columns=['url']).apply(lambda x: extract_features(x['url']), axis=1)
+        new_vec = vectorizer.transform(new_url)
+        new_combined = hstack([new_vec, new_feature_df])
 
-        new_url_tfidf = tfidf_vectorizer.transform(list_url) 
-        logging.info("벡터화 완료: %s", new_url_tfidf)
+        # 예측
+        prediction_prob = ensemble_model.predict_proba(new_combined)
+        logging.info(f"MNB Prediction Probability for new URL: {prediction_prob}")
 
-        pred_prob = clf_model.predict_proba(new_url_tfidf)  
-        logging.info("예측 확률: %s", pred_prob)
-
-        prediction = 'good' if pred_prob[0][1] > 0.5 else 'bad'
-        logging.info("최종 예측: %s", prediction)
+        # 예측 결과 출력
+        prediction = 'good' if prediction_prob[0][1] > 0.5 else 'bad'
+        logging.info(f"MNB  {new_url[0]}: {prediction}")
 
         return prediction
 
     except Exception as e:
         logging.error("URL 예측 중 오류 발생: %s", str(e), exc_info=True)
-        return prediction 
-
-
+        return None 
 
 # 테스트 엔드포인트
 @urlscan_bp.route('/test', methods=['POST'])
 def test():
-    print('요청')
     if 'photo' not in request.files:
         return jsonify({'error': 'No photo uploaded'}), 400
 
@@ -125,8 +159,6 @@ def test():
             except PermissionError as pe:
                 logging.error(f"파일 삭제 오류: {temp_file.name} - {str(pe)}")
 
-
-
 @urlscan_bp.route('/scan', methods=['POST'])
 def scanurl():
     url_data = request.json.get('url')
@@ -148,11 +180,7 @@ def scanurl():
     else:
         return jsonify({'status': 'error', 'message': 'URL을 분류할 수 없습니다.', 'url': url_data}), 500
 
-
-
 @urlscan_bp.route('/tt', methods=['POST'])
 def tt():
-    print('dd')
     data = request.get_json()
-    print(data)
     return jsonify({'message': '1'})
