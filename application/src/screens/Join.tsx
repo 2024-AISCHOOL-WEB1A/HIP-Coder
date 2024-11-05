@@ -30,8 +30,6 @@ const Join: React.FC<Props> = () => {
   const [terms1Accepted, setTerms1Accepted] = useState<boolean>(false);
   const [terms2Accepted, setTerms2Accepted] = useState<boolean>(false);
   const [allTermsAccepted, setAllTermsAccepted] = useState<boolean>(false);
-  const [showTerms1, setShowTerms1] = useState<boolean>(false);
-  const [showTerms2, setShowTerms2] = useState<boolean>(false);
   const { csrfToken } = useCsrf();
 
   const navigation = useNavigation();
@@ -179,9 +177,6 @@ const Join: React.FC<Props> = () => {
     setAllTermsAccepted(allAccepted);
   };
 
-    const toggleTerms1 = () => setShowTerms1(!showTerms1);
-    const toggleTerms2 = () => setShowTerms2(!showTerms2);
-
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.headerContainer}>
@@ -194,7 +189,7 @@ const Join: React.FC<Props> = () => {
           {step === 1 && (
             <> 
               <Text>이용약관에 동의하시겠습니까?{'\n'}</Text>
-              <View style={commonStyles.view2}>
+              <View style={commonStyles.view3}>
               <BouncyCheckbox
                 isChecked={allTermsAccepted}
                 onPress={() => {
@@ -204,9 +199,10 @@ const Join: React.FC<Props> = () => {
                   setTerms2Accepted(newValue);
                 }}
               />
-              <Text>모두 동의</Text>
+              <Text style={commonStyles.text1}>모두 동의</Text>
               </View>
               <View style={commonStyles.view2}>
+              <View style={commonStyles.view3}>
               <BouncyCheckbox
                 isChecked={terms1Accepted}
                 onPress={() => {
@@ -215,11 +211,15 @@ const Join: React.FC<Props> = () => {
                   setAllTermsAccepted(newValue && terms2Accepted);
                 }}
               />
-              <Text onPress={toggleTerms1} style={{ color: 'blue' }}>(필수) 이용약관 1</Text>
-                <Text> > </Text>
-                {showTerms1 && <Text>이용약관 1 내용이 여기에 표시됩니다.</Text>}
+                <Text onPress={() => navigation.navigate('TermsScreen', { termType: 'personalInfo' })}>
+                (필수) 개인정보 수집·이용에 동의합니다.
+                </Text>
+                </View>
+               <Text> > </Text>
               </View>
+
               <View style={commonStyles.view2}>
+              <View style={commonStyles.view3}>
               <BouncyCheckbox
                 isChecked={terms2Accepted}
                 onPress={() => {
@@ -228,7 +228,10 @@ const Join: React.FC<Props> = () => {
                   setAllTermsAccepted(newValue && terms1Accepted);
                 }}
               />
-              <Text>(필수) 이용약관 2</Text>
+               <Text onPress={() => navigation.navigate('TermsScreen', { termType: 'ageRestriction' })}>
+                (필수) 만 14세 이상입니다.
+                </Text>
+               </View>
               <Text> > </Text>
               </View>
               
@@ -305,7 +308,6 @@ const Join: React.FC<Props> = () => {
                 onChangeText={setEmergencyContact2}
                 autoCapitalize="none"
               />
-
             </>
           )}
           <HEButton style={commonStyles.fullWidthButton} title="다음" onPress={nextStep} />

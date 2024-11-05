@@ -5,6 +5,7 @@ import CustomButton from '../components/IJButton';
 import Header from '../components/Header';
 import api from '../../axios';
 import { useCsrf } from '../../context/CsrfContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login: React.FC<Props> = () => {
   const [id, setId] = useState<string>(''); // email을 id로 변경
@@ -15,7 +16,6 @@ const Login: React.FC<Props> = () => {
 
   const handleLogin = async () => {
     console.log("로그인 정보:", { id, password }); // email을 id로 변경
-    navigation.navigate('Home');
     try {
       const res = await api.post('/user/handleLogin', {
         id: id,
@@ -24,8 +24,14 @@ const Login: React.FC<Props> = () => {
         headers: { 'X-CSRF-Token': csrfToken }
       })
       if (res.status === 200) {
+        const { token } = res.data;
+        await AsyncStorage.setItem('token', token);
+
         Alert.alert('환영합니다')
         setIsLoggedIn(true);
+
+        navigation.navigate('Home');
+
       } else if(res.status === 400) {
         Alert.alert('비밀번호가 일치하지 않습니다.')
       };
@@ -35,11 +41,6 @@ const Login: React.FC<Props> = () => {
     }
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setId(''); // email을 id로 변경
-    setPassword('');
-  };
 
   return (
     <ImageBackground

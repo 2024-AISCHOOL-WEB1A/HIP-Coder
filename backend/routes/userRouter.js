@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt')
 const {v4 : uuidv4} = require('uuid')
 const nodemailer = require('nodemailer')
 const crypto = require('crypto')
+const jwtoken = require('../config/jwt')
 
 // userRouter.js 파일 최상단에 추가
 const verificationTokens = {}; // 인증 토큰을 저장할 빈 객체 정의
@@ -183,14 +184,21 @@ router.post('/handleLogin', async (req, res) => {
             return res.status(400).json({ error: '존재하지 않는 사용자입니다.' });
         }
 
+        // 패스워드 해싱 불러오기
         const hashpassword = rows[0].USER_PW;
+        // 로그인 유저 정보
+        const user = rows[0];
 
         // 비밀번호 검증
         const isMatch = await verifypw(password, hashpassword);
 
         if (isMatch) {
-            // 비밀번호가 맞다면 성공 응답
-            return res.status(200).json({ message: '로그인 성공!' });
+            // 비밀번호가 맞다면 JWT 토큰 생성
+            const token = jwtoken.generateToken({ id : user.USER_ID });
+            console.log('jwt 토큰 확인:', token);
+
+            // 로그인 성공
+            res.status(200).json({ message: '로그안 성공!', token });
         } else {
             // 비밀번호가 틀리면 에러 반환
             return res.status(400).json({ error: '비밀번호가 일치하지 않습니다.' });
@@ -216,13 +224,13 @@ router.post('/forgot-id', (req, res) => {
         } else if (r.length === 0) {
             return res.status(404).json({ error: '사용자를 찾을 수 없습니다.' });
         } else {
-            
             // 인증 토큰 생성 및 저장
             const verificationToken = crypto.randomBytes(32).toString('hex'); // 32바이트 토큰 생성
             verificationTokens[verificationToken] = { EMAIL, expires: Date.now() + 3600000 }; // 1시간 후 만료
 
             // 인증 링크 생성
             const verificationLink = `http://127.0.0.1:3000/user/verify-id/${verificationToken}`
+
             // 이메일 발송 설정
             const transporter = nodemailer.createTransport({
                 service : 'Gmail',
@@ -235,9 +243,9 @@ router.post('/forgot-id', (req, res) => {
                 to : EMAIL,
                 from : process.env.EMAIL,
                 subject : '아이디 찾기 인증 링크',
-                html: `
+                html:  `
                 <p>아이디를 찾으려면 아래 버튼을 클릭하세요:</p>
-                <a href="${verificationToken}" style="
+                <a href="${verificationLink}" target="_blank" rel="noopener noreferrer" style="
                     display: inline-block;
                     padding: 10px 20px;
                     font-size: 16px;
@@ -252,9 +260,9 @@ router.post('/forgot-id', (req, res) => {
             transporter.sendMail(mailOptions, (emailErr) => {
                 if (emailErr) {
                     console.error('Email Send Error : ', emailErr)
-                    return res.status(500).json({errer : '이메일 전송 실패'})
+                    return res.status(500).json({ error: '이메일 전송 실패' })
                 } else {
-                    res.status(200).json({message : '인증 링크가 이메일로 전송'})
+                    res.status(200).json({ message : '인증 링크가 이메일로 전송되었습니다.' })
                 }
              })
         }
@@ -263,34 +271,35 @@ router.post('/forgot-id', (req, res) => {
 
 /** 아이디 찾기 - 인증 링크(토큰)확인 */
 router.get('/verify-id/:token', (req, res) => {
-    log('아이디 찾기 요청')
-    const {token} = req.params
+    log('아이디 찾기 요청');
+    const { token } = req.params;
 
     // 토큰 유효성 검사
-    const tokenData = verificationTokens[token]
+    const tokenData = verificationTokens[token];
     if (!tokenData || tokenData.expires < Date.now()) {
-        return res.status(400).json({error : '유효하지 않거나 만료된 링크입니다.'})
+        return res.status(400).send('<h2>유효하지 않거나 만료된 링크입니다.</h2>');
     }
 
-    const {EMAIL} = tokenData
-    
-    const idsql = `SELECT USER_ID FROM USER WHERE EMAIL = ?`
+    const { EMAIL } = tokenData;
+
+    const idsql = `SELECT USER_ID FROM USER WHERE EMAIL = ?`;
     conn.query(idsql, [EMAIL], (err, r) => {
         if (err) {
-            console.error('DB Query Error : ', err)
-            return res.status(500).json({error : 'DB Query Error'})
+            console.error('DB Query Error : ', err);
+            return res.status(500).send('<h2>DB Query Error</h2>');
         } else if (r.length === 0) {
-            return res.status(404).json({error : '사용자를 찾을 수 없습니다.'})
+            return res.status(404).send('<h2>사용자를 찾을 수 없습니다.</h2>');
         } else {
-            const user_id = r[0].USER_ID
+            const user_id = r[0].USER_ID;
 
             // 인증 성공 후 토큰 삭제
-            delete verificationTokens[token]
+            delete verificationTokens[token];
 
-            res.status(200).json({message : '아이디 찾기 성공', user_id})
+            // 인증 완료 후 아이디를 포함한 JSON 메시지 반환
+            res.status(200).json({ message: '아이디 찾기 성공', user_id });
         }
-    })
-})
+    });
+});
 
 
 

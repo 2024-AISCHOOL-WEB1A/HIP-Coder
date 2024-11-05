@@ -16,6 +16,7 @@ import FindId from './src/screens/FindId';
 import FindPw from './src/screens/FindPw';
 import GalleryQrScan from './src/screens/GalleryQrScan';
 import History from './src/screens/History'; 
+import TermsScreen from './src/screens/TermsScreen';
 
 const Stack = createStackNavigator();
 
@@ -107,6 +108,7 @@ const App = () => {
       <Stack.Screen name="GalleryQrScan" component={GalleryQrScan} />
       <Stack.Screen name="Test" component={Test} />
       <Stack.Screen name="History" component={History} />
+      <Stack.Screen name="TermsScreen" component={TermsScreen} />
     </Stack.Navigator>
   );
 };
