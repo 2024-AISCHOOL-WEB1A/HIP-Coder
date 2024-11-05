@@ -106,7 +106,7 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>갤러리 QR 코드 검사</Text>
+        <Text style={styles.title}>갤러리 QR 이미지 검사</Text>
       </View>
       
       <View style={styles.mainContent}>
