@@ -7,8 +7,8 @@ import numpy as np
 import cv2
 import tempfile
 from pyzbar.pyzbar import decode
-
-
+import requests
+from urllib.parse import urlparse
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -17,12 +17,20 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 urlscan_bp = Blueprint('urlscan', __name__)
 
 trust_url = pd.read_csv('./data_with_trust_url.csv')
-trust_urls = trust_url['url'].values
+trust_urls = trust_url[trust_url['type'] == 'trust']['url'].values
 
 
-clf_model, tfidf_vectorizer = joblib.load(os.path.join(os.path.dirname(__file__), 'model_test.pkl'))
+clf_model, tfidf_vectorizer = joblib.load(os.path.join(os.path.dirname(__file__), 'model_final.pkl'))
 
+def extract_domain(url):
+    from urllib.parse import urlparse
+    parsed_url = urlparse(url)
+    domain = parsed_url.netloc
+    
+    if domain.startswith('www.'):
+        domain = domain[4:]
 
+    return domain
 
 def tokenize_url(url):
     tokens = []
@@ -35,10 +43,13 @@ def predict_url(url):
     prediction = None 
 
     try:
-        for trust in trust_url['url']:
-            if trust in url:
-                logging.info(f"URL '{url}'는 신뢰할 수 있는 URL '{trust}'를 포함합니다.")
-                return 'good'  
+        domain = extract_domain(url)
+        logging.info(f"추출된 도메인: {domain}")
+
+        # 신뢰할 수 있는 도메인 검사
+        if domain in trust_urls:
+            logging.info(f"URL '{url}'는 신뢰할 수 있는 도메인 '{domain}'을 포함합니다.")
+            return 'good'  
 
         list_url = [url]
         logging.info("벡터라이저 타입: %s", type(tfidf_vectorizer))
@@ -71,12 +82,15 @@ def test():
 
     photo = request.files['photo']
     try:
-        # 임시 파일로 이미지 저장 (with 문으로 자동으로 닫도록 설정)
+        # 임시 파일로 이미지 저장
         with tempfile.NamedTemporaryFile(delete=False) as temp_file:
             photo.save(temp_file.name)
 
             # 이미지 읽기
             image = cv2.imread(temp_file.name)
+            if image is None:
+                logging.error("이미지를 읽지 못했습니다.")
+                return jsonify({'error': 'Failed to read image'}), 500
 
             # 이미지 흑백 변환
             gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -84,18 +98,24 @@ def test():
             # QR 코드 디코딩
             qr_codes = decode(gray_image)
             if len(qr_codes) == 0:
-                print('QR 코드가 인식되지 않았습니다.')
+                logging.warning('QR 코드가 인식되지 않았습니다.')
                 return jsonify({'error': 'No QR code detected'}), 400
-
-            # 디버깅 로그 - 여러 QR 코드가 있을 경우 출력
-            for idx, qr_code in enumerate(qr_codes):
-                print(f'QR 코드 {idx + 1}: {qr_code.data.decode("utf-8")}')
 
             # QR 코드 데이터 추출
             qr_data = qr_codes[0].data.decode('utf-8')
-            print(f'QR 코드에서 추출한 URL: {qr_data}')
-            return jsonify({'qrCodeData': qr_data}), 200
+            logging.info(f'QR 코드에서 추출한 URL: {qr_data}')
+            
+            # URL을 /scan으로 전송
+            logging.info(f'QR 데이터로 전송할 URL: {qr_data}')
+            response = requests.post('http://192.168.21.101:5000/scan', json={'url': qr_data})
+            if response.status_code == 200:
+                return response.json()
+            else:
+                logging.error(f'/scan 요청 실패: {response.status_code}, 응답 내용: {response.text}')
+                return jsonify({'error': 'Failed to send URL to /scan'}), 500
+
     except Exception as e:
+        logging.error(f"예외 발생: {str(e)}", exc_info=True)
         return jsonify({'error': str(e)}), 500
     finally:
         # 임시 파일 삭제
@@ -103,8 +123,7 @@ def test():
             try:
                 os.remove(temp_file.name)
             except PermissionError as pe:
-                print(f"Permission error when trying to delete {temp_file.name}: {str(pe)}")
-
+                logging.error(f"파일 삭제 오류: {temp_file.name} - {str(pe)}")
 
 
 

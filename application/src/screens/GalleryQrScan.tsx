@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert, Image } from 'react-na
 import { launchImageLibrary, Asset, ImagePickerResponse } from 'react-native-image-picker';
 import axios from 'axios';
 import { useCsrf } from '../../context/CsrfContext';
-
+import { FLASK_URL } from '@env';
 interface GalleryQrScanProps {
   navigation: any; // 타입을 더 구체적으로 지정할 수 있다면 지정하는 것이 좋습니다.
 }
@@ -56,7 +56,8 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
 
     try {
       const response = await axios.post(
-        'http://220.95.41.232:5000/test', // 서버 URL
+        //'http://220.95.41.232:5000/test', // 서버 URL
+        `${FLASK_URL}/test`,
         formData, // 전송할 데이터
         {
           headers: {
@@ -67,7 +68,23 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
         }
       );
 
-      Alert.alert('업로드 성공', `서버 응답: ${JSON.stringify(response.data)}`);
+      console.log('서버 응답 데이터:', response.data);
+      console.log('서버 응답 데이터:', response.data.status);
+
+      if (response.data.qrCodeData) {
+        const url = response.data.qrCodeData;
+        const scanResponse = await axios.post(`${FLASK_URL}/scan`, { url });
+
+        if (scanResponse.data.status === 'good') {
+          Alert.alert('업로드 성공', `서버 응답: 이 URL은 안전합니다. (${scanResponse.data.url})`);
+        } else if (scanResponse.data.status === 'bad') {
+          Alert.alert('업로드 성공', `서버 응답: 이 URL은 보안 위험이 있을 수 있습니다. (${scanResponse.data.url})`);
+        } else {
+          Alert.alert('업로드 실패', '예측 결과를 확인할 수 없습니다.');
+        }
+      } else {
+        Alert.alert('업로드 실패', 'QR 코드 데이터가 없습니다.');
+      }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error('네트워크 오류 발생:', error.message);
@@ -82,12 +99,12 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>갤러리 QR 코드 검사</Text>
-      
+
       {selectedImageUri ? (
         <>
           {/* 이미지 미리보기 */}
           <Image source={{ uri: selectedImageUri }} style={styles.previewImage} />
-          
+
           {/* 이미지 변경 버튼 */}
           <TouchableOpacity style={styles.button} onPress={selectImageFromGallery}>
             <Text style={styles.buttonText}>이미지 변경하기</Text>
