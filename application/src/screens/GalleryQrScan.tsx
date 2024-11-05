@@ -1,18 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, Image, ScrollView } from 'react-native';
 import { launchImageLibrary, Asset, ImagePickerResponse } from 'react-native-image-picker';
 import axios from 'axios';
 import { useCsrf } from '../../context/CsrfContext';
+import Icon from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FLASK_URL } from '@env';
 interface GalleryQrScanProps {
-  navigation: any; // 타입을 더 구체적으로 지정할 수 있다면 지정하는 것이 좋습니다.
+  navigation: any;
+}
+
+interface ScanHistory {
+  id: string;
+  date: string;
+  imageUri: string;
+  status: string;
 }
 
 const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
+  const [scanHistory, setScanHistory] = useState<ScanHistory[]>([]);
   const { csrfToken } = useCsrf();
 
-  // 갤러리에서 이미지 선택하기
   const selectImageFromGallery = () => {
     const options = {
       mediaType: 'photo',
@@ -22,7 +31,6 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
     launchImageLibrary(options, (response: ImagePickerResponse) => {
       if (response.didCancel) {
         console.log('이미지 선택이 취소되었습니다.');
-        // 이미지 선택 취소 시 이전 선택한 이미지를 유지
       } else if (response.errorMessage) {
         console.log('에러: ', response.errorMessage);
       } else if (response.assets && response.assets.length > 0) {
@@ -35,12 +43,10 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
     });
   };
 
-  // 컴포넌트가 마운트될 때 갤러리 선택 호출
   useEffect(() => {
     selectImageFromGallery();
   }, []);
 
-  // 이미지 백엔드로 전송하기
   const uploadImageToBackend = async () => {
     if (!selectedImageUri) {
       Alert.alert('이미지를 먼저 선택하세요!');
@@ -52,7 +58,7 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
       uri: selectedImageUri,
       type: 'image/jpeg',
       name: `photo.${selectedImageUri.split('.').pop()}`,
-    } as any); // 타입스크립트에서 FormData에 파일을 추가할 때 타입 에러가 발생할 수 있어 'as any'로 처리
+    } as any);
 
     try {
       const response = await axios.post(
@@ -85,6 +91,16 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
       } else {
         Alert.alert('업로드 실패', 'QR 코드 데이터가 없습니다.');
       }
+      // 스캔 이력에 추가
+      const newScan: ScanHistory = {
+        id: Date.now().toString(),
+        date: new Date().toISOString(),
+        imageUri: selectedImageUri,
+        status: response.data.result || '검사 완료', // 서버 응답에 따라 수정 필요
+      };
+
+      setScanHistory(prevHistory => [newScan, ...prevHistory]);
+      Alert.alert('검사 완료', `결과: ${response.data.result || '검사가 완료되었습니다.'}`);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error('네트워크 오류 발생:', error.message);
@@ -96,46 +112,77 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
     }
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>갤러리 QR 코드 검사</Text>
+    <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>갤러리 QR 코드 검사</Text>
+      </View>
+      
+      <View style={styles.mainContent}>
+        {selectedImageUri ? (
+          <>
+            <Image source={{ uri: selectedImageUri }} style={styles.previewImage} />
+            
+            <TouchableOpacity style={styles.button} onPress={selectImageFromGallery}>
+              <Text style={styles.buttonText}>이미지 변경하기</Text>
+            </TouchableOpacity>
 
-      {selectedImageUri ? (
-        <>
-          {/* 이미지 미리보기 */}
-          <Image source={{ uri: selectedImageUri }} style={styles.previewImage} />
-
-          {/* 이미지 변경 버튼 */}
+            <TouchableOpacity style={styles.button} onPress={uploadImageToBackend}>
+              <Text style={styles.buttonText}>선택한 이미지 업로드</Text>
+            </TouchableOpacity>
+          </>
+        ) : (
           <TouchableOpacity style={styles.button} onPress={selectImageFromGallery}>
-            <Text style={styles.buttonText}>이미지 변경하기</Text>
+            <Text style={styles.buttonText}>이미지 선택하기</Text>
           </TouchableOpacity>
+        )}
+      </View>
 
-          {/* 이미지 업로드 버튼 */}
-          <TouchableOpacity style={styles.button} onPress={uploadImageToBackend}>
-            <Text style={styles.buttonText}>선택한 이미지 업로드</Text>
-          </TouchableOpacity>
-        </>
-      ) : (
-        <TouchableOpacity style={styles.button} onPress={selectImageFromGallery}>
-          <Text style={styles.buttonText}>이미지 선택하기</Text>
-        </TouchableOpacity>
+      {scanHistory.length > 0 && (
+        <View style={styles.historySection}>
+          <Text style={styles.historyTitle}>검사 이력</Text>
+          {scanHistory.map((scan) => (
+            <View key={scan.id} style={styles.historyItem}>
+              <Image source={{ uri: scan.imageUri }} style={styles.historyImage} />
+              <View style={styles.historyInfo}>
+                <Text style={styles.historyStatus}>{scan.status}</Text>
+                <Text style={styles.historyDate}>{formatDate(scan.date)}</Text>
+              </View>
+              <Icon name="chevron-forward-outline" size={20} color="#9C59B5" />
+            </View>
+          ))}
+        </View>
       )}
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
     backgroundColor: '#F8F9FA',
+  },
+  header: {
+    padding: 20,
+    backgroundColor: '#FFFFFF',
   },
   title: {
     fontSize: 24,
     fontWeight: '700',
-    marginBottom: 20,
+    color: '#333333',
+  },
+  mainContent: {
+    alignItems: 'center',
+    padding: 20,
   },
   button: {
     backgroundColor: '#9C59B5',
@@ -143,6 +190,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     borderRadius: 12,
     marginVertical: 10,
+    width: '100%',
+    alignItems: 'center',
   },
   buttonText: {
     color: '#FFFFFF',
@@ -154,6 +203,44 @@ const styles = StyleSheet.create({
     height: 200,
     marginBottom: 20,
     borderRadius: 10,
+  },
+  historySection: {
+    padding: 20,
+  },
+  historyTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    color: '#333333',
+  },
+  historyItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#F0E6F5',
+  },
+  historyImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  historyInfo: {
+    flex: 1,
+  },
+  historyStatus: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333333',
+    marginBottom: 4,
+  },
+  historyDate: {
+    fontSize: 14,
+    color: '#666666',
   },
 });
 
