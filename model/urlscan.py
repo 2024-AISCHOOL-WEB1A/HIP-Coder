@@ -107,7 +107,7 @@ def test():
             
             # URL을 /scan으로 전송
             logging.info(f'QR 데이터로 전송할 URL: {qr_data}')
-            response = requests.post('http://192.168.21.101:5000/scan', json={'url': qr_data})
+            response = requests.post('http://192.168.21.107:5000/scan', json={'url': qr_data})
             if response.status_code == 200:
                 return response.json()
             else:

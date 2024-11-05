@@ -1,79 +1,100 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList, Animated, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 
 interface HeaderProps {
   title?: string;
   onBackPress?: () => void;
-  isLoggedIn: boolean; // 로그인 상태를 받는 prop
-  onLogout: () => void; // 로그아웃 함수
+  isLoggedIn: boolean;
+  onLogout: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, onLogout }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
+  const slideAnim = useRef(new Animated.Value(500)).current;
 
   const menuItems = [
-    { label: 'Home', action: () => navigation.navigate('Home') }, // Home으로 이동
-    { label: '회원가입', action: () => navigation.navigate('Join') },
-    { label: '내정보', action: () => navigation.navigate('MyPage') },
-    { label: 'QR 스캔', action: () => navigation.navigate('QrScan') },
-    { label: 'URL 검사', action: () => navigation.navigate('UrlCheck') },
+    { label: 'Home', icon: 'home-outline', action: () => navigation.navigate('Home') },
+    { label: '신고하기', icon: 'notifications-outline', action: () => navigation.navigate('Report') },
+    { label: '내정보', icon: 'person-outline', action: () => navigation.navigate('MyPage') },
+    { label: 'QR 스캔', icon: 'scan-outline', action: () => navigation.navigate('QrScan') },
+    { label: 'URL 검사', icon: 'link-outline', action: () => navigation.navigate('UrlCheck') },
+    { label: 'QR 이미지 검사', icon: 'images-outline', action: () => navigation.navigate('GalleryQrScan') },
   ];
+
+  const openSidebar = () => {
+    setModalVisible(true);
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const closeSidebar = () => {
+    Animated.timing(slideAnim, {
+      toValue: 500,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => setModalVisible(false));
+  };
 
   return (
     <View style={styles.container}>
       {onBackPress && (
         <TouchableOpacity onPress={onBackPress} style={styles.iconContainer}>
-          <Icon name="arrow-back" size={24} color="#6A1B9A" />
+          <Icon name="arrow-back" size={24} color="#9C59B5" />
         </TouchableOpacity>
       )}
       <Text style={styles.title}>{title}</Text>
-      <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.iconContainer}>
-        <Icon name="menu" size={24} color="#6A1B9A" />
+      <TouchableOpacity onPress={openSidebar} style={styles.iconContainer}>
+        <Icon name="menu" size={24} color="#9C59B5" />
       </TouchableOpacity>
 
       <Modal
-        animationType="slide"
+        animationType="none"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={closeSidebar}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <FlatList
-              data={menuItems}
-              keyExtractor={(item) => item.label}
-              renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => {
-                  item.action();
-                  setModalVisible(false);
-                }} style={styles.menuItem}>
-                  <Text style={styles.menuItemText}>{item.label}</Text>
-                </TouchableOpacity>
-              )}
-            />
-            {isLoggedIn ? (
-              <TouchableOpacity onPress={() => {
-                onLogout();
-                setModalVisible(false);
-              }} style={styles.menuItem}>
-                <Text style={styles.menuItemText}>로그아웃</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity onPress={() => {
-                navigation.navigate('Login'); // 로그인 화면으로 이동
-                setModalVisible(false);
-              }} style={styles.menuItem}>
-                <Text style={styles.menuItemText}>로그인</Text>
-              </TouchableOpacity>
-            )}
-            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>닫기</Text>
+        <TouchableOpacity style={styles.overlay} onPress={closeSidebar} />
+        <Animated.View style={[styles.sidebar, { transform: [{ translateX: slideAnim }] }]} >
+          <View style={styles.sidebarHeader}>
+            <TouchableOpacity onPress={closeSidebar} style={styles.closeButton}>
+              <Icon name="close-outline" size={30} color="#4A148C" />
             </TouchableOpacity>
           </View>
-        </View>
+          <View style={styles.profileSection}>
+            <Image source={{ uri: 'path/to/profile-picture' }} style={styles.profileImage} />
+            <Text style={styles.profileName}>큐싱의 모든것. Thing Q</Text>
+          </View>
+          <FlatList
+            data={menuItems}
+            keyExtractor={(item) => item.label}
+            renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => {
+                item.action();
+                closeSidebar();
+              }} style={styles.menuItem}>
+                <Icon name={item.icon} size={20} color="#4A148C" style={styles.menuIcon} />
+                <Text style={styles.menuItemText}>{item.label}</Text>
+              </TouchableOpacity>
+            )}
+          />
+          <TouchableOpacity onPress={() => {
+            if (isLoggedIn) {
+              onLogout();
+            } else {
+              navigation.navigate('Login');
+            }
+            closeSidebar();
+          }} style={styles.menuItem}>
+            <Icon name="log-out-outline" size={20} color="#4A148C" style={styles.menuIcon} />
+            <Text style={styles.menuItemText}>{isLoggedIn ? '로그아웃' : '로그인'}</Text>
+          </TouchableOpacity>
+        </Animated.View>
       </Modal>
     </View>
   );
@@ -90,7 +111,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    color: '#000',
+    color: '#6A1B9A',
     fontWeight: 'bold',
     flex: 1,
     textAlign: 'center',
@@ -98,38 +119,55 @@ const styles = StyleSheet.create({
   iconContainer: {
     padding: 10,
   },
-  modalContainer: {
+  overlay: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  modalContent: {
-    width: '80%',
-    backgroundColor: 'white',
-    borderRadius: 25,
+  sidebar: {
+    position: 'absolute',
+    width: '70%',
+    height: '100%',
+    backgroundColor: '#FFFFFF', 
     padding: 20,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
+    justifyContent: 'center',
+    borderTopLeftRadius: 20,
+    borderBottomLeftRadius: 20,
+    right: 0,
+  },
+  sidebarHeader: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingBottom: 10,
+  },
+  closeButton: {
+    padding: 10,
+  },
+  profileSection: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  profileImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginBottom: 10,
+  },
+  profileName: {
+    fontSize: 16,
+    color: '#4A148C',
+    fontWeight: 'bold',
   },
   menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 15,
+  },
+  menuIcon: {
+    marginRight: 15,
   },
   menuItemText: {
     fontSize: 18,
-    color: '#000',
-  },
-  closeButton: {
-    marginTop: 20,
-    alignItems: 'center',
-    padding: 10,
-    backgroundColor: '#9C59B5',
-    borderRadius: 25,
-  },
-  closeButtonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+    color: '#333',
   },
 });
 
