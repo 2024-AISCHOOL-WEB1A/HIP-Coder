@@ -12,7 +12,7 @@ from urllib.parse import urlparse
 import pandas as pd
 from scipy.sparse import hstack
 from bs4 import BeautifulSoup
-#from tokenize_url_module import tokenize_url 
+
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
