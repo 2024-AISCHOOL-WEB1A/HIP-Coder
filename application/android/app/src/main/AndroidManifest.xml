@@ -27,22 +27,24 @@
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize"
             android:exported="true">
+            
+            <!-- 메인 액티비티 실행 인텐트 필터 -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- 딥 링크 처리 -->
-            <intent-filter android:autoVerify="true">
+            <!-- 딥 링크 처리를 위한 인텐트 필터 -->
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <!-- 인증 링크에 맞는 URL 설정 -->
                 <data
                     android:scheme="http"
-                    android:host="127.0.0.1"
+                    android:host="121.179.36.150"
+                    android:port="3000"
                     android:pathPrefix="/user/verify-id" />
             </intent-filter>
         </activity>

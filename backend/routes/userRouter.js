@@ -229,7 +229,7 @@ router.post('/forgot-id', (req, res) => {
             verificationTokens[verificationToken] = { EMAIL, expires: Date.now() + 3600000 }; // 1시간 후 만료
 
             // 인증 링크 생성
-            const verificationLink = `http://127.0.0.1:3000/user/verify-id/${verificationToken}`
+            const verificationLink = `http://121.179.36.150:3000/user/verify-id/${verificationToken}`
 
             // 이메일 발송 설정
             const transporter = nodemailer.createTransport({
