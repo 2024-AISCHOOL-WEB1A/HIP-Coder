@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import Header from '../components/Header';
@@ -28,6 +28,10 @@ const Home = () => {
     setQrCount((prevCount) => prevCount + 1);
   };
 
+  const getIconColor = (screen) => {
+    return navigation.isFocused(screen) ? '#9C59B5' : '#9DA3B4';
+  };
+
   return (
     <View style={styles.container}>
       <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} />
@@ -38,7 +42,7 @@ const Home = () => {
         <View style={styles.counterContainer}>
           <View style={styles.counterBox}>
             <Text style={styles.counterTitle}>차단된 URL 수</Text>
-            <AnimateNumber 
+            <AnimateNumber
               value={urlCount}
               formatter={(val) => Math.floor(val).toString()}
               timing="easeOut"
@@ -50,7 +54,7 @@ const Home = () => {
 
           <View style={styles.counterBox}>
             <Text style={styles.counterTitle}>QR 코드 검사 수</Text>
-            <AnimateNumber 
+            <AnimateNumber
               value={qrCount}
               formatter={(val) => Math.floor(val).toString()}
               timing="easeOut"
@@ -79,6 +83,7 @@ const Home = () => {
           <TouchableOpacity
             style={styles.categoryButton}
             onPress={isLoggedIn ? handleLogout : handleLogin}
+            activeOpacity={0.7}
           >
             <View style={styles.categoryIconContainer}>
               <Icon name={isLoggedIn ? "log-out-outline" : "log-in-outline"} size={24} color="#fff" />
@@ -92,7 +97,10 @@ const Home = () => {
 
           <TouchableOpacity style={styles.card} onPress={() => { incrementQrCount(); navigation.navigate('QrScan'); }}>
             <View style={styles.cardIconContainer}>
-              <Icon name="qr-code" size={32} color="#9C59B5" />
+              <Image
+                source={require('../assets/free-icon-scan.png')}
+                style={styles.iconImage}
+              />
             </View>
             <View style={styles.cardTextContainer}>
               <Text style={styles.cardTitle}>QR 코드 검사</Text>
@@ -101,8 +109,11 @@ const Home = () => {
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.card} onPress={() => { incrementUrlCount(); navigation.navigate('UrlCheck'); }}>
-            <View style={styles.cardIconContainer}>
-              <Icon name="link" size={32} color="#9C59B5" />
+          <View style={styles.cardIconContainer}>
+              <Image
+                source={require('../assets/free-icon-url.png')}
+                style={styles.iconImage}
+              />
             </View>
             <View style={styles.cardTextContainer}>
               <Text style={styles.cardTitle}>URL 검사</Text>
@@ -111,8 +122,11 @@ const Home = () => {
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('GalleryQrScan')}>
-            <View style={styles.cardIconContainer}>
-              <Icon name="image-outline" size={32} color="#9C59B5" />
+          <View style={styles.cardIconContainer}>
+              <Image
+                source={require('../assets/free-icon-gallery.png')}
+                style={styles.iconImage}
+              />
             </View>
             <View style={styles.cardTextContainer}>
               <Text style={styles.cardTitle}>QR 이미지 검사</Text>
@@ -131,7 +145,7 @@ const Home = () => {
 
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navButton}>
-          <Icon name="home" size={24} color="#9C59B5" />
+          <Icon name="home" size={24} color={getIconColor('Home')} />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.navButton}
@@ -153,7 +167,7 @@ const Home = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E6E6FA',
+    backgroundColor: '#FFFFFF',
   },
   content: {
     flex: 1,
@@ -172,7 +186,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     padding: 16,
     borderRadius: 16,
-    backgroundColor: '#FFFFFF', 
+    backgroundColor: '#FFFFFF',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -189,7 +203,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   counterValue: {
-    fontSize: 22, 
+    fontSize: 22,
     fontWeight: '700',
     color: '#4A4A4A',
   },
@@ -203,8 +217,8 @@ const styles = StyleSheet.create({
     width: '30%',
   },
   categoryIconContainer: {
-    width: 56,
-    height: 56,
+    width: 64,
+    height: 64,
     backgroundColor: '#9C59B5',
     borderRadius: 16,
     justifyContent: 'center',
@@ -214,7 +228,7 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#000', 
+    color: '#000',
     textAlign: 'center',
   },
   CodeCheckerSection: {
@@ -242,7 +256,7 @@ const styles = StyleSheet.create({
   cardIconContainer: {
     width: 64,
     height: 64,
-    backgroundColor: '#F0E5F5', // 아이콘 배경 색상
+    // backgroundColor: '#F0E5F5',
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
@@ -258,29 +272,35 @@ const styles = StyleSheet.create({
   },
   cardDescription: {
     fontSize: 14,
-    color: '#6B7280',
+    fontWeight: '400',
+    color: '#6D6D6D',
+  },
+  iconImage: {
+    width: 60,
+    height: 60,
   },
   testButton: {
-    backgroundColor: '#9C59B5', // 버튼 색상
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: '#9C59B5',
+    paddingVertical: 16,
+    borderRadius: 16,
     alignItems: 'center',
-    marginVertical: 20,
+    marginBottom: 32,
   },
   testButtonText: {
-    color: '#FFFFFF',
     fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   navBar: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 16,
+    justifyContent: 'space-around',
+    paddingVertical: 16,
     backgroundColor: '#FFFFFF',
-    elevation: 4,
+    borderTopWidth: 1,
+    borderColor: '#E0E0E0',
   },
   navButton: {
     alignItems: 'center',
-    flex: 1,
   },
 });
 
