@@ -1,39 +1,114 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../components/Header';
-import { useCsrf } from '../../context/CsrfContext';
+import Pagination from '../components/Pagination';
+
+const ITEMS_PER_PAGE = 5;
 
 const History = () => {
   const navigation = useNavigation();
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [historyData, setHistoryData] = useState<any[]>([]);
+
   const data = [
-    { id: '1', date: '2024-10-14', type: 'URL', status: '악성 URL' },
-    { id: '2', date: '2024-09-30', type: 'URL', status: '클린 URL' },
-    { id: '3', date: '2024-09-20', type: 'QR 코드', status: '악성 코드' },
-    { id: '4', date: '2024-09-12', type: 'URL', status: '악성 URL' },
-    { id: '5', date: '2024-08-27', type: 'QR 코드', status: '악성 코드' },
-    { id: '6', date: '2024-08-18', type: 'QR 코드', status: '클린 코드' },
-    { id: '7', date: '2024-08-06', type: 'URL', status: '클린 URL' },
-    { id: '8', date: '2024-07-10', type: 'QR 코드', status: '악성 코드' },
+    { 
+      id: '1', 
+      date: '2024-10-14', 
+      type: 'URL', 
+      status: '악성 URL',
+      content: 'http://malicious-example.com'
+    },
+    { 
+      id: '2', 
+      date: '2024-09-30', 
+      type: 'URL', 
+      status: '클린 URL',
+      content: 'http://safe-example.com'
+    },
+    { 
+      id: '3', 
+      date: '2024-09-20', 
+      type: 'QR 코드', 
+      status: '악성 코드',
+      content: 'qr-content-123',
+      imageUrl: 'path/to/qr-image-1.png'
+    },
+    { 
+      id: '4', 
+      date: '2024-09-12', 
+      type: 'QR 이미지', 
+      status: '악성 이미지',
+      imageUrl: 'path/to/malicious-image-1.jpg'
+    },
+    { 
+      id: '5', 
+      date: '2024-08-27', 
+      type: 'QR 코드', 
+      status: '악성 코드',
+      content: 'qr-content-456',
+      imageUrl: 'path/to/qr-image-2.png'
+    },
+    { 
+      id: '6', 
+      date: '2024-08-18', 
+      type: 'QR 이미지', 
+      status: '클린 이미지',
+      imageUrl: 'path/to/safe-image-1.jpg'
+    },
+    { 
+      id: '7', 
+      date: '2024-08-06', 
+      type: 'URL', 
+      status: '클린 URL',
+      content: 'http://another-safe-example.com'
+    },
+    { 
+      id: '8', 
+      date: '2024-07-10', 
+      type: 'QR 이미지', 
+      status: '악성 이미지',
+      imageUrl: 'path/to/malicious-image-2.jpg'
+    },
   ];
-  const { csrfToken } = useCsrf();
+
+  // 페이지네이션 관련 데이터 설정
+  useEffect(() => {
+    setTotalPages(Math.ceil(data.length / ITEMS_PER_PAGE)); 
+    loadData(currentPage);
+  }, [currentPage]);
+
+  const loadData = (page: number) => {
+    setIsLoading(true);
+    const startIndex = (page - 1) * ITEMS_PER_PAGE;
+    const currentData = data.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    setHistoryData(currentData);
+    setIsLoading(false);
+  };
 
   const getStatusBadgeStyle = (status) => {
-    return status.includes('악성') 
-      ? styles.dangerBadge 
-      : styles.safeBadge;
+    return status.includes('악성') ? styles.dangerBadge : styles.safeBadge;
   };
 
   const getStatusTextStyle = (status) => {
-    return status.includes('악성') 
-      ? styles.dangerText 
-      : styles.safeText;
+    return status.includes('악성') ? styles.dangerText : styles.safeText;
   };
 
   const getTypeIcon = (type) => {
-    return type === 'URL' ? 'link-outline' : 'qr-code-outline';
+    switch (type) {
+      case 'URL':
+        return 'link-outline';
+      case 'QR 코드':
+        return 'qr-code-outline';
+      case 'QR 이미지':
+        return 'image-outline';
+      default:
+        return 'document-outline';
+    }
   };
 
   const formatDate = (dateString) => {
@@ -42,6 +117,29 @@ const History = () => {
       month: 'long',
       day: 'numeric',
     });
+  };
+
+  const renderContentPreview = (item) => {
+    if (item.type === 'QR 이미지' && item.imageUrl) {
+      return (
+        <View style={styles.previewContainer}>
+          <Image 
+            source={{ 
+              uri: item.imageUrl || 'https://via.placeholder.com/150'
+            }} 
+            style={styles.previewImage}
+          />
+        </View>
+      );
+    }
+    if (item.content) {
+      return (
+        <Text style={styles.contentPreview} numberOfLines={1}>
+          {item.content}
+        </Text>
+      );
+    }
+    return null;
   };
 
   const renderItem = ({ item }) => (
@@ -65,6 +163,7 @@ const History = () => {
                 <Text style={getStatusTextStyle(item.status)}>{item.status}</Text>
               </View>
             </View>
+            {renderContentPreview(item)}
             <Text style={styles.dateText}>{formatDate(item.date)}</Text>
           </View>
         </View>
@@ -79,15 +178,22 @@ const History = () => {
       <View style={styles.scrollContainer}>
         <View style={styles.headerContainer}>
           <Text style={styles.subtitle}>검사 이력</Text>
-          <Text style={styles.description}>QR코드 / URL 검사 결과를 확인하세요</Text>
+          <Text style={styles.description}>QR코드 / URL / 이미지 검사 결과를 확인하세요</Text>
         </View>
         <View style={styles.separator} />
         <FlatList
-          data={data}
+          data={historyData}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
+          ListEmptyComponent={<Text style={styles.emptyText}>검사 이력이 없습니다.</Text>}
+        />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          isLoading={isLoading}
         />
       </View>
     </View>
@@ -175,7 +281,28 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666666',
   },
-  // 악성 상태 배지
+  previewContainer: {
+    marginTop: 4,
+    marginBottom: 4,
+  },
+  previewImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    backgroundColor: '#F0E6F5',
+  },
+  contentPreview: {
+    fontSize: 12,
+    color: '#666666',
+    marginTop: 4,
+    marginBottom: 4,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666666',
+    textAlign: 'center',
+    marginVertical: 20,
+  },
   dangerBadge: {
     backgroundColor: '#FFE6E8',
     paddingHorizontal: 8,
@@ -187,15 +314,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
   },
-  // 클린 상태 배지
   safeBadge: {
-    backgroundColor: '#F0E6F5',
+    backgroundColor: '#E8F5E9',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
   },
   safeText: {
-    color: '#9C59B5',
+    color: '#4CAF50',
     fontSize: 12,
     fontWeight: '600',
   },

@@ -7,34 +7,34 @@ import Header from '../components/BGHeader';
 import commonStyles from '../styles/commonStyles';
 import HEButton from '../components/HEButton';
 import axios from 'axios';
+import { FLASK_URL } from '@env';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
-interface Props {
-  navigation: HomeScreenNavigationProp;
-  // csrfToken: string | null;
-}
-
 const UrlCheck: React.FC<Props> = () => {
-
   const [url, setUrl] = useState('');
-
   const navigation = useNavigation();
 
   const checkUrlSafety = async (inputUrl: string) => {
     try {
-      const response = await axios.post('YOUR_API_ENDPOINT', { url: inputUrl });
-      const isSafe = response.data.isSafe; // Assuming your API returns this field
+      const response = await axios.post(`${FLASK_URL}/scan`, { url: inputUrl });
 
-      if (isSafe) {
+      // 서버 응답 확인
+      console.log('서버 응답 데이터:', response.data);
+
+      const status = response.data.status;
+
+      if (status === 'good') {
         Alert.alert('안전한 사이트입니다!', '링크로 이동합니다.', [
           { text: 'OK', onPress: () => openUrl(inputUrl) }
         ]);
-      } else {
+      } else if (status === 'bad') {
         Alert.alert('주의!', '피싱 사이트일 수 있습니다.');
+      } else {
+        Alert.alert('오류', '예측 결과를 확인할 수 없습니다.');
       }
     } catch (error) {
-      console.error(error);
+      console.error('오류 발생:', error);
       Alert.alert('오류', 'URL 확인 중 오류가 발생했습니다.');
     }
   };
@@ -47,13 +47,14 @@ const UrlCheck: React.FC<Props> = () => {
     <View style={commonStyles.container}>
       <View style={commonStyles.headerContainer}>
         <Header onBackPress={() => navigation.goBack()} />
-          <Text style={commonStyles.headerTitle}>URL 검사</Text>
+        <Text style={commonStyles.headerTitle}>URL 검사</Text>
       </View>
-        <View style={commonStyles.formContainer}>
-          <View style={commonStyles.innerContainer}>
-        <Text style={commonStyles.text1}>검사할 URL을 입력하세요.</Text>
+      <View style={commonStyles.formContainer}>
+        <View style={commonStyles.innerContainer}>
+          <Text style={commonStyles.text1}>검사할 URL을 입력하세요.</Text>
 
-          <TextInput style={commonStyles.input}
+          <TextInput
+            style={commonStyles.input}
             placeholder="URL을 입력하세요."
             value={url}
             onChangeText={setUrl}
@@ -61,13 +62,13 @@ const UrlCheck: React.FC<Props> = () => {
           <HEButton title="URL 검사" onPress={() => checkUrlSafety(url)} />
 
           <Text style={commonStyles.text2}>
-            {'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}{'\n'}
-            Thing Q는 URL 링크의 위험도와{'\n'} 정보를 제공합니다.</Text>
-            </View>
+            {'\n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}
+            Thing Q는 URL 링크의 위험도와{'\n'} 정보를 제공합니다.
+          </Text>
+        </View>
       </View>
     </View>
   );
 };
 
 export default UrlCheck;
-

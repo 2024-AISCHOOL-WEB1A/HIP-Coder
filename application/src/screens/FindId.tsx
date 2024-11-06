@@ -60,21 +60,47 @@ const FindId: React.FC = () => {
     };
 
     useEffect(() => {
-        // 이메일 인증 후 앱으로 돌아왔을 때 아이디 확인
-        const handleOpenURL = async (event: { url: string }) => {
-            const url = new URL(event.url);
-            const token = url.pathname.split('/').pop();
-            if (token) {
-                await handleVerification(token);
+        // 앱이 실행된 후 처음 호출된 URL을 처리
+        const getInitialURL = async () => {
+            try {
+                const initialUrl = await Linking.getInitialURL();
+                if (initialUrl) {
+                    console.log('Initial URL:', initialUrl);
+                    const url = new URL(initialUrl);
+                    const token = url.pathname.split('/').pop();
+                    if (token) {
+                        await handleVerification(token);
+                    }
+                }
+            } catch (error) {
+                console.error('초기 URL 가져오기 오류:', error);
             }
         };
-
-        const subscription = Linking.addEventListener('url', handleOpenURL);
-
+    
+        // 딥 링크가 호출될 때마다 URL을 처리
+        const handleOpenURL = async (event: { url: string }) => {
+            try {
+                console.log('Deep link event URL:', event.url);
+                const url = new URL(event.url);
+                const token = url.pathname.split('/').pop();
+                if (token) {
+                    await handleVerification(token);
+                }
+            } catch (error) {
+                console.error('URL 처리 중 오류:', error);
+            }
+        };
+    
+        getInitialURL(); // 앱이 처음 실행될 때 초기 URL 처리
+    
+        // 최신 방식으로 이벤트 리스너 등록
+        const subscription = Linking.addListener('url', handleOpenURL);
+    
         return () => {
-            subscription.remove(); // 최신 방식으로 이벤트 리스너 해제
+            subscription.remove(); // 컴포넌트 언마운트 시 리스너 해제
         };
     }, []);
+    
 
     return (
         <View style={commonStyles.container}>
