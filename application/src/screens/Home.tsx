@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import Header from '../components/Header';
 import AnimateNumber from 'react-native-animate-number';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const Home = () => {
   const navigation = useNavigation();
@@ -11,8 +13,22 @@ const Home = () => {
   const [urlCount, setUrlCount] = useState(100);
   const [qrCount, setQrCount] = useState(50000);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // 로그인 상태, 인풋창 초기화
     setIsLoggedIn(false);
+
+    // AsyncStorage에서 JWT 토큰 삭제
+    await AsyncStorage.removeItem('token');
+
+    // jwt 토큰 삭제 확인
+    const token = await AsyncStorage.getItem('token')
+    if (!token) {
+      console.log('JWT 토큰이 정상 삭제');
+    } else {
+      console.error('JWT 토큰 삭제 실패', token);
+    }
+
+    Alert.alert('로그아웃되었습니다.');
   };
 
   const handleLogin = () => {
@@ -38,7 +54,7 @@ const Home = () => {
         <View style={styles.counterContainer}>
           <View style={styles.counterBox}>
             <Text style={styles.counterTitle}>차단된 URL 수</Text>
-            <AnimateNumber 
+            <AnimateNumber
               value={urlCount}
               formatter={(val) => Math.floor(val).toString()}
               timing="easeOut"
@@ -50,7 +66,7 @@ const Home = () => {
 
           <View style={styles.counterBox}>
             <Text style={styles.counterTitle}>QR 코드 검사 수</Text>
-            <AnimateNumber 
+            <AnimateNumber
               value={qrCount}
               formatter={(val) => Math.floor(val).toString()}
               timing="easeOut"
@@ -172,7 +188,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     padding: 16,
     borderRadius: 16,
-    backgroundColor: '#FFFFFF', 
+    backgroundColor: '#FFFFFF',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -189,7 +205,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   counterValue: {
-    fontSize: 22, 
+    fontSize: 22,
     fontWeight: '700',
     color: '#4A4A4A',
   },
@@ -214,7 +230,7 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#000', 
+    color: '#000',
     textAlign: 'center',
   },
   CodeCheckerSection: {
