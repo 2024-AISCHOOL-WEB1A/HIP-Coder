@@ -25,9 +25,9 @@ const commonStyles = StyleSheet.create({
   },
   headerContainer: {
     width: '100%',
-    // alignItems: 'center',  // 가로로 가운데 정렬
-    justifyContent: 'center',  // 세로로 가운데 정렬
-    marginBottom: 30,  // 70인데 30으로 바꿈 / Header와 container 사이에 간격 추가
+    // alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 30,
   },
   formContainer: {
     flex: 1,
@@ -145,6 +145,100 @@ const commonStyles = StyleSheet.create({
     color: '#ffffff',
     paddingLeft: 20,
     paddingRight: 20,
+  },
+  // circleContainer: {
+  //   width: 80,
+  //   height: 80,
+  //   borderRadius: 40,
+  //   backgroundColor: '#fff2e4', // 배경색 추가
+  //   // borderWidth: 3,
+  //   // borderColor:'#ffc484',
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  // },
+  // circleContainer1: {
+  //   width: 80,
+  //   height: 80,
+  //   borderRadius: 40,
+  //   backgroundColor: '#ffc484', // 배경색 추가
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  // },
+  // circleImage: {
+  //   width: 50,
+  //   height: 50,
+  //   // borderRadius: 50,
+  //   overflow: 'hidden',
+  // },
+  box1: {
+    width: '100%',
+    height: '10%',
+    backgroundColor: '#9C59B5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 25,
+    borderWidth: 3,
+    borderColor: '#FFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 10,
+    marginBottom: 20,
+  },
+  box2: {
+    width: '100%',
+    height: '40%',
+    backgroundColor: '#9C59B5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 25,
+    borderWidth: 3,
+    borderColor: '#FFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 10,
+  },
+  text: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  circleContainer: {
+    flexDirection: 'column',  // 변경: column으로 수정하여 이미지 아래 텍스트 배치
+    alignItems: 'center',    // 텍스트를 가운데 정렬
+    justifyContent: 'center',
+    width: 80,
+    height: 120,             // 충분한 공간을 주어 텍스트와 이미지 간의 여유를 추가
+    backgroundColor: '#fff2e4',
+    borderRadius: 40,
+    marginBottom: 10,        // 텍스트와 이미지 사이의 여유 공간 추가
+  },
+
+  circleContainer1: {
+    flexDirection: 'column',  // 변경: column으로 수정하여 이미지 아래 텍스트 배치
+    alignItems: 'center',     // 텍스트를 가운데 정렬
+    justifyContent: 'center',
+    width: 80,
+    height: 120,              // 충분한 공간을 주어 텍스트와 이미지 간의 여유를 추가
+    backgroundColor: '#ffc484',
+    marginBottom: 10,         // 텍스트와 이미지 사이의 여유 공간 추가
+  },
+
+  circleImage: {
+    width: 50,
+    height: 50,
+    overflow: 'hidden',
+  },
+
+  circleText: {
+    marginTop: 10,            // 이미지와 텍스트 사이의 간격을 조정
+    textAlign: 'center',      // 텍스트를 가운데 정렬
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2c2b2b',
   },
 });
 
