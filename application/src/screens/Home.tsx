@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import Header from '../components/Header';
 import AnimateNumber from 'react-native-animate-number';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const Home = () => {
   const navigation = useNavigation();
@@ -11,8 +13,22 @@ const Home = () => {
   const [urlCount, setUrlCount] = useState(100);
   const [qrCount, setQrCount] = useState(50000);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // 로그인 상태, 인풋창 초기화
     setIsLoggedIn(false);
+
+    // AsyncStorage에서 JWT 토큰 삭제
+    await AsyncStorage.removeItem('token');
+
+    // jwt 토큰 삭제 확인
+    const token = await AsyncStorage.getItem('token')
+    if (!token) {
+      console.log('JWT 토큰이 정상 삭제');
+    } else {
+      console.error('JWT 토큰 삭제 실패', token);
+    }
+
+    Alert.alert('로그아웃되었습니다.');
   };
 
   const handleLogin = () => {
