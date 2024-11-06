@@ -30,7 +30,31 @@ const Report: React.FC<Props> = () => {
       </View>
         <View style={commonStyles.formContainer}>
           <View style={commonStyles.innerContainer}>
-            <View style={commonStyles.view1}>
+          <View style={commonStyles.view1}>
+            <View style={commonStyles.circleContainer1}>
+              <Image
+                source={require('../assets/images/Fss.png')}
+                style={commonStyles.circleImage}
+              />
+              <Text style={commonStyles.circleText}>금융감독원</Text>
+            </View>
+            <View style={commonStyles.circleContainer}>
+              <Image
+                source={require('../assets/images/Police.png')}
+                style={commonStyles.circleImage}
+              />
+              <Text style={commonStyles.circleText}>경찰청</Text>
+            </View>
+            <View style={commonStyles.circleContainer}>
+              <Image
+                source={require('../assets/images/Kisa.png')}
+                style={commonStyles.circleImage}
+              />
+              <Text style={commonStyles.circleText}>KISA</Text>
+            </View>
+          </View>
+
+            {/* <View style={commonStyles.view1}>
                 <View style={commonStyles.circleContainer1}>
                     <Image
                         source={require('../assets/images/Fss.png')}
@@ -49,7 +73,7 @@ const Report: React.FC<Props> = () => {
                         style={commonStyles.circleImage}
                     />
                 </View>
-            </View>
+            </View> */}
             {/* <View style={commonStyles.view1}> */}
             {/* <View style={[commonStyles.view1, { flexDirection: 'row', justifyContent: 'space-between' }]}>
                 <Text>금융감독원</Text>
@@ -57,13 +81,13 @@ const Report: React.FC<Props> = () => {
                 <Text>KISA</Text>
                 <Text>KISA</Text>
             </View> */}
-            <View style={[commonStyles.view1, { flexDirection: 'row', justifyContent: 'space-between', width: '100%', padding: 0 }]}>
+            {/* <View style={[commonStyles.view1, { flexDirection: 'row', justifyContent: 'space-between', width: '100%', padding: 0 }]}>
                 <Text style={{ margin: 0, textAlign: 'center' }}>금융감독원</Text>
                 <Text style={{ margin: 0, textAlign: 'center' }}>경찰청</Text>
                 <Text style={{ margin: 0, textAlign: 'center' }}>KISA</Text>
 
                                 
-            </View>
+            </View> */}
 
            <View style={commonStyles.box1}></View>
            
