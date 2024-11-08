@@ -112,32 +112,38 @@ router.post('/mypage',authenticateToken, (req, res) => {
 })
 
 /** 비밀번호 찾기 요청 처리 */
-router.get('/forgot-password', async (req, res) => {
-    const idx = '5cfb4bbd-0c67-430e-8e81-7a888399728b'; // 테스트용으로 임시 값 지정
-    const pwsql = `SELECT EMAIL FROM USER WHERE USER_IDX = ?`;
+router.post('/forgot-password', async (req, res) => {
+    const { id, name, email } = req.body;
 
-    conn.query(pwsql, [idx], async (err, result) => {
+    if (!id || !name || !email) {
+        return res.status(400).json({ error: '모든 필드를 입력해주세요.' });
+    }
+
+    const pwsql = `SELECT USER_IDX, EMAIL FROM USER WHERE USER_ID = ? AND USER_NAME = ? AND EMAIL = ?`;
+
+    conn.query(pwsql, [id, name, email], async (err, result) => {
         if (err) {
             console.error('DB Query Error:', err);
-            return res.status(500).json({ error: 'DB Query Error' })
+            return res.status(500).json({ error: 'DB Query Error' });
         } else if (result.length === 0) {
-            return res.status(404).json({ error: '사용자를 찾을 수 없습니다.' })
+            return res.status(404).json({ error: '입력하신 정보에 해당하는 사용자를 찾을 수 없습니다.' });
         } else {
-            const email = result[0].EMAIL
+            const userIdx = result[0].USER_IDX;
+            const userEmail = result[0].EMAIL;
 
             try {
                 // 임시 비밀번호 생성 및 해싱
                 const temporaryPassword = crypto.randomBytes(4).toString('hex'); // 8자리 임시 비밀번호
-                const hashedPassword = await hashpw(temporaryPassword) // hashpw 함수 사용
+                const hashedPassword = await hashpw(temporaryPassword); // hashpw 함수 사용
 
-                const expires = new Date(Date.now() + 3600000) // 1시간 후 만료 시간 설정
+                const expires = new Date(Date.now() + 3600000); // 1시간 후 만료 시간 설정
 
                 // 데이터베이스에 임시 비밀번호와 만료 시간 저장
-                const updatesql = `UPDATE USER SET USER_PW = ?, TEMP_PASSWORD_EXPIRES = ? WHERE USER_IDX = ?`
-                conn.query(updatesql, [hashedPassword, expires, idx], (updateErr) => {
+                const updatesql = `UPDATE USER SET USER_PW = ?, TEMP_PASSWORD_EXPIRES = ? WHERE USER_IDX = ?`;
+                conn.query(updatesql, [hashedPassword, expires, userIdx], (updateErr) => {
                     if (updateErr) {
                         console.error('DB Update Error:', updateErr);
-                        return res.status(500).json({ error: 'DB Update Error' })
+                        return res.status(500).json({ error: 'DB Update Error' });
                     } else {
                         // 이메일 발송 설정
                         const transporter = nodemailer.createTransport({
@@ -146,33 +152,34 @@ router.get('/forgot-password', async (req, res) => {
                                 user: process.env.EMAIL,
                                 pass: process.env.EMAIL_PASSWORD
                             }
-                        })
+                        });
 
                         const mailOptions = {
-                            to: email,
+                            to: userEmail,
                             from: process.env.EMAIL,
                             subject: '임시 비밀번호 발급',
                             text: `임시 비밀번호가 발급되었습니다. 다음 임시 비밀번호로 로그인하세요:\n ${temporaryPassword}\n\n임시 비밀번호는 1시간 동안 유효합니다. 로그인 후 반드시 비밀번호를 변경해 주세요.`
-                        }
+                        };
 
                         // 이메일 보내기
                         transporter.sendMail(mailOptions, (emailErr) => {
                             if (emailErr) {
-                                console.error('Email Send Error:', emailErr)
-                                return res.status(500).json({ error: '이메일 전송 실패' })
+                                console.error('Email Send Error:', emailErr);
+                                return res.status(500).json({ error: '이메일 전송 실패' });
                             } else {
-                                res.status(200).json({ message: '임시 비밀번호가 이메일로 전송되었습니다.' })
+                                res.status(200).json({ message: '임시 비밀번호가 이메일로 전송되었습니다.' });
                             }
-                        })
+                        });
                     }
-                })
+                });
             } catch (error) {
-                console.error('Temporary Password Generation Error:', error)
-                res.status(500).json({ error: '임시 비밀번호 생성 중 오류' })
+                console.error('Temporary Password Generation Error:', error);
+                res.status(500).json({ error: '임시 비밀번호 생성 중 오류' });
             }
         }
-    })
-})
+    });
+});
+
 
 
 // 로그인 라우터
@@ -234,7 +241,7 @@ router.post('/forgot-id', (req, res) => {
             verificationTokens[verificationToken] = { EMAIL, expires: Date.now() + 3600000 }; // 1시간 후 만료
 
             // 인증 링크 생성
-            const verificationLink = `http://121.179.36.150:3000/user/verify-id/${verificationToken}`
+            const verificationLink = `${process.env.BACK_URL}/user/verify-id/${verificationToken}`
 
             // 이메일 발송 설정
             const transporter = nodemailer.createTransport({
@@ -300,11 +307,18 @@ router.get('/verify-id/:token', (req, res) => {
             // 인증 성공 후 토큰 삭제
             delete verificationTokens[token];
 
-            // 인증 완료 후 아이디를 포함한 JSON 메시지 반환
-            res.status(200).json({ message: '아이디 찾기 성공', user_id });
+            // 인증 완료 후 사용자 ID를 HTML로 반환
+            res.send(`
+                <div style="width: 100%; display: flex; justify-content: center; align-items: center; height: 100vh;">
+                    <div style="border: 1px solid #000; padding: 20px;">
+                        <p>회원님의 아이디는 <strong>${user_id}</strong> 입니다.</p>
+                    </div>
+                </div>
+            `);
         }
     });
 });
+
 
 
 
