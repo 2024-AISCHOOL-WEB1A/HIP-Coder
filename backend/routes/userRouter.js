@@ -112,7 +112,7 @@ router.post('/mypage',authenticateToken, (req, res) => {
 })
 
 /** 비밀번호 찾기 요청 처리 */
-router.post('/forgot-password', async (req, res) => {
+router.post('/FindPw', async (req, res) => {
     const { id, name, email } = req.body;
 
     if (!id || !name || !email) {
@@ -180,6 +180,28 @@ router.post('/forgot-password', async (req, res) => {
     });
 });
 
+// 비밀번호 변경
+router.post('/changePassword', authenticateToken, async (req,res) => {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const userIdx = req.userId;
+
+    try {
+        const sql = 'SELECT USER_PW FROM USER WHERE USER_IDX = ?';
+        const [rows] = await conn.promise().query(sql, [userIdx])
+
+        const user = rows[0];
+        
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+        const updateSql = 'UPDATE USER SET USER_PW = ? WHERE USER_IDX = ?';
+        await conn.promise().query(updateSql, [hashedNewPassword, userId]);
+
+        res.status(200).json({ message : '비밀번호가 성공적으로 변경되었습니다.' })
+    } catch(error) {
+        console.error('비밀번호 변경 오류', error);
+        res.status(500).json({ error: '비밀번호 변경 중 오류가 발생했습니다.' })
+        
+    }
+});
 
 
 // 로그인 라우터
@@ -223,7 +245,7 @@ router.post('/handleLogin', async (req, res) => {
 });
 
 /** 아이디 찾기 */
-router.post('/forgot-id', (req, res) => {
+router.post('/FindId', (req, res) => {
     log('아이디 찾기 요청', req.body)
     const {USER_NAME, EMAIL} = req.body
 

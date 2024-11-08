@@ -34,7 +34,7 @@ const MyPage = () => {
 
       const res = await api.post(
         '/user/mypage',
-        {  },
+        {},
         { headers: { 'X-CSRF-Token': csrfToken }, withCredentials: true }
       );
 
@@ -74,12 +74,23 @@ const MyPage = () => {
     }
   };
 
-  const handlePasswordChange = () => {
-    if (passwords.newPassword !== passwords.confirmPassword) {
-      Alert.alert('오류', '새 비밀번호가 일치하지 않습니다.');
-      return;
+  const handlePasswordChange = async () => {
+    try {
+      const res = await api.post('/user/changePassword', {
+        currentPassword: passwords.currentPassword,
+        newPassword: passwords.newPassword,
+      });
+
+      if (res.status === 200) {
+        Alert.alert('알림', '비밀번호가 성공적으로 변경되었습니다.');
+        setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      } else {
+        Alert.alert('오류', res.data.error || '비밀번호 변경 중 오류가 발생했습니다.');
+      }
+    } catch (error) {
+      console.error('비밀번호 변경 요청 오류:', error);
+      Alert.alert('오류', '비밀번호 변경 요청 중 오류가 발생했습니다.');
     }
-    Alert.alert('알림', '비밀번호가 성공적으로 변경되었습니다.');
   };
 
   const handleWithdrawal = () => {
