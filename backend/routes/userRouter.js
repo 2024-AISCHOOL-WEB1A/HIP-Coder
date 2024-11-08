@@ -7,6 +7,8 @@ const {v4 : uuidv4} = require('uuid')
 const nodemailer = require('nodemailer')
 const crypto = require('crypto')
 const jwtoken = require('../config/jwt')
+const authenticateToken = require('../config/middleWare'); 
+
 
 // userRouter.js 파일 최상단에 추가
 const verificationTokens = {}; // 인증 토큰을 저장할 빈 객체 정의
@@ -86,21 +88,25 @@ router.post('/idcheck', async (req, res) => {
 });
 
 /** 마이페이지 정보 불러오기 */
-router.post('/mypage', (req, res) => {
-    const {idx} = req.body
-    log('마이페이지', req.body)
+router.post('/mypage',authenticateToken, (req, res) => {
+    const userIdx = req.userId;
+
+    log('마이페이지 요청, userIdx:', userIdx);
+
     var sql = `SELECT U.USER_NAME, U.PHONE, U.EMAIL, E.CONTACT_INFO1, E.CONTACT_INFO2
                 FROM USER U INNER JOIN EMG_CON E
                 ON U.USER_IDX = E.USER_IDX
                 WHERE U.USER_IDX =  ?`
 
-    conn.query(sql, [idx], (err, r) => {
+    conn.query(sql, [userIdx], (err, results) => {
         if (err) {
             console.error('DB Count Error', err)
             return res.status(500).json({error : 'DB Count Error'})
+        } else if (results.length === 0) {
+            return res.status(404).json({ error: '사용자 정보를 찾을 수 없습니다.' })
         } else {
-            log(r)
-            res.json({ message: r})
+            log(results)
+            res.json({ message: results})
         }
     })
 })
@@ -175,7 +181,7 @@ router.post('/handleLogin', async (req, res) => {
 
     try {
         // 사용자 정보를 데이터베이스에서 조회
-        const sql = 'SELECT USER_PW FROM USER WHERE USER_ID = ?';
+        const sql = 'SELECT USER_IDX, USER_PW FROM USER WHERE USER_ID = ?';
         const [rows] = await conn.promise().query(sql, [id]);
 
 
@@ -184,17 +190,16 @@ router.post('/handleLogin', async (req, res) => {
             return res.status(400).json({ error: '존재하지 않는 사용자입니다.' });
         }
 
-        // 패스워드 해싱 불러오기
-        const hashpassword = rows[0].USER_PW;
-        // 로그인 유저 정보
-        const user = rows[0];
+        // 로그인 유저 특정
+        const user = rows[0]
+        log('user:', user)
 
         // 비밀번호 검증
-        const isMatch = await verifypw(password, hashpassword);
+        const isMatch = await verifypw(password, user.USER_PW);
 
         if (isMatch) {
             // 비밀번호가 맞다면 JWT 토큰 생성
-            const token = jwtoken.generateToken({ id : user.USER_ID });
+            const token = jwtoken.generateToken({ id : user.USER_IDX });
             console.log('jwt 토큰 확인:', token);
 
             // 로그인 성공

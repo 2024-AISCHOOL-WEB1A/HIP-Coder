@@ -16,7 +16,10 @@ api.interceptors.request.use(
   async (config) => { // config => axios 실제 요청 객체
     const token = await AsyncStorage.getItem('token');
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`; // 헤드에 토큰 저장
+      // 헤더에 Bearer 제외하고 토큰만 저장
+      config.headers.Authorization = `Bearer ${token}`;
+
+      console.log('Authorization 헤더에 추가된 JWT 토큰:', config.headers.Authorization);
     }
     return config;
   },

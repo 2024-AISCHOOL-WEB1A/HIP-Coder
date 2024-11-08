@@ -34,7 +34,7 @@ const MyPage = () => {
 
       const res = await api.post(
         '/user/mypage',
-        { idx: '1' },
+        {  },
         { headers: { 'X-CSRF-Token': csrfToken }, withCredentials: true }
       );
 
