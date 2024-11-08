@@ -5,6 +5,7 @@ import api from './axios';
 import { useCsrf } from './context/CsrfContext'; // CsrfProvider는 이미 최상위에서 감싸고 있으므로 useCsrf만 사용
 
 // 각 화면들 import
+import IntroScreen from './src/screens/IntroScreen'; // IntroScreen 추가
 import Home from './src/screens/Home';
 import Join from './src/screens/Join';
 import Login from './src/screens/Login';
@@ -97,7 +98,8 @@ const App = () => {
   }, []);
 
   return (
-    <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
+    <Stack.Navigator initialRouteName="Intro" screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Intro" component={IntroScreen} />
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="Join" component={Join} />
       <Stack.Screen name="Login" component={Login} />

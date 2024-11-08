@@ -129,6 +129,7 @@ const MyPage = () => {
               onChangeText={(text) => setProfileData({ ...profileData, email: text })}
               editable={false} // 항상 readonly
             />
+            <Text style={styles.emergencyContactTitle}>비상연락망(1)</Text>
             <TextInput
               style={[styles.input, { backgroundColor: isEditing ? '#FFFFFF' : '#F0F0F0' }]} // 비상 연락망 편집 가능
               placeholder="비상연락망(1)"
@@ -137,6 +138,7 @@ const MyPage = () => {
               onChangeText={(text) => setProfileData({ ...profileData, emergencyContact1: text })}
               editable={isEditing} // 편집 모드일 때만 수정 가능
             />
+            <Text style={styles.emergencyContactTitle}>비상연락망(2)</Text>
             <TextInput
               style={[styles.input, { backgroundColor: isEditing ? '#FFFFFF' : '#F0F0F0' }]} // 비상 연락망 편집 가능
               placeholder="비상연락망(2)"
@@ -232,10 +234,10 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
     color: '#000000',
     marginBottom: 12,
     paddingHorizontal: 4,
+    fontFamily: 'Pretendard-SemiBold', 
   },
   card: {
     backgroundColor: '#FFFFFF',
@@ -267,20 +269,28 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     backgroundColor: '#FFFFFF',
     color: '#000000',
+    fontFamily: 'Pretendard-Regular',  
+  },
+  emergencyContactTitle: {
+    fontSize: 14,
+    color: '#000000',
+    marginBottom: 4,
+    fontFamily: 'Pretendard-Regular', 
   },
   actionButton: {
     marginTop: 8,
   },
   historyLabel: {
     fontSize: 16,
-    fontWeight: '600',
     color: '#000000',
     marginBottom: 8,
+    fontFamily: 'Pretendard-Medium',  
   },
   historyDescription: {
     fontSize: 14,
     color: '#666666',
     marginBottom: 16,
+    fontFamily: 'Pretendard-Regular',  
   },
   historyButton: {
     backgroundColor: '#9C59B5',
@@ -295,17 +305,19 @@ const styles = StyleSheet.create({
   historyButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Pretendard-Medium',  
   },
   historyDate: {
     color: '#FFFFFF',
     marginTop: 8,
     fontSize: 14,
+    fontFamily: 'Pretendard-Regular',  
   },
   qrCodeText: {
     color: '#FFFFFF',
     marginTop: 4,
     fontSize: 14,
+    fontFamily: 'Pretendard-Regular', 
   },
   withdrawalText: {
     alignSelf: 'center',
@@ -313,6 +325,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     color: '#838383',
     fontSize: 16,
+    fontFamily: 'Pretendard-Regular',  
   },
 });
 

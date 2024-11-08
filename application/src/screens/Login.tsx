@@ -109,13 +109,14 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: '#6A1B9A', 
     textAlign: 'left',
+    fontFamily: 'Pretendard-Regular', 
   },
   subHeader: {
     fontSize: 32,
-    fontWeight: 'bold',
     color: '#6A1B9A',  
     paddingBottom: 40,
     textAlign: 'left',
+    fontFamily: 'Pretendard-Bold', 
   },
   input: {
     width: '100%',
@@ -126,6 +127,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginVertical: 10,
     backgroundColor: '#FFFFFF',
+    fontFamily: 'Pretendard-Regular',
   },
   buttonContainer: {
     width: '100%',
@@ -140,6 +142,7 @@ const styles = StyleSheet.create({
   link: {
     color: '#838383',
     textAlign: 'center',
+    fontFamily: 'Pretendard-Regular', 
   },
 });
 

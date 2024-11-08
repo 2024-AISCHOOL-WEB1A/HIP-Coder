@@ -112,9 +112,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     color: '#6A1B9A',
-    fontWeight: 'bold',
-    flex: 1,
     textAlign: 'center',
+    fontFamily: 'Pretendard-Bold',
   },
   iconContainer: {
     padding: 10,
@@ -127,7 +126,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '70%',
     height: '100%',
-    backgroundColor: '#FFFFFF', 
+    backgroundColor: '#F9F9F9', 
     padding: 20,
     justifyContent: 'center',
     borderTopLeftRadius: 20,
@@ -153,9 +152,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   profileName: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#4A148C',
-    fontWeight: 'bold',
+    fontFamily: 'Pretendard-SemiBold',
   },
   menuItem: {
     flexDirection: 'row',
@@ -168,6 +167,7 @@ const styles = StyleSheet.create({
   menuItemText: {
     fontSize: 18,
     color: '#333',
+    fontFamily: 'Pretendard-Regular',
   },
 });
 
