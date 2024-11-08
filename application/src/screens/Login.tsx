@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, ImageBackground, Alert } from 'react-native';
+import { View, TextInput, Text, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../components/IJButton';
 import Header from '../components/Header';
 import api from '../../axios';
 import { useCsrf } from '../../context/CsrfContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import LinearGradient from 'react-native-linear-gradient';
 
 const Login: React.FC<Props> = () => {
   const [id, setId] = useState<string>(''); // email을 id로 변경
@@ -26,6 +27,8 @@ const Login: React.FC<Props> = () => {
       if (res.status === 200) {
         const { token } = res.data;
         await AsyncStorage.setItem('token', token);
+        console.log('AsyncStorage에 저장된 token', await AsyncStorage.getItem('token'));
+        
 
         Alert.alert('환영합니다')
         setIsLoggedIn(true);
@@ -41,12 +44,12 @@ const Login: React.FC<Props> = () => {
     }
   };
 
-
   return (
-    <ImageBackground
-      source={require('../assets/background.jpg')}
+    <LinearGradient
+      colors={['#FFFFFF', '#F3E5F5', '#E1BEE7']}  
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
       style={styles.container}
-      resizeMode="cover"
     >
       <Header onBackPress={() => navigation.goBack()} title="" />
       <View style={styles.innerContainer}>
@@ -58,8 +61,8 @@ const Login: React.FC<Props> = () => {
           style={styles.input}
           placeholder="아이디"
           placeholderTextColor="#838383"
-          value={id} // email을 id로 변경
-          onChangeText={setId} // email을 setId로 변경
+          value={id} 
+          onChangeText={setId} 
         />
         <TextInput
           style={styles.input}
@@ -73,7 +76,7 @@ const Login: React.FC<Props> = () => {
           <CustomButton title="로그인" onPress={handleLogin} />
         </View>
         <View style={styles.linkContainer}>
-        <Text style={styles.link} onPress={() => navigation.navigate('FindId')}>
+          <Text style={styles.link} onPress={() => navigation.navigate('FindId')}>
             ID를 잊으셨습니까?
           </Text>
           <Text style={styles.link} onPress={() => navigation.navigate('FindPw')}>
@@ -81,7 +84,7 @@ const Login: React.FC<Props> = () => {
           </Text>
         </View>
       </View>
-    </ImageBackground>
+    </LinearGradient>
   );
 };
 
@@ -95,7 +98,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingTop: 100,
+    paddingTop: 120, 
     paddingHorizontal: 40,
     width: '100%',
   },
@@ -105,14 +108,14 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   header: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#6A1B9A',
+    fontSize: 28,
+    color: '#6A1B9A', 
     textAlign: 'left',
   },
   subHeader: {
     fontSize: 32,
-    color: '#6A1B9A',
+    fontWeight: 'bold',
+    color: '#6A1B9A',  
     paddingBottom: 40,
     textAlign: 'left',
   },

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { PermissionsAndroid, Alert, BackHandler, Linking } from 'react-native';
 import api from './axios';
-import { useCsrf } from './context/CsrfContext'; // CsrfProvider는 이미 최상위에서 감싸고 있으므로 useCsrf만 사용
+import { useCsrf } from './context/CsrfContext'; // CsrfProvider는 이미 최상위에서 감스리고 있으니로 useCsrf만 사용
 
 // 각 화면들 import
 import Home from './src/screens/Home';
@@ -27,7 +27,7 @@ const App = () => {
   const openAppSettings = () => {
     Alert.alert(
       "권한 필요",
-      "이 앱은 필요한 권한이 거부되었습니다. 앱 설정에서 직접 권한을 허용해주세요.",
+      "이 앱은 필수 권한이 거부되었습니다. 앱 설정에서 지정권한을 허용해주세요.",
       [
         { text: "취소", style: "cancel" },
         { text: "설정으로 이동", onPress: () => Linking.openSettings() }
@@ -35,35 +35,24 @@ const App = () => {
     );
   };
 
-  const requestStoragePermission = async () => {
+  const requestStoragePermissions = async () => {
     console.log('권한 요청 시작');
 
     try {
-      const grantedWrite = await PermissionsAndroid.request(
+      const granted = await PermissionsAndroid.requestMultiple([
         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-        {
-          title: '저장소 접근 권한',
-          message: '이 앱은 파일을 저장하고 읽기 위해 저장소 접근 권한이 필요합니다.',
-          buttonNeutral: '나중에',
-          buttonNegative: '거부',
-          buttonPositive: '허용',
-        },
-      );
-
-      const grantedRead = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        {
-          title: '저장소 접근 권한',
-          message: '이 앱은 파일을 저장하고 읽기 위해 저장소 접근 권한이 필요합니다.',
-          buttonNeutral: '나중에',
-          buttonNegative: '거부',
-          buttonPositive: '허용',
-        },
-      );
+      ]);
 
-      if (grantedWrite === PermissionsAndroid.RESULTS.GRANTED && grantedRead === PermissionsAndroid.RESULTS.GRANTED) {
+      if (
+        granted['android.permission.WRITE_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.GRANTED &&
+        granted['android.permission.READ_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.GRANTED
+      ) {
         // 권한이 허용됨
-      } else if (grantedWrite === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN || grantedRead === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+      } else if (
+        granted['android.permission.WRITE_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN ||
+        granted['android.permission.READ_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN
+      ) {
         openAppSettings();
       } else {
         Alert.alert(
@@ -89,7 +78,7 @@ const App = () => {
 
   useEffect(() => {
     const checkPermissions = async () => {
-      await requestStoragePermission(); // 권한 요청
+      await requestStoragePermissions(); // 권한 요청
       fetchCsrfToken(); // CSRF 토큰 가져오기
     };
 
