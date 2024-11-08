@@ -19,7 +19,6 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   borderRadius = 25,
   fontSize = 16,
   marginBottom = 20,
-
 }) => {
   return (
     <TouchableOpacity
@@ -30,8 +29,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
           height: 55,
           backgroundColor,
           borderRadius,
-
-          marginBottom
+          marginBottom,
         },
       ]}
       onPress={onPress}
@@ -55,7 +53,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     textAlign: 'center',
-     fontWeight: 'bold',
+    fontFamily: 'Pretendard-Medium', 
   },
 });
 

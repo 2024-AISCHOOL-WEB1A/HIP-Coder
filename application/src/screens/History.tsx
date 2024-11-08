@@ -178,7 +178,7 @@ const History = () => {
       <View style={styles.scrollContainer}>
         <View style={styles.headerContainer}>
           <Text style={styles.subtitle}>검사 이력</Text>
-          <Text style={styles.description}>QR코드 / URL / 이미지 검사 결과를 확인하세요</Text>
+          <Text style={styles.description}>QR코드 / URL / 이미지 검사 결과를 확인하세요.</Text>
         </View>
         <View style={styles.separator} />
         <FlatList
@@ -213,14 +213,15 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   subtitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 22,
     color: '#333333',
+    fontFamily: 'Pretendard-Bold',
   },
   description: {
     fontSize: 14,
     color: '#666666',
     marginTop: 4,
+    fontFamily: 'Pretendard-Regular', 
   },
   separator: {
     height: 1,
@@ -272,14 +273,15 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   typeText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#333333',
-    fontWeight: '500',
     marginRight: 8,
+    fontFamily: 'Pretendard-SemiBold',
   },
   dateText: {
     fontSize: 14,
     color: '#666666',
+    fontFamily: 'Pretendard-Medium',
   },
   previewContainer: {
     marginTop: 4,
@@ -296,12 +298,14 @@ const styles = StyleSheet.create({
     color: '#666666',
     marginTop: 4,
     marginBottom: 4,
+    fontFamily: 'Pretendard-Medium', 
   },
   emptyText: {
     fontSize: 16,
     color: '#666666',
     textAlign: 'center',
     marginVertical: 20,
+    fontFamily: 'Pretendard-Regular', 
   },
   dangerBadge: {
     backgroundColor: '#FFE6E8',
@@ -312,7 +316,7 @@ const styles = StyleSheet.create({
   dangerText: {
     color: '#D64B60',
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: 'Pretendard-SemiBold',
   },
   safeBadge: {
     backgroundColor: '#E8F5E9',
@@ -323,7 +327,7 @@ const styles = StyleSheet.create({
   safeText: {
     color: '#4CAF50',
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: 'Pretendard-SemiBold',
   },
 });
 

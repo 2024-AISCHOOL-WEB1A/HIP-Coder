@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, Image, ScrollView } from 'react-native';
-import { launchImageLibrary, Asset, ImagePickerResponse } from 'react-native-image-picker';
+import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
 import axios from 'axios';
 import { useCsrf } from '../../context/CsrfContext';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FLASK_URL } from '@env';
+import Header from '../components/Header';
+
 interface GalleryQrScanProps {
   navigation: any;
 }
@@ -62,9 +64,8 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
 
     try {
       const response = await axios.post(
-        //'http://220.95.41.232:5000/test', // 서버 URL
         `${FLASK_URL}/test`,
-        formData, // 전송할 데이터
+        formData,
         {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -75,8 +76,6 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
       );
 
       console.log('서버 응답 데이터:', response.data);
-      console.log('서버 응답 데이터:', response.data.status);
-
       if (response.data.qrCodeData) {
         const url = response.data.qrCodeData;
         const scanResponse = await axios.post(`${FLASK_URL}/scan`, { url });
@@ -91,12 +90,12 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
       } else {
         Alert.alert('업로드 실패', 'QR 코드 데이터가 없습니다.');
       }
-      // 스캔 이력에 추가
+
       const newScan: ScanHistory = {
         id: Date.now().toString(),
         date: new Date().toISOString(),
         imageUri: selectedImageUri,
-        status: response.data.result || '검사 완료', // 서버 응답에 따라 수정 필요
+        status: response.data.result || '검사 완료',
       };
 
       setScanHistory(prevHistory => [newScan, ...prevHistory]);
@@ -123,15 +122,14 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>갤러리 QR 이미지 검사</Text>
-      </View>
-      
+      {/* Header 임포트한 부분 */}
+      <Header />
+
       <View style={styles.mainContent}>
         {selectedImageUri ? (
           <>
             <Image source={{ uri: selectedImageUri }} style={styles.previewImage} />
-            
+
             <TouchableOpacity style={styles.button} onPress={selectImageFromGallery}>
               <Text style={styles.buttonText}>이미지 변경하기</Text>
             </TouchableOpacity>
@@ -171,15 +169,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8F9FA',
   },
-  header: {
-    padding: 20,
-    backgroundColor: '#FFFFFF',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#333333',
-  },
   mainContent: {
     alignItems: 'center',
     padding: 20,
@@ -192,11 +181,12 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     width: '100%',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   buttonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Pretendard-SemiBold',
   },
   previewImage: {
     width: 200,
@@ -209,9 +199,9 @@ const styles = StyleSheet.create({
   },
   historyTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
     marginBottom: 15,
     color: '#333333',
+    fontFamily: 'Pretendard-Bold',
   },
   historyItem: {
     flexDirection: 'row',
@@ -234,13 +224,14 @@ const styles = StyleSheet.create({
   },
   historyStatus: {
     fontSize: 16,
-    fontWeight: '500',
     color: '#333333',
     marginBottom: 4,
+    fontFamily: 'Pretendard-Regular',
   },
   historyDate: {
     fontSize: 14,
     color: '#666666',
+    fontFamily: 'Pretendard-Regular',
   },
 });
 

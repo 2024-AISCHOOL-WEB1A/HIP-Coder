@@ -6,7 +6,6 @@ import Header from '../components/Header';
 import AnimateNumber from 'react-native-animate-number';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
 const Home = () => {
   const navigation = useNavigation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -207,8 +206,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   mainTitle: {
-    fontSize: 28,
-    fontWeight: '700',
+    fontSize: 30,
+    fontFamily: 'Pretendard-Bold',
     color: '#1A1D1E',
     textAlign: 'center',
     marginVertical: 20,
@@ -230,14 +229,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   counterTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontFamily: 'Pretendard-Bold',
     color: '#4A4A4A',
     marginBottom: 8,
   },
   counterValue: {
-    fontSize: 22,
-    fontWeight: '700',
+    fontSize: 20,
+    fontFamily: 'Pretendard-Bold', 
     color: '#4A4A4A',
   },
   categoryContainer: {
@@ -260,7 +259,7 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: 'Pretendard-Medium',
     color: '#000',
     textAlign: 'center',
   },
@@ -269,8 +268,9 @@ const styles = StyleSheet.create({
   },
   CodeCheckerTitle: {
     fontSize: 20,
-    fontWeight: '600',
+    fontFamily: 'Pretendard-SemiBold',
     color: '#1A1D1E',
+    paddingLeft: 16,
     marginBottom: 16,
   },
   card: {
@@ -289,7 +289,6 @@ const styles = StyleSheet.create({
   cardIconContainer: {
     width: 64,
     height: 64,
-    // backgroundColor: '#F0E5F5',
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
@@ -300,12 +299,12 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Pretendard-Bold', 
     color: '#1A1D1E',
   },
   cardDescription: {
     fontSize: 14,
-    fontWeight: '400',
+    fontFamily: 'Pretendard-Regular',
     color: '#6D6D6D',
   },
   iconImage: {
@@ -321,7 +320,6 @@ const styles = StyleSheet.create({
   },
   testButtonText: {
     fontSize: 16,
-    fontWeight: '600',
     color: '#FFFFFF',
   },
   navBar: {
