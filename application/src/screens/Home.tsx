@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Header from '../components/Header';
 import AnimateNumber from 'react-native-animate-number';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -11,6 +11,28 @@ const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [urlCount, setUrlCount] = useState(100);
   const [qrCount, setQrCount] = useState(50000);
+
+  // 로그인 상태 확인 (토큰)
+  const checkIsLogin = async () => {
+    const token = await AsyncStorage.getItem('token')
+    setIsLoggedIn(!!token)
+  }
+
+  // 렌더링시 로그인 상태 확인
+  useEffect(() => {
+    checkIsLogin();
+  }, []);
+
+  // Home 화면이 다시 포커스될 때 로그인 상태 확인
+  useFocusEffect(
+    React.useCallback(() => {
+      checkIsLogin();
+    }, [])
+  );
+
+  const handleLogin = () => {
+    navigation.navigate('Login')
+  }
 
   const handleLogout = async () => {
     // 로그인 상태, 인풋창 초기화
@@ -28,11 +50,6 @@ const Home = () => {
     }
 
     Alert.alert('로그아웃되었습니다.');
-  };
-
-  const handleLogin = () => {
-    navigation.navigate('Login');
-    setIsLoggedIn(true);
   };
 
   const incrementUrlCount = () => {

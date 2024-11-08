@@ -43,8 +43,7 @@
                 <!-- 인증 링크에 맞는 URL 설정 -->
                 <data
                     android:scheme="http"
-                    android:host="121.179.36.150"
-                    android:port="3000"
+                    android:host="220.80.105.38"
                     android:pathPrefix="/user/verify-id" />
             </intent-filter>
         </activity>
