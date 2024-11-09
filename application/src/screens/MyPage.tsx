@@ -74,15 +74,30 @@ const MyPage = () => {
     }
   };
 
+  interface Passwords {
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  }
+  // 비밀번호 변경 함수
   const handlePasswordChange = async () => {
+    console.log("비밀번호 변경 요청", passwords);
+
+    // 새 비밀번호 매칭 확인
+    if (passwords.newPassword !== passwords.confirmPassword) {
+      Alert.alert('오류', '새 비밀번호가 일치하지 않습니다.');
+      return;
+    }
     try {
       const res = await api.post('/user/changePassword', {
         currentPassword: passwords.currentPassword,
         newPassword: passwords.newPassword,
+        confirmPassword: passwords.confirmPassword,
       });
 
       if (res.status === 200) {
         Alert.alert('알림', '비밀번호가 성공적으로 변경되었습니다.');
+        // 비밀번호 입력 초기화
         setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
       } else {
         Alert.alert('오류', res.data.error || '비밀번호 변경 중 오류가 발생했습니다.');
@@ -93,6 +108,8 @@ const MyPage = () => {
     }
   };
 
+
+  // 회원 탈퇴
   const handleWithdrawal = () => {
     Alert.alert(
       '회원 탈퇴',
@@ -196,7 +213,7 @@ const MyPage = () => {
             />
             <CustomButton
               title="비밀번호 변경"
-              onPress={handlePasswordChange}
+              onPress={()=> handlePasswordChange()}
               style={styles.actionButton}
             />
           </View>
@@ -248,7 +265,7 @@ const styles = StyleSheet.create({
     color: '#000000',
     marginBottom: 12,
     paddingHorizontal: 4,
-    fontFamily: 'Pretendard-SemiBold', 
+    fontFamily: 'Pretendard-SemiBold',
   },
   card: {
     backgroundColor: '#FFFFFF',
@@ -280,13 +297,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     backgroundColor: '#FFFFFF',
     color: '#000000',
-    fontFamily: 'Pretendard-Regular',  
+    fontFamily: 'Pretendard-Regular',
   },
   emergencyContactTitle: {
     fontSize: 14,
     color: '#000000',
     marginBottom: 4,
-    fontFamily: 'Pretendard-Regular', 
+    fontFamily: 'Pretendard-Regular',
   },
   actionButton: {
     marginTop: 8,
@@ -295,13 +312,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#000000',
     marginBottom: 8,
-    fontFamily: 'Pretendard-Medium',  
+    fontFamily: 'Pretendard-Medium',
   },
   historyDescription: {
     fontSize: 14,
     color: '#666666',
     marginBottom: 16,
-    fontFamily: 'Pretendard-Regular',  
+    fontFamily: 'Pretendard-Regular',
   },
   historyButton: {
     backgroundColor: '#9C59B5',
@@ -316,19 +333,19 @@ const styles = StyleSheet.create({
   historyButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontFamily: 'Pretendard-Medium',  
+    fontFamily: 'Pretendard-Medium',
   },
   historyDate: {
     color: '#FFFFFF',
     marginTop: 8,
     fontSize: 14,
-    fontFamily: 'Pretendard-Regular',  
+    fontFamily: 'Pretendard-Regular',
   },
   qrCodeText: {
     color: '#FFFFFF',
     marginTop: 4,
     fontSize: 14,
-    fontFamily: 'Pretendard-Regular', 
+    fontFamily: 'Pretendard-Regular',
   },
   withdrawalText: {
     alignSelf: 'center',
@@ -336,7 +353,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     color: '#838383',
     fontSize: 16,
-    fontFamily: 'Pretendard-Regular',  
+    fontFamily: 'Pretendard-Regular',
   },
 });
 
