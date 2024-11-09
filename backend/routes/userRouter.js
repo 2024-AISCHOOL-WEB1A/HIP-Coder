@@ -207,12 +207,11 @@ router.post('/changePassword', authenticateToken, async (req,res) => {
 // 로그인 라우터
 router.post('/handleLogin', async (req, res) => {
     const { id, password } = req.body;
-
+    log('req : ', req.body)
     try {
         // 사용자 정보를 데이터베이스에서 조회
-        const sql = 'SELECT USER_IDX, USER_PW FROM USER WHERE USER_ID = ?';
+        const sql = 'SELECT USER_IDX, USER_PW, TEMP_PASSWORD_EXPIRES FROM USER WHERE USER_ID = ?';
         const [rows] = await conn.promise().query(sql, [id]);
-
 
         // 사용자 ID가 존재하지 않으면 에러 반환
         if (rows.length === 0) {
@@ -220,19 +219,36 @@ router.post('/handleLogin', async (req, res) => {
         }
 
         // 로그인 유저 특정
-        const user = rows[0]
-        log('user:', user)
+        const user = rows[0];
+        log('user:', user);
 
-        // 비밀번호 검증
-        const isMatch = await verifypw(password, user.USER_PW);
+        // 현재 시간 확인
+        const currentTime = new Date();
+
+        // 임시 비밀번호가 유효한 경우 비밀번호 검증
+        let isMatch = false;
+
+        if (user.TEMP_PASSWORD_EXPIRES && new Date(user.TEMP_PASSWORD_EXPIRES) > currentTime) {
+            // 임시 비밀번호가 유효하다면 임시 비밀번호와 입력된 비밀번호 비교
+            isMatch = await verifypw(password, user.USER_PW);
+
+            if (isMatch) {
+                // 임시 비밀번호로 로그인 시 비밀번호 변경이 필요한지 알려줌
+                res.status(200).json({ message: '임시 비밀번호로 로그인되었습니다. 비밀번호를 변경해 주세요.', token: jwtoken.generateToken({ id: user.USER_IDX }), temporaryPassword: true });
+                return;
+            }
+        }
+
+        // 임시 비밀번호가 만료되었거나 존재하지 않으면 기본 비밀번호로 로그인 시도
+        isMatch = await verifypw(password, user.USER_PW);
 
         if (isMatch) {
             // 비밀번호가 맞다면 JWT 토큰 생성
-            const token = jwtoken.generateToken({ id : user.USER_IDX });
+            const token = jwtoken.generateToken({ id: user.USER_IDX });
             console.log('jwt 토큰 확인:', token);
 
             // 로그인 성공
-            res.status(200).json({ message: '로그안 성공!', token });
+            res.status(200).json({ message: '로그인 성공!', token, temporaryPassword: false });
         } else {
             // 비밀번호가 틀리면 에러 반환
             return res.status(400).json({ error: '비밀번호가 일치하지 않습니다.' });
