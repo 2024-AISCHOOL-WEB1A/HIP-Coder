@@ -210,10 +210,10 @@ router.post('/changePassword', authenticateToken, async (req, res) => {
         await conn.promise().query(updateSql, [hashedNewPassword, userId]);
 
         res.status(200).json({ message: '비밀번호가 성공적으로 변경되었습니다.' })
+        log('비밀번호 변경 완료')
     } catch (error) {
         console.error('비밀번호 변경 오류', error);
         res.status(500).json({ error: '비밀번호 변경 중 오류가 발생했습니다.' })
-
     }
 });
 
