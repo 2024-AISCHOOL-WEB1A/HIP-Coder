@@ -187,11 +187,10 @@ router.post('/changePassword', authenticateToken, async (req, res) => {
 
     console.log('userId', userId);
     
-
     try {
-        //현재 비밀번호 확인하기
+        // 현재 비밀번호 확인하기
         const sql = 'SELECT USER_PW FROM USER WHERE USER_IDX = ?';
-        const [rows] = await conn.promise().query(sql, [userId])
+        const [rows] = await conn.promise().query(sql, [userId]);
 
         if (rows.length === 0) {
             return res.status(404).json({ error: '사용자를 찾을 수 없습니다.' });
@@ -206,14 +205,14 @@ router.post('/changePassword', authenticateToken, async (req, res) => {
 
         // 새 비밀번호 변경 및 해싱
         const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-        const updateSql = 'UPDATE USER SET USER_PW = ? WHERE USER_IDX = ?';
+        const updateSql = 'UPDATE USER SET USER_PW = ?, TEMP_PASSWORD_EXPIRES = NULL WHERE USER_IDX = ?';
         await conn.promise().query(updateSql, [hashedNewPassword, userId]);
 
-        res.status(200).json({ message: '비밀번호가 성공적으로 변경되었습니다.' })
-        log('비밀번호 변경 완료')
+        res.status(200).json({ message: '비밀번호가 성공적으로 변경되었습니다.' });
+        console.log('비밀번호 변경 완료');
     } catch (error) {
         console.error('비밀번호 변경 오류', error);
-        res.status(500).json({ error: '비밀번호 변경 중 오류가 발생했습니다.' })
+        res.status(500).json({ error: '비밀번호 변경 중 오류가 발생했습니다.' });
     }
 });
 
@@ -221,51 +220,40 @@ router.post('/changePassword', authenticateToken, async (req, res) => {
 // 로그인 라우터
 router.post('/handleLogin', async (req, res) => {
     const { id, password } = req.body;
-    log('req : ', req.body)
+    console.log('req : ', req.body);
     try {
-        // 사용자 정보를 데이터베이스에서 조회
         const sql = 'SELECT USER_IDX, USER_PW, TEMP_PASSWORD_EXPIRES FROM USER WHERE USER_ID = ?';
         const [rows] = await conn.promise().query(sql, [id]);
 
-        // 사용자 ID가 존재하지 않으면 에러 반환
         if (rows.length === 0) {
             return res.status(400).json({ error: '존재하지 않는 사용자입니다.' });
         }
 
-        // 로그인 유저 특정
         const user = rows[0];
-        log('user:', user);
+        console.log('user:', user);
 
-        // 현재 시간 확인
         const currentTime = new Date();
-
-        // 임시 비밀번호가 유효한 경우 비밀번호 검증
         let isMatch = false;
 
         if (user.TEMP_PASSWORD_EXPIRES && new Date(user.TEMP_PASSWORD_EXPIRES) > currentTime) {
-            // 임시 비밀번호가 유효하다면 임시 비밀번호와 입력된 비밀번호 비교
             isMatch = await verifypw(password, user.USER_PW);
 
             if (isMatch) {
-                // 임시 비밀번호로 로그인 시 비밀번호 변경이 필요한지 알려줌
-                res.status(200).json({ message: '임시 비밀번호로 로그인되었습니다. 비밀번호를 변경해 주세요.', token: jwtoken.generateToken({ id: user.USER_IDX }), temporaryPassword: true });
-                return;
+                return res.status(200).json({
+                    message: '임시 비밀번호로 로그인되었습니다. 비밀번호를 변경해 주세요.',
+                    token: jwtoken.generateToken({ id: user.USER_IDX }),
+                    temporaryPassword: true
+                });
             }
         }
 
-        // 임시 비밀번호가 만료되었거나 존재하지 않으면 기본 비밀번호로 로그인 시도
         isMatch = await verifypw(password, user.USER_PW);
-
         if (isMatch) {
-            // 비밀번호가 맞다면 JWT 토큰 생성
             const token = jwtoken.generateToken({ id: user.USER_IDX });
             console.log('jwt 토큰 확인:', token);
-
-            // 로그인 성공
-            res.status(200).json({ message: '로그인 성공!', token, temporaryPassword: false });
+            return res.status(200).json({ message: '로그인 성공!', token, temporaryPassword: false });
         } else {
-            // 비밀번호가 틀리면 에러 반환
-            return res.status(400).json({ error: '비밀번호가 일치하지 않습니다.' });
+            return res.status(400).json({ error: '아이디 또는 비밀번호가 일치하지 않습니다.' });
         }
 
     } catch (error) {
