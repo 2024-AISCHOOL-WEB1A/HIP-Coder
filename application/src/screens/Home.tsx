@@ -5,6 +5,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Header from '../components/Header';
 import AnimateNumber from 'react-native-animate-number';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from '../../axios';
 
 const Home = () => {
   const navigation = useNavigation();
@@ -40,13 +41,20 @@ const Home = () => {
 
     // AsyncStorage에서 JWT 토큰 삭제
     await AsyncStorage.removeItem('token');
+    // Axios 헤더 JWT 토큰 삭제
+    api.defaults.headers.Authorization = null;
 
-    // jwt 토큰 삭제 확인
-    const token = await AsyncStorage.getItem('token')
+    // AsyncStorage에서 토큰 삭제 확인
+    const token = await AsyncStorage.getItem('token');
     if (!token) {
-      console.log('JWT 토큰이 정상 삭제');
+      console.log('AsyncStorage에서 JWT 토큰이 정상 삭제되었습니다.');
     } else {
-      console.error('JWT 토큰 삭제 실패', token);
+      console.error('AsyncStorage에서 JWT 토큰 삭제 실패:', token);}
+    // Axios 헤더에서 토큰 삭제 확인
+    if (!api.defaults.headers.Authorization) {
+      console.log('Axios Authorization 헤더에서 JWT 토큰이 정상 삭제되었습니다.');
+    } else {
+      console.error('Axios Authorization 헤더에서 JWT 토큰 삭제 실패:', api.defaults.headers.Authorization);
     }
 
     Alert.alert('로그아웃되었습니다.');
@@ -236,7 +244,7 @@ const styles = StyleSheet.create({
   },
   counterValue: {
     fontSize: 20,
-    fontFamily: 'Pretendard-Bold', 
+    fontFamily: 'Pretendard-Bold',
     color: '#4A4A4A',
   },
   categoryContainer: {
@@ -299,7 +307,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 18,
-    fontFamily: 'Pretendard-Bold', 
+    fontFamily: 'Pretendard-Bold',
     color: '#1A1D1E',
   },
   cardDescription: {
