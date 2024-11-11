@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ActivityIndicator, Alert, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../components/Header';
 import Pagination from '../components/Pagination';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from '../../axios';
+import { useCsrf } from '../../context/CsrfContext';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -14,78 +17,84 @@ const History = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [historyData, setHistoryData] = useState<any[]>([]);
+  const { csrfToken } = useCsrf();
+  const [scandata, setScandata] = useState({
+    id : '',
+    date : '',
+    type : '',
+    status : '',
+    content : ''
+  });
 
-  const data = [
-    { 
-      id: '1', 
-      date: '2024-10-14', 
-      type: 'URL', 
-      status: '악성 URL',
-      content: 'http://malicious-example.com'
-    },
-    { 
-      id: '2', 
-      date: '2024-09-30', 
-      type: 'URL', 
-      status: '클린 URL',
-      content: 'http://safe-example.com'
-    },
-    { 
-      id: '3', 
-      date: '2024-09-20', 
-      type: 'QR 코드', 
-      status: '악성 코드',
-      content: 'qr-content-123',
-      imageUrl: 'path/to/qr-image-1.png'
-    },
-    { 
-      id: '4', 
-      date: '2024-09-12', 
-      type: 'QR 이미지', 
-      status: '악성 이미지',
-      imageUrl: 'path/to/malicious-image-1.jpg'
-    },
-    { 
-      id: '5', 
-      date: '2024-08-27', 
-      type: 'QR 코드', 
-      status: '악성 코드',
-      content: 'qr-content-456',
-      imageUrl: 'path/to/qr-image-2.png'
-    },
-    { 
-      id: '6', 
-      date: '2024-08-18', 
-      type: 'QR 이미지', 
-      status: '클린 이미지',
-      imageUrl: 'path/to/safe-image-1.jpg'
-    },
-    { 
-      id: '7', 
-      date: '2024-08-06', 
-      type: 'URL', 
-      status: '클린 URL',
-      content: 'http://another-safe-example.com'
-    },
-    { 
-      id: '8', 
-      date: '2024-07-10', 
-      type: 'QR 이미지', 
-      status: '악성 이미지',
-      imageUrl: 'path/to/malicious-image-2.jpg'
-    },
-  ];
+  // scanlist 함수 수정
+  const scanlist = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
+          {
+            text: '확인',
+            onPress: () => navigation.navigate('Login'),
+          },
+        ]);
+        return;
+      }
+      const res = await api.post(
+        '/scan/scanlist',
+        {},
+        {
+          headers: {
+            'X-CSRF-Token': csrfToken,
+            'Authorization': `Bearer ${token}`
+          },
+          withCredentials: true
+        }
+      );
+
+      if (res.data && Array.isArray(res.data.message)) {
+        const scanItems = res.data.message.map(item => ({
+          id: item.SCAN_ID.toString(),
+          date: item.SCAN_DATE,
+          type: item.QR_CAT === 'QR' ? 'QR 코드' : item.QR_CAT === 'IMG' ? 'QR 이미지' : 'URL',
+          status: item.SCAN_RESULT === 'G' ? '클린 URL' : '악성 URL',
+          content: item.SCAN_URL,
+          imageUrl: item.QR_CAT === 'IMG' ? 'path/to/your/image' : undefined // QR 이미지인 경우만 imageUrl 추가
+        }));
+
+        // 받아온 데이터를 historyData로 설정하여 리스트에 반영합니다.
+        setHistoryData(scanItems);
+        setTotalPages(Math.ceil(scanItems.length / ITEMS_PER_PAGE));
+      }
+    } catch (error) {
+      console.error('API 오류 발생:', error);
+      if (error.response && error.response.status === 403) {
+        Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
+          {
+            text: '확인',
+            onPress: () => navigation.navigate('Login'),
+          },
+        ]);
+      } else {
+        Alert.alert('오류', '사용자 데이터를 가져오는 중 오류가 발생했습니다.');
+      }
+    }
+  };
+
+  // useEffect에서 scanlist 호출
+  useEffect(() => {
+    scanlist();
+  }, []);
 
   // 페이지네이션 관련 데이터 설정
   useEffect(() => {
-    setTotalPages(Math.ceil(data.length / ITEMS_PER_PAGE)); 
+    setTotalPages(Math.ceil(historyData.length / ITEMS_PER_PAGE)); 
     loadData(currentPage);
   }, [currentPage]);
 
   const loadData = (page: number) => {
     setIsLoading(true);
     const startIndex = (page - 1) * ITEMS_PER_PAGE;
-    const currentData = data.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    const currentData = historyData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
     setHistoryData(currentData);
     setIsLoading(false);
   };
@@ -142,10 +151,34 @@ const History = () => {
     return null;
   };
 
+  useEffect(() => {
+    scanlist()
+  }, [])
+
+  const openURL = (url) => {
+    Linking.openURL(url).catch(err => console.error("URL 열기 실패:", err));
+  };
+
   const renderItem = ({ item }) => (
     <TouchableOpacity 
       style={styles.historyItem} 
-      onPress={() => { /* 상세보기 로직 */ }}
+      onPress={() => {
+        if (item.status === '클린 URL') {
+          openURL(item.content);
+        } else if (item.status === '악성 URL') {
+          Alert.alert(
+            '경고',
+            '이 URL은 위험할 수 있습니다. 그래도 접속하시겠습니까?',
+            [
+              { text: '취소', style: 'cancel' },
+              { text: '접속', onPress: () => openURL(item.content) }
+            ]
+          );
+        } else {
+          Alert.alert('상세보기', '해당 항목의 자세한 내용을 확인하세요.');
+        }
+      }
+    }
     >
       <View style={styles.contentContainer}>
         <View style={styles.mainInfo}>
