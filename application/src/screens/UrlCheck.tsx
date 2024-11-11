@@ -17,7 +17,7 @@ const UrlCheck: React.FC<Props> = () => {
 
   const checkUrlSafety = async (inputUrl: string) => {
     try {
-      const response = await axios.post(`${FLASK_URL}/scan`, { url: inputUrl });
+      const response = await axios.post(`${FLASK_URL}/scan`, { url: inputUrl , category: 'URL'  });
 
       // 서버 응답 확인
       console.log('서버 응답 데이터:', response.data);

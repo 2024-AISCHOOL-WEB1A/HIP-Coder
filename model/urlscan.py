@@ -12,11 +12,23 @@ from urllib.parse import urlparse
 import pandas as pd
 from scipy.sparse import hstack
 from bs4 import BeautifulSoup
+from flask_jwt_extended import verify_jwt_in_request,get_jwt_identity,JWTManager
+from dotenv import load_dotenv
+import pymysql
 
+load_dotenv()
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+
+db_config = {
+    'host': os.getenv('DB_HOST'),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD'),
+    'database': os.getenv('DB_NAME'),
+    'port': int(os.getenv('DB_PORT'))  # 포트 정보 추가
+}
 urlscan_bp = Blueprint('urlscan', __name__)
 
 # 신뢰 URL 로드
@@ -141,7 +153,7 @@ def test():
             
             # URL을 /scan으로 전송
             logging.info(f'QR 데이터로 전송할 URL: {qr_data}')
-            response = requests.post('http://121.179.36.150:5000/scan', json={'url': qr_data})
+            response = requests.post('{FLASK_URL}/scan', json={'url': qr_data, 'category': "IMG" })
 
             if response.status_code == 200:
                 return response.json()
@@ -159,11 +171,26 @@ def test():
                 os.remove(temp_file.name)
             except PermissionError as pe:
                 logging.error(f"파일 삭제 오류: {temp_file.name} - {str(pe)}")
+                
+
+def save_scan_result(user_id, url_data, scan_result, category):
+    try:
+        connection = pymysql.connect(**db_config)
+        with connection.cursor() as cursor:
+            sql = "INSERT INTO SCAN_QR (USER_IDX, SCAN_URL, SCAN_RESULT, QR_CAT) VALUES (%s, %s, %s, %s)"
+            cursor.execute(sql, (user_id, url_data, scan_result, category))
+            connection.commit()
+    except Exception as e:
+        logging.error(f"데이터베이스에 저장하는 중 오류 발생: {e}")
+    finally:
+        connection.close()
+
 
 @urlscan_bp.route('/scan', methods=['POST'])
 def scanurl():
     url_data = request.json.get('url')
-
+    cat = request.json.get('category')
+    
     if not url_data:
         logging.warning("URL이 제공되지 않았습니다.")
         return jsonify({'status': 'error', 'message': 'URL이 제공되지 않았습니다.'}), 400
@@ -173,15 +200,26 @@ def scanurl():
     prediction = predict_url(url_data)
 
     if prediction == 'good':
+        scan_result = 'good'
         logging.info(f"URL '{url_data}'는 안전합니다.")
-        return jsonify({'status': 'good', 'message': '이 URL은 안전합니다.', 'url': url_data})
+        response = jsonify({'status': 'good', 'message': '이 URL은 안전합니다.', 'url': url_data})
     elif prediction == 'bad':
+        scan_result = 'bad'
         logging.warning(f"URL '{url_data}'는 위험할 수 있습니다.")
-        return jsonify({'status': 'bad', 'message': '이 URL은 보안 위험이 있을 수 있습니다.', 'url': url_data})
+        response = jsonify({'status': 'bad', 'message': '이 URL은 보안 위험이 있을 수 있습니다.', 'url': url_data})
     else:
         return jsonify({'status': 'error', 'message': 'URL을 분류할 수 없습니다.', 'url': url_data}), 500
 
-@urlscan_bp.route('/tt', methods=['POST'])
-def tt():
-    data = request.get_json()
-    return jsonify({'message': '1'})
+    try:
+        verify_jwt_in_request(optional=True)
+        user_id = get_jwt_identity()
+        logging.info(f"user_id : '{user_id}'")
+        
+        if user_id:
+            save_scan_result(user_id, url_data, scan_result, cat)
+            logging.info(f"결과값 저장  : '{save_scan_result(user_id, url_data, scan_result, cat)}'")
+    except Exception as e:
+        logging.error(f"JWT 확인 중 오류 발생: {e}")
+    logging.info(f"respose  : '{response}'")
+    return response
+    
