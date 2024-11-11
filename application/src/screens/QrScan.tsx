@@ -13,7 +13,6 @@ const QRScannerScreen = () => {
   const [isCameraActive, setCameraActive] = useState(false);
   const [isScanning, setScanning] = useState(false); // 스캔 상태를 추적하는 플래그
   const eventEmitter = useRef(new NativeEventEmitter(CameraModule)).current;
-
   useEffect(() => {
     const scanSuccessListener = eventEmitter.addListener('QRScanSuccess', (data) => {
       console.log("Received data from QRScanSuccess event:", data);
@@ -47,7 +46,7 @@ const QRScannerScreen = () => {
 
   const sendUrlToBackend = async (url) => {
     try {
-      const response = await axios.post(`${FLASK_URL}/scan`, { url });
+      const response = await axios.post(`${FLASK_URL}/scan`, { url, category: 'QR'   });
       const { status, message } = response.data;
       Alert.alert('URL Classification', message);
     } catch (error) {

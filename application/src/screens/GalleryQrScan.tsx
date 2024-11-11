@@ -78,7 +78,7 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
       console.log('서버 응답 데이터:', response.data);
       if (response.data.qrCodeData) {
         const url = response.data.qrCodeData;
-        const scanResponse = await axios.post(`${FLASK_URL}/scan`, { url });
+        const scanResponse = await axios.post(`${FLASK_URL}/scan`, { url , category: 'IMG'   });
 
         if (scanResponse.data.status === 'good') {
           Alert.alert('업로드 성공', `서버 응답: 이 URL은 안전합니다. (${scanResponse.data.url})`);
