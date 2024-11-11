@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, Alert } from 'react-native';
+import { View, TextInput, Text, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import commonStyles from '../styles/commonStyles';
 import HEButton from '../components/HEButton';
@@ -182,7 +182,7 @@ const Join: React.FC<Props> = () => {
       <View style={commonStyles.headerContainer}>
         <Header onBackPress={handleBackPress} />
 
-        <Text style={commonStyles.headerTitle}>Let's{'\n'}Start!</Text>
+        <Text style={commonStyles.headerTitle}>회원가입</Text>
       </View>
       <View style={commonStyles.formContainer}>
         <View style={commonStyles.innerContainer}>
@@ -310,12 +310,15 @@ const Join: React.FC<Props> = () => {
               />
             </>
           )}
-          <HEButton style={commonStyles.fullWidthButton} title="다음" onPress={nextStep} />
-          <View style={commonStyles.linkContainer}>
+          <TouchableOpacity style={commonStyles.fixedFooter} onPress={nextStep}>
+            <Text style={commonStyles.footerText}>다음</Text>
+          </TouchableOpacity>
+          {/* <HEButton style={commonStyles.fullWidthButton} title="다음" onPress={nextStep} /> */}
+          {/* <View style={commonStyles.linkContainer}>
             <Text style={commonStyles.link} onPress={() => navigation.navigate('Login')}>
               이미 ID가 존재합니다. 로그인하시겠습니까?
             </Text>
-          </View>
+          </View> */}
         </View>
       </View>
     </View>

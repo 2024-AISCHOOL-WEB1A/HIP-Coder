@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 
 const commonStyles = StyleSheet.create({
   container: {
-    backgroundColor: '#9C59B5',
+    backgroundColor: '#3182f6',
     flex: 1,
     justifyContent: 'center',
     padding: 0,
@@ -64,6 +64,7 @@ const commonStyles = StyleSheet.create({
     // alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 30,
+    color: '#ffffff',
   },
   formContainer: {
     flex: 1,
@@ -83,6 +84,23 @@ const commonStyles = StyleSheet.create({
     paddingLeft: 50,
     paddingVertical: 13,
   },
+  fixedFooter: {
+    height: '8%',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 10,
+    backgroundColor: '#3182f6',
+    // borderTopWidth: 1,
+    // borderColor: '#ddd',
+  },
+  footerText:{
+    fontSize: 20,
+    color: '#ffffff',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
   view1: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -100,7 +118,7 @@ const commonStyles = StyleSheet.create({
 
   input: {
     height: 50,
-    borderColor: '#9C59B5',
+    borderColor: '#E0E0E0',
     borderWidth: 1,
     borderRadius: 20,
     marginBottom: 20,
@@ -109,7 +127,7 @@ const commonStyles = StyleSheet.create({
   input1: {
     width: '70%',
     height: 50,
-    borderColor: '#9C59B5',
+    borderColor: '#E0E0E0',
     borderWidth: 1,
     borderRadius: 20,
     paddingHorizontal: 10,
@@ -117,7 +135,7 @@ const commonStyles = StyleSheet.create({
   smallButton: {
     width: '25%',
     height: 50,
-    borderColor: '#9C59B5',
+    borderColor: '#3182f6',
     borderWidth: 1,
     borderRadius: 20,
     paddingHorizontal: 10,
@@ -125,14 +143,14 @@ const commonStyles = StyleSheet.create({
   checkBox:{
     width: '25%',
     height: 50,
-    borderColor: '#9C59B5',
+    borderColor: '#3182f6',
     borderWidth: 1,
   },
 
   fullWidthButton: {
     width: '100%',
     height: 50,
-    borderColor: '#9C59B5',
+    borderColor: '#3182f6',
     borderWidth: 1,
     borderRadius: 20,
     marginBottom: 20,
@@ -150,10 +168,10 @@ const commonStyles = StyleSheet.create({
     borderRadius: 50,
   },
   activeButton: {
-    backgroundColor: '#9C59B5',
+    backgroundColor: '#3182f6',
   },
   modalView: {
-    borderColor: '#9C59B5',
+    borderColor: '#3182f6',
   },
   linkContainer:{
     paddingLeft: 5,

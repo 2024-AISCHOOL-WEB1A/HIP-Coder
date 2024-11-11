@@ -24,12 +24,12 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress }) => {
     <View style={styles.container}>
       {onBackPress && (
         <TouchableOpacity onPress={onBackPress} style={styles.iconContainer}>
-          <Icon name="arrow-back" size={24} color="#6A1B9A" />
+          <Icon name="arrow-back" size={24} color="#ffffff" />
         </TouchableOpacity>
       )}
       <Text style={styles.title}>{title}</Text>
       <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.iconContainer}>
-        <Icon name="menu" size={24} color="#6A1B9A" />
+        <Icon name="menu" size={24} color="#ffffff" />
       </TouchableOpacity>
 
       <Modal
@@ -111,11 +111,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignItems: 'center',
     padding: 10,
-    backgroundColor: '#9C59B5',
+    backgroundColor: '#ffffff',
     borderRadius: 25,
   },
   closeButtonText: {
-    color: '#FFFFFF',
+    color: '#ffffff',
     fontWeight: 'bold',
   },
 });
