@@ -17,9 +17,11 @@ const Home: React.FC = () => {
 
   // 로그인 상태 확인 (토큰)
   const checkIsLogin = async () => {
-    const token = await AsyncStorage.getItem('token');
-    setIsLoggedIn(!!token);
-  };
+
+    const token = await AsyncStorage.getItem('accessToken')
+    setIsLoggedIn(!!token)
+  }
+
 
   // 렌더링 시 로그인 상태 확인 및 카운트 데이터 가져오기
   useEffect(() => {

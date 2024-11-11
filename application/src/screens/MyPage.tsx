@@ -25,63 +25,62 @@ const MyPage = () => {
   const navigation = useNavigation();
   const { csrfToken } = useCsrf();
 
-  // 사용자 데이터를 가져오는 함수
-  const mypagelist = async () => {
-    try {
-      const token = await AsyncStorage.getItem('token');
-      if (!token) {
-        Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
-          {
-            text: '확인',
-            onPress: () => navigation.navigate('Login'),
-          },
-        ]);
-        return;
-      }
-
-      if (!csrfToken) {
-        Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
-          {
-            text: '확인',
-            onPress: () => navigation.navigate('Login'),
-          },
-        ]);
-        return;
-      }
-
-      const res = await api.post(
-        '/user/mypage',
-        {},
-        { headers: { 'X-CSRF-Token': csrfToken, 'Authorization': `Bearer ${token}` }, withCredentials: true }
-      );
-
-      if (res.data && Array.isArray(res.data.message)) {
-        const userData = res.data.message[0];
-        setProfileData({
-          name: userData.USER_NAME,
-          phone: userData.PHONE,
-          email: userData.EMAIL,
-          emergencyContact1: userData.CONTACT_INFO1 || '',
-          emergencyContact2: userData.CONTACT_INFO2 || '',
-        });
-      } else {
-        console.error('잘못된 데이터 형식:', res.data);
-        Alert.alert('오류', '서버로부터 잘못된 형식의 데이터가 반환되었습니다.');
-      }
-    } catch (error) {
-      console.error('API 오류 발생:', error);
-      if (error.response && error.response.status === 403) {
-        Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
-          {
-            text: '확인',
-            onPress: () => navigation.navigate('Login'),
-          },
-        ]);
-      } else {
-        Alert.alert('오류', '사용자 데이터를 가져오는 중 오류가 발생했습니다.');
-      }
+// 사용자 데이터를 가져오는 함수
+const mypagelist = async () => {
+  try {
+    const accessToken = await AsyncStorage.getItem('accessToken'); // 일관된 명칭 사용
+    if (!accessToken) {
+      Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
+        {
+          text: '확인',
+          onPress: () => navigation.navigate('Login'),
+        },
+      ]);
+      return;
     }
-  };
+
+    if (!csrfToken) {
+      Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
+        {
+          text: '확인',
+          onPress: () => navigation.navigate('Login'),
+        },
+      ]);
+      return;
+    }
+
+    const res = await api.post(
+      '/user/mypage',
+      {}, // Body가 비어있다면 빈 객체 전달
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'X-CSRF-Token': csrfToken,
+        },
+        withCredentials: true,
+      }
+    );
+
+    if (res.data && Array.isArray(res.data.message)) {
+      const userData = res.data.message[0];
+      setProfileData({
+        name: userData.USER_NAME,
+        phone: userData.PHONE,
+        email: userData.EMAIL,
+        emergencyContact1: userData.CONTACT_INFO1 || '',
+        emergencyContact2: userData.CONTACT_INFO2 || '',
+      });
+      Alert.alert('서버 응답', '사용자 데이터를 불러왔습니다.');
+    } else {
+      console.error('잘못된 데이터 형식:', res.data);
+      Alert.alert('오류', '서버로부터 잘못된 형식의 데이터가 반환되었습니다.');
+    }
+  } catch (error) {
+    console.error('API 오류 발생:', error);
+    Alert.alert('오류', '사용자 데이터를 가져오는 중 오류가 발생했습니다.');
+  }
+};
+
 
   // 비밀번호 변경 함수
   const handlePasswordChange = async () => {

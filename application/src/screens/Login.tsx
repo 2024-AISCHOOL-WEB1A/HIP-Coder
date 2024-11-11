@@ -27,8 +27,8 @@ const Login: React.FC<Props> = () => {
       
       if (res.status === 200) {
         const { token, temporaryPassword } = res.data;
-        await AsyncStorage.setItem('token', token);
-        console.log('AsyncStorage에 저장된 token', await AsyncStorage.getItem('token'));
+        await AsyncStorage.setItem('accessToken', token);
+        console.log('AsyncStorage에 저장된 token', await AsyncStorage.getItem('accessToken'));
 
         // Alert.alert('알림' ,'환영합니다');
         setIsLoggedIn(true);
