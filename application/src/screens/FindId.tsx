@@ -36,7 +36,7 @@ const FindId: React.FC = () => {
             // 이메일 전송 요청
             console.log('Sending request to /user/forgot-id with:', { USER_NAME: name, EMAIL: email });
             await api.post(
-                '/user/forgot-id',
+                '/user/FindId',
                 { USER_NAME: name, EMAIL: email },
                 { headers: { 'X-CSRF-Token': csrfToken }, withCredentials: true }
             );

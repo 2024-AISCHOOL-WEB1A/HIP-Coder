@@ -6,6 +6,7 @@ import Header from '../components/Header';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useCsrf } from '../../context/CsrfContext';
 import api from '../../axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MyPage = () => {
   const [profileData, setProfileData] = useState({
@@ -27,15 +28,31 @@ const MyPage = () => {
   // 사용자 데이터를 가져오는 함수
   const mypagelist = async () => {
     try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
+          {
+            text: '확인',
+            onPress: () => navigation.navigate('Login'),
+          },
+        ]);
+        return;
+      }
+
       if (!csrfToken) {
-        Alert.alert('오류', 'CSRF 토큰을 먼저 가져오세요.');
+        Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
+          {
+            text: '확인',
+            onPress: () => navigation.navigate('Login'),
+          },
+        ]);
         return;
       }
 
       const res = await api.post(
         '/user/mypage',
-        {  },
-        { headers: { 'X-CSRF-Token': csrfToken }, withCredentials: true }
+        {},
+        { headers: { 'X-CSRF-Token': csrfToken, 'Authorization': `Bearer ${token}` }, withCredentials: true }
       );
 
       if (res.data && Array.isArray(res.data.message)) {
@@ -47,15 +64,77 @@ const MyPage = () => {
           emergencyContact1: userData.CONTACT_INFO1 || '',
           emergencyContact2: userData.CONTACT_INFO2 || '',
         });
-        Alert.alert('서버 응답', '사용자 데이터를 불러왔습니다.');
       } else {
         console.error('잘못된 데이터 형식:', res.data);
         Alert.alert('오류', '서버로부터 잘못된 형식의 데이터가 반환되었습니다.');
       }
     } catch (error) {
       console.error('API 오류 발생:', error);
-      Alert.alert('오류', '사용자 데이터를 가져오는 중 오류가 발생했습니다.');
+      if (error.response && error.response.status === 403) {
+        Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
+          {
+            text: '확인',
+            onPress: () => navigation.navigate('Login'),
+          },
+        ]);
+      } else {
+        Alert.alert('오류', '사용자 데이터를 가져오는 중 오류가 발생했습니다.');
+      }
     }
+  };
+
+  // 비밀번호 변경 함수
+  const handlePasswordChange = async () => {
+    console.log("비밀번호 변경 요청", passwords);
+
+    // 새 비밀번호 매칭 확인
+    if (passwords.newPassword !== passwords.confirmPassword) {
+      Alert.alert('오류', '새 비밀번호가 일치하지 않습니다.');
+      return;
+    }
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
+          {
+            text: '확인',
+            onPress: () => navigation.navigate('Login'),
+          },
+        ]);
+        return;
+      }
+
+      const res = await api.post('/user/changePassword', {
+        currentPassword: passwords.currentPassword,
+        newPassword: passwords.newPassword,
+        confirmPassword: passwords.confirmPassword,
+      },
+      { headers: { 'X-CSRF-Token': csrfToken, 'Authorization': `Bearer ${token}` }, withCredentials: true } 
+    );
+
+      if (res.status === 200) {
+        Alert.alert('알림', '비밀번호가 성공적으로 변경되었습니다.');
+        // 비밀번호 입력 초기화
+        setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      } else {
+        Alert.alert('오류', res.data.error || '비밀번호 변경 중 오류가 발생했습니다.');
+      }
+    } catch (error) {
+      console.error('비밀번호 변경 요청 오류:', error);
+      Alert.alert('오류', '비밀번호 변경 요청 중 오류가 발생했습니다.');
+    }
+  };
+
+  // 회원 탈퇴
+  const handleWithdrawal = () => {
+    Alert.alert(
+      '회원 탈퇴',
+      '정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
+      [
+        { text: '취소', style: 'cancel' },
+        { text: '탈퇴', style: 'destructive', onPress: () => navigation.navigate('LogoutPage') }
+      ]
+    );
   };
 
   // 컴포넌트가 마운트될 때 사용자 데이터 불러오기
@@ -72,25 +151,6 @@ const MyPage = () => {
       // 편집 모드로 전환
       setIsEditing(true);
     }
-  };
-
-  const handlePasswordChange = () => {
-    if (passwords.newPassword !== passwords.confirmPassword) {
-      Alert.alert('오류', '새 비밀번호가 일치하지 않습니다.');
-      return;
-    }
-    Alert.alert('알림', '비밀번호가 성공적으로 변경되었습니다.');
-  };
-
-  const handleWithdrawal = () => {
-    Alert.alert(
-      '회원 탈퇴',
-      '정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
-      [
-        { text: '취소', style: 'cancel' },
-        { text: '탈퇴', style: 'destructive', onPress: () => navigation.navigate('LogoutPage') }
-      ]
-    );
   };
 
   return (
@@ -129,6 +189,7 @@ const MyPage = () => {
               onChangeText={(text) => setProfileData({ ...profileData, email: text })}
               editable={false} // 항상 readonly
             />
+            <Text style={styles.emergencyContactTitle}>비상연락망(1)</Text>
             <TextInput
               style={[styles.input, { backgroundColor: isEditing ? '#FFFFFF' : '#F0F0F0' }]} // 비상 연락망 편집 가능
               placeholder="비상연락망(1)"
@@ -137,6 +198,7 @@ const MyPage = () => {
               onChangeText={(text) => setProfileData({ ...profileData, emergencyContact1: text })}
               editable={isEditing} // 편집 모드일 때만 수정 가능
             />
+            <Text style={styles.emergencyContactTitle}>비상연락망(2)</Text>
             <TextInput
               style={[styles.input, { backgroundColor: isEditing ? '#FFFFFF' : '#F0F0F0' }]} // 비상 연락망 편집 가능
               placeholder="비상연락망(2)"
@@ -183,7 +245,7 @@ const MyPage = () => {
             />
             <CustomButton
               title="비밀번호 변경"
-              onPress={handlePasswordChange}
+              onPress={()=> handlePasswordChange()}
               style={styles.actionButton}
             />
           </View>
@@ -232,10 +294,10 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
     color: '#000000',
     marginBottom: 12,
     paddingHorizontal: 4,
+    fontFamily: 'Pretendard-SemiBold',
   },
   card: {
     backgroundColor: '#FFFFFF',
@@ -267,20 +329,28 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     backgroundColor: '#FFFFFF',
     color: '#000000',
+    fontFamily: 'Pretendard-Regular',
+  },
+  emergencyContactTitle: {
+    fontSize: 14,
+    color: '#000000',
+    marginBottom: 4,
+    fontFamily: 'Pretendard-Regular',
   },
   actionButton: {
     marginTop: 8,
   },
   historyLabel: {
     fontSize: 16,
-    fontWeight: '600',
     color: '#000000',
     marginBottom: 8,
+    fontFamily: 'Pretendard-Medium',
   },
   historyDescription: {
     fontSize: 14,
     color: '#666666',
     marginBottom: 16,
+    fontFamily: 'Pretendard-Regular',
   },
   historyButton: {
     backgroundColor: '#9C59B5',
@@ -295,17 +365,19 @@ const styles = StyleSheet.create({
   historyButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Pretendard-Medium',
   },
   historyDate: {
     color: '#FFFFFF',
     marginTop: 8,
     fontSize: 14,
+    fontFamily: 'Pretendard-Regular',
   },
   qrCodeText: {
     color: '#FFFFFF',
     marginTop: 4,
     fontSize: 14,
+    fontFamily: 'Pretendard-Regular',
   },
   withdrawalText: {
     alignSelf: 'center',
@@ -313,6 +385,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     color: '#838383',
     fontSize: 16,
+    fontFamily: 'Pretendard-Regular',
   },
 });
 

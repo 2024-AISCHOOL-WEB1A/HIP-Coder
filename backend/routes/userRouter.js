@@ -1,13 +1,13 @@
-const  {log} = require('console')
+const { log } = require('console')
 const express = require('express')
 const router = express.Router()
 const conn = require('../config/db')
 const bcrypt = require('bcrypt')
-const {v4 : uuidv4} = require('uuid')
+const { v4: uuidv4 } = require('uuid')
 const nodemailer = require('nodemailer')
 const crypto = require('crypto')
 const jwtoken = require('../config/jwt')
-const authenticateToken = require('../config/middleWare'); 
+const authenticateToken = require('../config/middleWare');
 
 
 // userRouter.js 파일 최상단에 추가
@@ -55,7 +55,7 @@ router.post('/handleJoin', async (req, res) => {
 
         // 사용자 정보를 DB에 삽입
         const sql = 'INSERT INTO USER (USER_ID, USER_PW, USER_NAME, EMAIL, PHONE, USER_IDX) VALUES (?, ?, ?, ?, ?, ?)';
-        const emergency1 = `INSERT INTO EMG_CON (USER_IDX, CONTACT_INFO1, CONTACT_INFO2) VALUES (?, ?, ?)` 
+        const emergency1 = `INSERT INTO EMG_CON (USER_IDX, CONTACT_INFO1, CONTACT_INFO2) VALUES (?, ?, ?)`
         await conn.promise().query(sql, [id, hashedPassword, name, email, phone, idx]);
         await conn.promise().query(emergency1, [idx, emergencyContact1, emergencyContact2])
 
@@ -88,31 +88,31 @@ router.post('/idcheck', async (req, res) => {
 });
 
 /** 마이페이지 정보 불러오기 */
-router.post('/mypage',authenticateToken, (req, res) => {
-    const userIdx = req.userId;
+router.post('/mypage', authenticateToken, (req, res) => {
+    const userId = req.userId;
 
-    log('마이페이지 요청, userIdx:', userIdx);
+    log('마이페이지 요청, userId:', userId);
 
     var sql = `SELECT U.USER_NAME, U.PHONE, U.EMAIL, E.CONTACT_INFO1, E.CONTACT_INFO2
                 FROM USER U INNER JOIN EMG_CON E
                 ON U.USER_IDX = E.USER_IDX
                 WHERE U.USER_IDX =  ?`
 
-    conn.query(sql, [userIdx], (err, results) => {
+    conn.query(sql, [userId], (err, results) => {
         if (err) {
             console.error('DB Count Error', err)
-            return res.status(500).json({error : 'DB Count Error'})
+            return res.status(500).json({ error: 'DB Count Error' })
         } else if (results.length === 0) {
             return res.status(404).json({ error: '사용자 정보를 찾을 수 없습니다.' })
         } else {
             log(results)
-            res.json({ message: results})
+            res.json({ message: results })
         }
     })
 })
 
 /** 비밀번호 찾기 요청 처리 */
-router.post('/forgot-password', async (req, res) => {
+router.post('/FindPw', async (req, res) => {
     const { id, name, email } = req.body;
 
     if (!id || !name || !email) {
@@ -180,40 +180,80 @@ router.post('/forgot-password', async (req, res) => {
     });
 });
 
+// 비밀번호 변경
+router.post('/changePassword', authenticateToken, async (req, res) => {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const userId = req.userId;
+
+    console.log('userId', userId);
+    
+    try {
+        // 현재 비밀번호 확인하기
+        const sql = 'SELECT USER_PW FROM USER WHERE USER_IDX = ?';
+        const [rows] = await conn.promise().query(sql, [userId]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ error: '사용자를 찾을 수 없습니다.' });
+        }
+
+        const user = rows[0];
+        const isMatch = await bcrypt.compare(currentPassword, user.USER_PW);
+
+        if (!isMatch) {
+            return res.status(400).json({ error: '현재 비밀번호가 일치하지 않습니다.' });
+        }
+
+        // 새 비밀번호 변경 및 해싱
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+        const updateSql = 'UPDATE USER SET USER_PW = ?, TEMP_PASSWORD_EXPIRES = NULL WHERE USER_IDX = ?';
+        await conn.promise().query(updateSql, [hashedNewPassword, userId]);
+
+        res.status(200).json({ message: '비밀번호가 성공적으로 변경되었습니다.' });
+        console.log('비밀번호 변경 완료');
+    } catch (error) {
+        console.error('비밀번호 변경 오류', error);
+        res.status(500).json({ error: '비밀번호 변경 중 오류가 발생했습니다.' });
+    }
+});
 
 
 // 로그인 라우터
 router.post('/handleLogin', async (req, res) => {
     const { id, password } = req.body;
-
+    console.log('req : ', req.body);
     try {
-        // 사용자 정보를 데이터베이스에서 조회
-        const sql = 'SELECT USER_IDX, USER_PW FROM USER WHERE USER_ID = ?';
+        const sql = 'SELECT USER_IDX, USER_PW, TEMP_PASSWORD_EXPIRES FROM USER WHERE USER_ID = ?';
         const [rows] = await conn.promise().query(sql, [id]);
 
-
-        // 사용자 ID가 존재하지 않으면 에러 반환
         if (rows.length === 0) {
             return res.status(400).json({ error: '존재하지 않는 사용자입니다.' });
         }
 
-        // 로그인 유저 특정
-        const user = rows[0]
-        log('user:', user)
+        const user = rows[0];
+        console.log('user:', user);
 
-        // 비밀번호 검증
-        const isMatch = await verifypw(password, user.USER_PW);
+        const currentTime = new Date();
+        let isMatch = false;
 
+        if (user.TEMP_PASSWORD_EXPIRES && new Date(user.TEMP_PASSWORD_EXPIRES) > currentTime) {
+            isMatch = await verifypw(password, user.USER_PW);
+
+            if (isMatch) {
+                return res.status(200).json({
+                    message: '임시 비밀번호로 로그인되었습니다. 비밀번호를 변경해 주세요.',
+                    token: jwtoken.generateToken({ id: user.USER_IDX }),
+                    temporaryPassword: true
+                });
+            }
+        }
+
+        isMatch = await verifypw(password, user.USER_PW);
         if (isMatch) {
-            // 비밀번호가 맞다면 JWT 토큰 생성
-            const token = jwtoken.generateToken({ id : user.USER_IDX });
+            const token = jwtoken.generateToken({ id: user.USER_IDX });
             console.log('jwt 토큰 확인:', token);
-
-            // 로그인 성공
-            res.status(200).json({ message: '로그안 성공!', token });
+            return res.status(200).json({ message: '로그인 성공!', token, temporaryPassword: false });
         } else {
-            // 비밀번호가 틀리면 에러 반환
-            return res.status(400).json({ error: '비밀번호가 일치하지 않습니다.' });
+            return res.status(400).json({ error: '아이디 또는 비밀번호가 일치하지 않습니다.' });
         }
 
     } catch (error) {
@@ -223,9 +263,9 @@ router.post('/handleLogin', async (req, res) => {
 });
 
 /** 아이디 찾기 */
-router.post('/forgot-id', (req, res) => {
+router.post('/FindId', (req, res) => {
     log('아이디 찾기 요청', req.body)
-    const {USER_NAME, EMAIL} = req.body
+    const { USER_NAME, EMAIL } = req.body
 
     const idsql = `SELECT USER_ID FROM USER WHERE USER_NAME = ? AND EMAIL = ?`
 
@@ -245,17 +285,17 @@ router.post('/forgot-id', (req, res) => {
 
             // 이메일 발송 설정
             const transporter = nodemailer.createTransport({
-                service : 'Gmail',
-                auth : {
-                    user : process.env.EMAIL,
-                    pass : process.env.EMAIL_PASSWORD
+                service: 'Gmail',
+                auth: {
+                    user: process.env.EMAIL,
+                    pass: process.env.EMAIL_PASSWORD
                 }
             })
             const mailOptions = {
-                to : EMAIL,
-                from : process.env.EMAIL,
-                subject : '아이디 찾기 인증 링크',
-                html:  `
+                to: EMAIL,
+                from: process.env.EMAIL,
+                subject: '아이디 찾기 인증 링크',
+                html: `
                 <p>아이디를 찾으려면 아래 버튼을 클릭하세요:</p>
                 <a href="${verificationLink}" target="_blank" rel="noopener noreferrer" style="
                     display: inline-block;
@@ -274,11 +314,11 @@ router.post('/forgot-id', (req, res) => {
                     console.error('Email Send Error : ', emailErr)
                     return res.status(500).json({ error: '이메일 전송 실패' })
                 } else {
-                    res.status(200).json({ message : '인증 링크가 이메일로 전송되었습니다.' })
+                    res.status(200).json({ message: '인증 링크가 이메일로 전송되었습니다.' })
                 }
-             })
+            })
         }
-    })    
+    })
 })
 
 /** 아이디 찾기 - 인증 링크(토큰)확인 */

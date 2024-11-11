@@ -1,5 +1,3 @@
-// src/components/Pagination.tsx
-
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 
@@ -29,18 +27,12 @@ const Pagination: React.FC<PaginationProps> = ({
       pages.push(
         <TouchableOpacity
           key={i}
-          style={[
-            styles.pageButton,
-            currentPage === i && styles.activePageButton
-          ]}
+          style={[styles.pageButton, currentPage === i && styles.activePageButton]}
           onPress={() => onPageChange(i)}
           disabled={isLoading}
         >
           <Text
-            style={[
-              styles.pageButtonText,
-              currentPage === i && styles.activePageButtonText
-            ]}
+            style={[styles.pageButtonText, currentPage === i && styles.activePageButtonText]}
           >
             {i}
           </Text>
@@ -112,10 +104,11 @@ const styles = StyleSheet.create({
   pageButtonText: {
     fontSize: 14,
     color: '#666666',
+    fontFamily: 'Pretendard-Regular',
   },
   activePageButtonText: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontFamily: 'Pretendard-Medium', 
   },
   navigationButton: {
     paddingHorizontal: 12,
@@ -125,7 +118,7 @@ const styles = StyleSheet.create({
   navigationButtonText: {
     color: '#9C59B5',
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: 'Pretendard-Medium',
   },
   disabledButton: {
     opacity: 0.5,

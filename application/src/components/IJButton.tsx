@@ -14,12 +14,11 @@ interface CustomButtonProps {
 const CustomButton: React.FC<CustomButtonProps> = ({
   title,
   onPress,
-  backgroundColor = '#9C59B5',
+  backgroundColor = '#3182f6',
   textColor = 'white',
   borderRadius = 25,
   fontSize = 16,
   marginBottom = 20,
-
 }) => {
   return (
     <TouchableOpacity
@@ -30,8 +29,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
           height: 55,
           backgroundColor,
           borderRadius,
-
-          marginBottom
+          marginBottom,
         },
       ]}
       onPress={onPress}
@@ -55,7 +53,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     textAlign: 'center',
-     fontWeight: 'bold',
+    fontFamily: 'Pretendard-Medium', 
   },
 });
 

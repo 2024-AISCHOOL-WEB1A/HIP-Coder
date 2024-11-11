@@ -41,7 +41,7 @@ const FindPw: React.FC = () => {
             // 이메일 전송 요청
             console.log('Sending request to /user/forgot-password with:', { id: userId, name: userName, email: email });
             await api.post(
-                '/user/forgot-password',
+                '/user/FindPw',
                 { id: userId, name: userName, email: email },
                 { headers: { 'X-CSRF-Token': csrfToken }, withCredentials: true }
             );
