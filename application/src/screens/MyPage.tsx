@@ -93,7 +93,8 @@ const MyPage = () => {
         currentPassword: passwords.currentPassword,
         newPassword: passwords.newPassword,
         confirmPassword: passwords.confirmPassword,
-      });
+      },
+        { headers: { 'X-CSRF-Token': csrfToken }, withCredentials: true });
 
       if (res.status === 200) {
         Alert.alert('알림', '비밀번호가 성공적으로 변경되었습니다.');
@@ -213,7 +214,7 @@ const MyPage = () => {
             />
             <CustomButton
               title="비밀번호 변경"
-              onPress={()=> handlePasswordChange()}
+              onPress={() => handlePasswordChange()}
               style={styles.actionButton}
             />
           </View>
