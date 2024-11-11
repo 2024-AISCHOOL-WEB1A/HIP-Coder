@@ -31,7 +31,7 @@ router.post('/upload', async (req, res) => {
         // 예: URL을 기반으로 데이터베이스 검색, 추가적인 API 요청 등
 
         // Flask 서버에 URL 데이터 전송
-        const response = await axios.post(`${API_URL}/scan`, { url });
+        const response = await axios.post(`${API_URL}/scan`, { url }); // 여기 오류나면 FLASK_URL -> API_URL로
 
         // Flask 서버의 응답 확인 및 처리
         if (response.data) {
