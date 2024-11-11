@@ -15,7 +15,7 @@ const Home = () => {
 
   // 로그인 상태 확인 (토큰)
   const checkIsLogin = async () => {
-    const token = await AsyncStorage.getItem('token')
+    const token = await AsyncStorage.getItem('accessToken')
     setIsLoggedIn(!!token)
   }
 
