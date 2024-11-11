@@ -45,12 +45,12 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
     <View style={styles.container}>
       {onBackPress && (
         <TouchableOpacity onPress={onBackPress} style={styles.iconContainer}>
-          <Icon name="arrow-back" size={24} color="#9C59B5" />
+          <Icon name="arrow-back" size={24} color="#0D47A1" />
         </TouchableOpacity>
       )}
       <Text style={styles.title}>{title}</Text>
       <TouchableOpacity onPress={openSidebar} style={styles.iconContainer}>
-        <Icon name="menu" size={24} color="#9C59B5" />
+        <Icon name="menu" size={24} color="#0D47A1" />
       </TouchableOpacity>
 
       <Modal
@@ -78,7 +78,7 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
                 item.action();
                 closeSidebar();
               }} style={styles.menuItem}>
-                <Icon name={item.icon} size={20} color="#4A148C" style={styles.menuIcon} />
+                <Icon name={item.icon} size={20} color="#3182f6" style={styles.menuIcon} />
                 <Text style={styles.menuItemText}>{item.label}</Text>
               </TouchableOpacity>
             )}
@@ -91,7 +91,7 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
             }
             closeSidebar();
           }} style={styles.menuItem}>
-            <Icon name="log-out-outline" size={20} color="#4A148C" style={styles.menuIcon} />
+            <Icon name="log-out-outline" size={20} color="#3182f6" style={styles.menuIcon} />
             <Text style={styles.menuItemText}>{isLoggedIn ? '로그아웃' : '로그인'}</Text>
           </TouchableOpacity>
         </Animated.View>
@@ -103,7 +103,7 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: 55,
+    height: 90,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    color: '#6A1B9A',
+    color: '#0D47A1',
     textAlign: 'center',
     fontFamily: 'Pretendard-Bold',
   },
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
   },
   profileName: {
     fontSize: 18,
-    color: '#4A148C',
+    color: '#0D47A1',
     fontFamily: 'Pretendard-SemiBold',
   },
   menuItem: {

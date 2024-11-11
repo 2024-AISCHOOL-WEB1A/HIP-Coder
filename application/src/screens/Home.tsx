@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
   categoryIconContainer: {
     width: 64,
     height: 64,
-    backgroundColor: '#9C59B5',
+    backgroundColor: '#3182f6',
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
     height: 60,
   },
   testButton: {
-    backgroundColor: '#9C59B5',
+    backgroundColor: '#3182f6',
     paddingVertical: 16,
     borderRadius: 16,
     alignItems: 'center',
