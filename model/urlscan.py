@@ -108,7 +108,7 @@ def predict_url(url):
         logging.error("URL 예측 중 오류 발생: %s", str(e), exc_info=True)
         return None 
 
-# 테스트 엔드포인트
+# 갤러리에서 검사 하는 부분
 @urlscan_bp.route('/test', methods=['POST'])
 def test():
     if 'photo' not in request.files:
@@ -160,6 +160,7 @@ def test():
             except PermissionError as pe:
                 logging.error(f"파일 삭제 오류: {temp_file.name} - {str(pe)}")
 
+# 카메라에서 qr스캔 했을때
 @urlscan_bp.route('/scan', methods=['POST'])
 def scanurl():
     url_data = request.json.get('url')
@@ -181,7 +182,3 @@ def scanurl():
     else:
         return jsonify({'status': 'error', 'message': 'URL을 분류할 수 없습니다.', 'url': url_data}), 500
 
-@urlscan_bp.route('/tt', methods=['POST'])
-def tt():
-    data = request.get_json()
-    return jsonify({'message': '1'})

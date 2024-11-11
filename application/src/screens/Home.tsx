@@ -57,7 +57,7 @@ const Home = () => {
       console.error('Axios Authorization 헤더에서 JWT 토큰 삭제 실패:', api.defaults.headers.Authorization);
     }
 
-    Alert.alert('로그아웃되었습니다.');
+    // Alert.alert('로그아웃되었습니다.');
   };
 
   const incrementUrlCount = () => {
