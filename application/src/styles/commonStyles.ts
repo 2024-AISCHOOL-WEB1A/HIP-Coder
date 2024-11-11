@@ -74,7 +74,6 @@ const commonStyles = StyleSheet.create({
   // },
   headerTitle:{
     fontSize: 20,
-    // color: "#6A1B9A",
     color: '#ffffff',
     fontWeight: 'bold',
     textAlign: 'left',
