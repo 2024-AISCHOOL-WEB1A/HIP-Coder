@@ -39,7 +39,7 @@ const Home: React.FC = () => {
   // /scan/counting API 호출하여 urlCount 및 qrCount 값을 가져오는 함수
   const getCounts = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem('accessToken');
       const response = await api.get('/scan/counting', {
         headers: {
           'Authorization': `Bearer ${token}`,  // JWT 토큰 추가
@@ -71,12 +71,12 @@ const Home: React.FC = () => {
     setIsLoggedIn(false);
 
     // AsyncStorage에서 JWT 토큰 삭제
-    await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('accessToken');
     // Axios 헤더 JWT 토큰 삭제
     api.defaults.headers.Authorization = null;
 
     // AsyncStorage에서 토큰 삭제 확인
-    const token = await AsyncStorage.getItem('token');
+    const token = await AsyncStorage.getItem('accessToken');
     if (!token) {
       console.log('AsyncStorage에서 JWT 토큰이 정상 삭제되었습니다.');
     } else {

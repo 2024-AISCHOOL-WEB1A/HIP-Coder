@@ -29,8 +29,8 @@ const History = () => {
   // scanlist 함수 수정
   const scanlist = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
-      if (!token) {
+      const accessToken = await AsyncStorage.getItem('accessToken');
+      if (!accessToken) {
         Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
           {
             text: '확인',
@@ -45,7 +45,7 @@ const History = () => {
         {
           headers: {
             'X-CSRF-Token': csrfToken,
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${accessToken}`
           },
           withCredentials: true
         }
