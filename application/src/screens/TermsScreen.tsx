@@ -299,10 +299,10 @@ const termsTextAge= `
 
 
   return (
-    <View style={commonStyles.container}>
+    <View style={commonStyles.containerWhite}>
       <View style={commonStyles.headerContainer}>
         <Header onBackPress={() => navigation.goBack()} />
-        <Text style={commonStyles.headerTitle}>{headerTitle}</Text>
+        <Text style={commonStyles.termsHeaderTitle}>{headerTitle}</Text>
       </View>
       <ScrollView>
         {termType === 'personalInfo' && (

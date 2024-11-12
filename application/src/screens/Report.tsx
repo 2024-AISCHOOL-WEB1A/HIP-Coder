@@ -3,17 +3,17 @@ import { View, Text, Image, TouchableOpacity, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; 
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'; 
 import { RootStackParamList } from '../../types'; 
-import Header from '../components/BGHeader'; 
+import Header from '../components/BGHeader';
 import commonStyles from '../styles/commonStyles'; 
 import HEButton from '../components/HEButton';
 import axios from 'axios';
 
-type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
+// type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
-interface Props {
-  navigation: HomeScreenNavigationProp;
-  // csrfToken: string | null;
-}
+// interface Props {
+//   navigation: HomeScreenNavigationProp;
+//   // csrfToken: string | null;
+// }
 
 const Report: React.FC<Props> = () => {
   const navigation = useNavigation();
@@ -26,8 +26,8 @@ const Report: React.FC<Props> = () => {
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.headerContainer}>
-        <Header onBackPress={() => navigation.goBack()} />
-        <Text style={commonStyles.headerTitle}>신고하기</Text>
+        <Header title="신고하기" onBackPress={() => navigation.goBack()} />
+        {/* <Text style={commonStyles.headerTitle}>신고하기</Text> */}
       </View>
       <View style={commonStyles.formContainer}>
 

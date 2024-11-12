@@ -180,9 +180,8 @@ const Join: React.FC<Props> = () => {
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.headerContainer}>
-        <Header onBackPress={handleBackPress} />
-
-        <Text style={commonStyles.headerTitle}>회원가입</Text>
+      <Header title="회원가입" onBackPress={() => navigation.goBack()} />
+        {/* <Text style={commonStyles.headerTitle}>회원가입</Text> */}
       </View>
       <View style={commonStyles.formContainer}>
         <View style={commonStyles.innerContainer}>
@@ -215,7 +214,9 @@ const Join: React.FC<Props> = () => {
                 (필수) 개인정보 수집·이용에 동의합니다.
                 </Text>
                 </View>
-               <Text> > </Text>
+                <TouchableOpacity onPress={() => navigation.navigate('TermsScreen', { termType: 'ageRestriction' })}>
+                  <Text> > </Text>
+                </TouchableOpacity>
               </View>
 
               <View style={commonStyles.view2}>
