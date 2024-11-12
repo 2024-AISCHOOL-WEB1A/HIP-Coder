@@ -7,6 +7,7 @@ interface HEButtonProps {
   backgroundColor?: string;
   textColor?: string;
   borderRadius?: number;
+  borderColor?: number;
   fontSize?: number;
   paddingVertical?: number;
   paddingHorizontal?: number;
@@ -17,9 +18,10 @@ interface HEButtonProps {
 const HEButton: React.FC<HEButtonProps> = ({
   title,
   onPress,
-  backgroundColor = '#9C59B5',
+  backgroundColor = '#3182f6',
   textColor = 'white',
   borderRadius = 25,
+  borderColor = '#3182f6',
   fontSize = 16,
   paddingVertical = 5,
   paddingHorizontal = 20,

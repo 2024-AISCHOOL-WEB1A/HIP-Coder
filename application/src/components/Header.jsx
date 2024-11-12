@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList, Animated, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList, Animated, Image, Easing } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 
@@ -28,7 +28,8 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
     setModalVisible(true);
     Animated.timing(slideAnim, {
       toValue: 0,
-      duration: 300,
+      duration: 500, 
+      easing: Easing.ease,
       useNativeDriver: true,
     }).start();
   };
@@ -36,7 +37,8 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
   const closeSidebar = () => {
     Animated.timing(slideAnim, {
       toValue: 500,
-      duration: 300,
+      duration: 500, 
+      easing: Easing.ease, 
       useNativeDriver: true,
     }).start(() => setModalVisible(false));
   };
@@ -45,12 +47,12 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
     <View style={styles.container}>
       {onBackPress && (
         <TouchableOpacity onPress={onBackPress} style={styles.iconContainer}>
-          <Icon name="arrow-back" size={24} color="#9C59B5" />
+          <Icon name="arrow-back" size={24} color="#0D47A1" />
         </TouchableOpacity>
       )}
       <Text style={styles.title}>{title}</Text>
       <TouchableOpacity onPress={openSidebar} style={styles.iconContainer}>
-        <Icon name="menu" size={24} color="#9C59B5" />
+        <Icon name="menu" size={24} color="#0D47A1" />
       </TouchableOpacity>
 
       <Modal
@@ -60,10 +62,10 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
         onRequestClose={closeSidebar}
       >
         <TouchableOpacity style={styles.overlay} onPress={closeSidebar} />
-        <Animated.View style={[styles.sidebar, { transform: [{ translateX: slideAnim }] }]} >
+        <Animated.View style={[styles.sidebar, { transform: [{ translateX: slideAnim }] }]}>
           <View style={styles.sidebarHeader}>
             <TouchableOpacity onPress={closeSidebar} style={styles.closeButton}>
-              <Icon name="close-outline" size={30} color="#4A148C" />
+              <Icon name="close-outline" size={30} color="#0D47A1" />
             </TouchableOpacity>
           </View>
           <View style={styles.profileSection}>
@@ -78,7 +80,7 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
                 item.action();
                 closeSidebar();
               }} style={styles.menuItem}>
-                <Icon name={item.icon} size={20} color="#4A148C" style={styles.menuIcon} />
+                <Icon name={item.icon} size={20} color="#3182f6" style={styles.menuIcon} />
                 <Text style={styles.menuItemText}>{item.label}</Text>
               </TouchableOpacity>
             )}
@@ -91,7 +93,7 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
             }
             closeSidebar();
           }} style={styles.menuItem}>
-            <Icon name="log-out-outline" size={20} color="#4A148C" style={styles.menuIcon} />
+            <Icon name="log-out-outline" size={20} color="#3182f6" style={styles.menuIcon} />
             <Text style={styles.menuItemText}>{isLoggedIn ? '로그아웃' : '로그인'}</Text>
           </TouchableOpacity>
         </Animated.View>
@@ -103,7 +105,7 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: 55,
+    height: 90,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -111,9 +113,10 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    color: '#6A1B9A',
-    textAlign: 'center',
+    color: '#0D47A1',
+    textAlign: 'left',
     fontFamily: 'Pretendard-Bold',
+    marginLeft: 15, 
   },
   iconContainer: {
     padding: 10,
@@ -126,9 +129,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '70%',
     height: '100%',
-    backgroundColor: '#F9F9F9', 
+    backgroundColor: '#F9F9F9',
     padding: 20,
-    justifyContent: 'center',
+    justifyContent: 'flex-start', 
     borderTopLeftRadius: 20,
     borderBottomLeftRadius: 20,
     right: 0,
@@ -136,33 +139,33 @@ const styles = StyleSheet.create({
   sidebarHeader: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    paddingBottom: 10,
+    paddingBottom: 20, 
   },
   closeButton: {
     padding: 10,
   },
   profileSection: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 30, 
   },
   profileImage: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    marginBottom: 10,
+    marginBottom: 15, 
   },
   profileName: {
     fontSize: 18,
-    color: '#4A148C',
+    color: '#0D47A1',
     fontFamily: 'Pretendard-SemiBold',
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 15,
+    paddingVertical: 20, 
   },
   menuIcon: {
-    marginRight: 15,
+    marginRight: 20,
   },
   menuItemText: {
     fontSize: 18,

@@ -145,7 +145,7 @@ def predict_url(url):
         logging.error("URL 예측 중 오류 발생: %s", str(e), exc_info=True)
         return None 
 
-# 테스트 엔드포인트
+# 갤러리에서 검사 하는 부분
 @urlscan_bp.route('/test', methods=['POST'])
 def test():
     if 'photo' not in request.files:
@@ -210,6 +210,8 @@ def save_scan_result(user_idx, url_data, scan_result, category):
     finally:
         connection.close()
 
+
+# 카메라에서 qr스캔 했을때
 @urlscan_bp.route('/scan', methods=['POST'])
 def scanurl():
     url_data = request.json.get('url')
@@ -236,8 +238,6 @@ def scanurl():
     else:
         logging.error("URL을 분류할 수 없습니다.")
         return jsonify({'status': 'error', 'message': 'URL을 분류할 수 없습니다.', 'url': url_data}), 500
-
-    # JWT 인증을 통해 user_idx를 가져오고 결과 저장
     try:
         verify_jwt_in_request(optional=True)
         user_idx = get_jwt_identity()
@@ -254,3 +254,4 @@ def scanurl():
     
     logging.info(f"응답 데이터: {response}")
     return response
+    

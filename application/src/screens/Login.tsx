@@ -27,10 +27,10 @@ const Login: React.FC<Props> = () => {
       
       if (res.status === 200) {
         const { token, temporaryPassword } = res.data;
-        await AsyncStorage.setItem('token', token);
-        console.log('AsyncStorage에 저장된 token', await AsyncStorage.getItem('token'));
+        await AsyncStorage.setItem('accessToken', token);
+        console.log('AsyncStorage에 저장된 token', await AsyncStorage.getItem('accessToken'));
 
-        Alert.alert('환영합니다');
+        // Alert.alert('알림' ,'환영합니다');
         setIsLoggedIn(true);
 
         if (temporaryPassword) {
@@ -60,7 +60,7 @@ const Login: React.FC<Props> = () => {
 
   return (
     <LinearGradient
-      colors={['#FFFFFF', '#F3E5F5', '#E1BEE7']}  
+      colors={['#E1F5FE', '#BBDEFB', '#90CAF9']}  
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={styles.container}
@@ -74,7 +74,7 @@ const Login: React.FC<Props> = () => {
         <TextInput
           style={styles.input}
           placeholder="아이디"
-          placeholderTextColor="#838383"
+          placeholderTextColor="#616161"
           value={id} 
           onChangeText={setId} 
         />
@@ -82,7 +82,7 @@ const Login: React.FC<Props> = () => {
           style={styles.input}
           placeholder="비밀번호"
           secureTextEntry
-          placeholderTextColor="#838383"
+          placeholderTextColor="#616161"
           value={password}
           onChangeText={setPassword}
         />
@@ -123,13 +123,13 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: 28,
-    color: '#6A1B9A', 
+    color: '#0D47A1', 
     textAlign: 'left',
     fontFamily: 'Pretendard-Regular', 
   },
   subHeader: {
     fontSize: 32,
-    color: '#6A1B9A',  
+    color: '#0D47A1',  
     paddingBottom: 40,
     textAlign: 'left',
     fontFamily: 'Pretendard-Bold', 
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   input: {
     width: '100%',
     height: 55,
-    borderColor: '#B490CA',
+    borderColor: '#3182f6',
     borderWidth: 1,
     borderRadius: 25,
     paddingHorizontal: 20,
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   link: {
-    color: '#838383',
+    color: '#1E88E5',
     textAlign: 'center',
     fontFamily: 'Pretendard-Regular', 
   },

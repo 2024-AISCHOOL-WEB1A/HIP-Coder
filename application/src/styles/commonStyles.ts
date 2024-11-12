@@ -2,7 +2,15 @@ import { StyleSheet } from 'react-native';
 
 const commonStyles = StyleSheet.create({
   container: {
-    backgroundColor: '#9C59B5',
+    backgroundColor: '#3182f6',
+    flex: 1,
+    justifyContent: 'center',
+    padding: 0,
+    // paddingLeft: 40,
+    // paddingRight: 40,
+  },
+  containerWhite: {
+    backgroundColor: '#ffffff',
     flex: 1,
     justifyContent: 'center',
     padding: 0,
@@ -64,6 +72,7 @@ const commonStyles = StyleSheet.create({
     // alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 30,
+    color: '#ffffff',
   },
   formContainer: {
     flex: 1,
@@ -72,17 +81,34 @@ const commonStyles = StyleSheet.create({
   // header: {
   //   fontSize: 24,
   // },
-  headerTitle:{
+  // headerTitle:{
+  //   fontSize: 20,
+  //   color: '#ffffff',
+  //   fontWeight: 'bold',
+  //   textAlign: 'center',
+  // },
+  termsHeaderTitle:{
     fontSize: 20,
-    // color: "#6A1B9A",
+    color: 'black',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  fixedFooter: {
+    height: '8%',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 10,
+    backgroundColor: '#3182f6',
+    // borderTopWidth: 1,
+    // borderColor: '#ddd',
+  },
+  footerText:{
+    fontSize: 20,
     color: '#ffffff',
     fontWeight: 'bold',
-    textAlign: 'left',
-    // textAlign: 'center',
-    paddingTop: 20,
-    paddingBottom: 0,
-    paddingLeft: 50,
-    paddingVertical: 13,
+    textAlign: 'center',
   },
   view1: {
     flexDirection: 'row',
@@ -101,39 +127,39 @@ const commonStyles = StyleSheet.create({
 
   input: {
     height: 50,
-    borderColor: '#9C59B5',
+    borderColor: '#E0E0E0',
     borderWidth: 1,
-    borderRadius: 20,
+    borderRadius: 12,
     marginBottom: 20,
     paddingHorizontal: 10,
   },
   input1: {
     width: '70%',
     height: 50,
-    borderColor: '#9C59B5',
+    borderColor: '#E0E0E0',
     borderWidth: 1,
-    borderRadius: 20,
+    borderRadius: 12,
     paddingHorizontal: 10,
   },
   smallButton: {
     width: '25%',
     height: 50,
-    borderColor: '#9C59B5',
+    borderColor: '#3182f6',
     borderWidth: 1,
-    borderRadius: 20,
+    borderRadius: 12,
     paddingHorizontal: 10,
   },
   checkBox:{
     width: '25%',
     height: 50,
-    borderColor: '#9C59B5',
+    borderColor: '#3182f6',
     borderWidth: 1,
   },
 
   fullWidthButton: {
     width: '100%',
     height: 50,
-    borderColor: '#9C59B5',
+    borderColor: '#3182f6',
     borderWidth: 1,
     borderRadius: 20,
     marginBottom: 20,
@@ -151,10 +177,10 @@ const commonStyles = StyleSheet.create({
     borderRadius: 50,
   },
   activeButton: {
-    backgroundColor: '#9C59B5',
+    backgroundColor: '#3182f6',
   },
   modalView: {
-    borderColor: '#9C59B5',
+    borderColor: '#3182f6',
   },
   linkContainer:{
     paddingLeft: 5,
@@ -269,7 +295,7 @@ const commonStyles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '400',
     // color: '#2c2b2b',
-    color: '#ffffff',
+    color: 'black',
     paddingLeft: 20,
     paddingRight: 20,
   },

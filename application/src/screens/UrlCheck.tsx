@@ -55,8 +55,8 @@ const UrlCheck: React.FC<Props> = () => {
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.headerContainer}>
-        <Header onBackPress={() => navigation.goBack()} />
-        <Text style={commonStyles.headerTitle}>URL 검사</Text>
+        <Header title="URL 검사" onBackPress={() => navigation.goBack()} />
+        {/* <Text style={commonStyles.headerTitle}>URL 검사</Text> */}
       </View>
       <View style={commonStyles.formContainer}>
         <View style={commonStyles.innerContainer}>

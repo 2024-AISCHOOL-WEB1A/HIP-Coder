@@ -87,28 +87,50 @@ router.post('/idcheck', async (req, res) => {
     }
 });
 
-/** 마이페이지 정보 불러오기 */
-router.post('/mypage', authenticateToken, (req, res) => {
-    const userId = req.userId;
+// 백엔드 마이페이지 데이터 요청 처리
+router.post('/mypage', authenticateToken, async (req, res) => {
+    const userId = req.userId; // 미들웨어에서 설정한 사용자 ID를 사용
+    const sql = `
+        SELECT U.USER_NAME, U.PHONE, U.EMAIL, E.CONTACT_INFO1, E.CONTACT_INFO2
+        FROM USER U
+        INNER JOIN EMG_CON E ON U.USER_IDX = E.USER_IDX
+        WHERE U.USER_IDX = ?
+    `;
 
-    log('마이페이지 요청, userId:', userId);
-
-    var sql = `SELECT U.USER_NAME, U.PHONE, U.EMAIL, E.CONTACT_INFO1, E.CONTACT_INFO2
-                FROM USER U INNER JOIN EMG_CON E
-                ON U.USER_IDX = E.USER_IDX
-                WHERE U.USER_IDX =  ?`
-
-    conn.query(sql, [userId], (err, results) => {
-        if (err) {
-            console.error('DB Count Error', err)
-            return res.status(500).json({ error: 'DB Count Error' })
-        } else if (results.length === 0) {
-            return res.status(404).json({ error: '사용자 정보를 찾을 수 없습니다.' })
-        } else {
-            log(results)
-            res.json({ message: results })
+    try {
+        const [results] = await conn.promise().query(sql, [userId]);
+        if (results.length === 0) {
+            return res.status(404).json({ error: '사용자 정보를 찾을 수 없습니다.' });
         }
-    })
+        res.json({ message: results });
+    } catch (error) {
+        console.error('DB 조회 중 오류:', error);
+        res.status(500).json({ error: '사용자 데이터를 불러오는 중 오류가 발생했습니다.' });
+    }
+});
+
+// 비상연락망 수정 라우터
+router.post('/update', authenticateToken, async (req, res) => {
+    const userId = req.userId; // 미들웨어에서 설정한 사용자 ID 사용
+    const { emergencyContact1, emergencyContact2 } = req.body;
+
+    console.log('userId', userId);
+
+    try {
+        // 비상 연락망 업데이트
+        const sql = 'UPDATE EMG_CON SET CONTACT_INFO1 = ?, CONTACT_INFO2 = ? WHERE USER_IDX = ?';
+        const [results] = await conn.promise().query(sql, [emergencyContact1, emergencyContact2, userId]);
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: '사용자 정보를 찾을 수 없습니다.' });
+        }
+
+        res.status(200).json({ message: '비상 연락망이 성공적으로 수정되었습니다.' });
+        console.log('비상 연락망 수정 완료');
+    } catch (error) {
+        console.error('비상 연락망 수정 오류', error);
+        res.status(500).json({ error: '비상 연락망 수정 중 오류가 발생했습니다.' });
+    }
 })
 
 /** 비밀번호 찾기 요청 처리 */
@@ -186,7 +208,7 @@ router.post('/changePassword', authenticateToken, async (req, res) => {
     const userId = req.userId;
 
     console.log('userId', userId);
-    
+
     try {
         // 현재 비밀번호 확인하기
         const sql = 'SELECT USER_PW FROM USER WHERE USER_IDX = ?';
@@ -216,7 +238,6 @@ router.post('/changePassword', authenticateToken, async (req, res) => {
     }
 });
 
-
 // 로그인 라우터
 router.post('/handleLogin', async (req, res) => {
     const { id, password } = req.body;
@@ -239,9 +260,19 @@ router.post('/handleLogin', async (req, res) => {
             isMatch = await verifypw(password, user.USER_PW);
 
             if (isMatch) {
+                const accessToken = jwtoken.generateToken({ id: user.USER_IDX });
+                const refreshToken = jwtoken.generateRefreshToken({ id: user.USER_IDX });
+
+                // 리프레시 토큰을 쿠키에 설정
+                res.cookie('refreshToken', refreshToken, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production', // production 환경일 때만 secure 설정
+                    sameSite: 'strict'
+                });
+
                 return res.status(200).json({
                     message: '임시 비밀번호로 로그인되었습니다. 비밀번호를 변경해 주세요.',
-                    token: jwtoken.generateToken({ id: user.USER_IDX , sub: user.USER_IDX,}),                    
+                    token: accessToken,
                     temporaryPassword: true
                 });
                 
@@ -250,9 +281,20 @@ router.post('/handleLogin', async (req, res) => {
 
         isMatch = await verifypw(password, user.USER_PW);
         if (isMatch) {
-            const token = jwtoken.generateToken({ id: user.USER_IDX , sub: user.USER_IDX,});
-            console.log('jwt 토큰 확인:', token);
-            return res.status(200).json({ message: '로그인 성공!', token, temporaryPassword: false });
+            const accessToken = jwtoken.generateToken({ id: user.USER_IDX });
+            const refreshToken = jwtoken.generateRefreshToken({ id: user.USER_IDX });
+
+            // 리프레시 토큰을 쿠키에 설정
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict'
+            });
+
+            console.log('jwt 토큰 확인:', accessToken);
+            console.log('refresh 토큰 확인(쿠키):', refreshToken)
+
+            return res.status(200).json({ message: '로그인 성공!', token: accessToken, temporaryPassword: false });
         } else {
             return res.status(400).json({ error: '아이디 또는 비밀번호가 일치하지 않습니다.' });
         }
@@ -262,6 +304,7 @@ router.post('/handleLogin', async (req, res) => {
         return res.status(500).json({ error: '로그인 중 오류가 발생했습니다.' });
     }
 });
+
 
 /** 아이디 찾기 */
 router.post('/FindId', (req, res) => {
@@ -360,7 +403,33 @@ router.get('/verify-id/:token', (req, res) => {
     });
 });
 
+// 회원 탈퇴 라우터
+router.post('/withdrawal', authenticateToken, async (req, res) => {
+    const userId = req.userId; // 미들웨어에서 설정한 사용자 ID 사용
 
+    console.log('회원 탈퇴 요청 - userId:', userId);
+
+    try {
+        // 사용자 정보 삭제
+        const deleteUserSql = 'DELETE FROM USER WHERE USER_IDX = ?';
+        const deleteEmgConSql = 'DELETE FROM EMG_CON WHERE USER_IDX = ?';
+
+        // 비상 연락망 정보 삭제
+        await conn.promise().query(deleteEmgConSql, [userId]);
+        // 사용자 정보 삭제
+        const [results] = await conn.promise().query(deleteUserSql, [userId]);
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: '사용자 정보를 찾을 수 없습니다.' });
+        }
+
+        res.status(200).json({ message: '회원 탈퇴가 성공적으로 완료되었습니다.' });
+        console.log('회원 탈퇴 완료');
+    } catch (error) {
+        console.error('회원 탈퇴 오류', error);
+        res.status(500).json({ error: '회원 탈퇴 중 오류가 발생했습니다.' });
+    }
+})
 
 
 module.exports = router;
