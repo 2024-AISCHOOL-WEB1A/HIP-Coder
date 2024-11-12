@@ -22,6 +22,7 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [scanHistory, setScanHistory] = useState<ScanHistory[]>([]);
 
+  // 갤러리에서 이미지 선택
   const selectImageFromGallery = () => {
     const options = {
       mediaType: 'photo',
@@ -47,6 +48,7 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
     selectImageFromGallery();
   }, []);
 
+  // 서버에 이미지 업로드
   const uploadImageToBackend = async () => {
     if (!selectedImageUri) {
       Alert.alert('이미지를 먼저 선택하세요!');
@@ -62,30 +64,32 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
 
     const accessToken = await AsyncStorage.getItem('accessToken');
     const headers = {
-        'Content-Type': 'multipart/form-data',
-        'Authorization': accessToken ? `Bearer ${accessToken}` : '',
+      'Content-Type': 'multipart/form-data',
+      ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}),
     };
 
+    console.log('Authorization 헤더에 추가된 JWT 토큰:', headers.Authorization);
+
     try {
-      const token = await AsyncStorage.getItem('token');
+      // Flask 서버로 이미지 업로드
       const response = await axios.post(
         `${FLASK_URL}/test`,
         formData,
-        {
-          headers,   
-        }
+        { headers }
       );
 
       console.log('서버 응답 데이터:', response.data);
       if (response.data.qrCodeData) {
         const url = response.data.qrCodeData;
-        // /scan 엔드포인트에 토큰과 user_idx 포함하여 요청
+
+        // QR 코드 데이터를 Flask 서버의 /scan 엔드포인트로 전송, QR_CAT 명시
         const scanResponse = await axios.post(
           `${FLASK_URL}/scan`,
-          { url, category: 'IMG', user_idx },  // user_idx를 바디에 추가
-          { headers }  // JWT 토큰이 포함된 헤더
+          { url, category: 'IMG' },
+          { headers, withCredentials: true }
         );
 
+        console.log('서버 /scan 엔드포인트 응답:', scanResponse.data);
 
         if (scanResponse.data.status === 'good') {
           Alert.alert('업로드 성공', `서버 응답: 이 URL은 안전합니다. (${scanResponse.data.url})`);
@@ -100,13 +104,16 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
 
       const newScan: ScanHistory = {
         id: Date.now().toString(),
-        date: new Date().toISOString(),
+        date: new Date(new Date().getTime() + 9 * 60 * 60 * 1000).toISOString(), // UTC+9 (KST)로 시간 조정
         imageUri: selectedImageUri,
         status: response.data.result || '검사 완료',
       };
 
       setScanHistory(prevHistory => [newScan, ...prevHistory]);
       Alert.alert('검사 완료', `결과: ${response.data.result || '검사가 완료되었습니다.'}`);
+
+      // 요청이 끝난 후 홈으로 이동
+      navigation.navigate('Home');
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error('네트워크 오류 발생:', error.message);
@@ -118,6 +125,7 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
     }
   };
 
+  // 날짜 포맷팅 함수
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('ko-KR', {

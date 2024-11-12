@@ -116,13 +116,23 @@ def test():
 
             qr_data = qr_codes[0].data.decode('utf-8')
             logging.info(f'QR 코드에서 추출한 URL: {qr_data}')
+
+            # Authorization 헤더 전달
+            auth_header = request.headers.get("Authorization")
+            headers = {"Authorization": auth_header} if auth_header else {}
+
+            # /scan 엔드포인트에 POST 요청 시 Authorization 헤더 전달
+            response = requests.post(f'{flask_url}/scan', json={'url': qr_data, 'category': "IMG"}, headers=headers)
+
+            if response.status_code != 200:
+                logging.error(f"/scan 엔드포인트에 요청 중 오류 발생: {response.status_code}")
+                return jsonify({'error': 'Failed to send URL to /scan'}), 500
             
-            response = requests.post(f'{flask_url}/scan', json={'url': qr_data, 'category': "IMG"})
-            return response.json() if response.status_code == 200 else jsonify({'error': 'Failed to send URL to /scan'}), 500
+            return response.json()
 
     except Exception as e:
         logging.error(f"예외 발생: {str(e)}", exc_info=True)
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': '서버 오류 발생'}), 500
     finally:
         # 임시 파일 삭제
         if os.path.exists(temp_file.name):
@@ -130,6 +140,8 @@ def test():
                 os.remove(temp_file.name)
             except PermissionError as pe:
                 logging.error(f"파일 삭제 오류: {temp_file.name} - {str(pe)}")
+
+
 
 def save_scan_result(user_id, url_data, scan_result, category):
     try:
@@ -167,14 +179,19 @@ def update_count_logs(scan_result):
 
 @urlscan_bp.route('/scan', methods=['POST'])
 def scanurl():
+    print("Headers:", request.headers)
+    auth_header = request.headers.get("Authorization")
+    print("Received Authorization header:", auth_header)
+
     url_data = request.json.get('url')
-    cat = request.json.get('category')
-    
+    cat = request.json.get('category')  # 프론트엔드에서 전달받은 category 값
+
     if not url_data:
         logging.warning("URL이 제공되지 않았습니다.")
         return jsonify({'status': 'error', 'message': 'URL이 제공되지 않았습니다.'}), 400
 
-    logging.info(f"요청받은 URL: {url_data}")
+    logging.info(f"요청받은 URL: {url_data} | 카테고리: {cat}")
+
     prediction = predict_url(url_data)
     scan_result = 'G' if prediction == 'good' else 'B'
 
@@ -188,21 +205,50 @@ def scanurl():
     update_count_logs(scan_result)
 
     # JWT 토큰이 있는 경우에만 가져와서 디코딩 처리
-    auth_header = request.headers.get("Authorization")
+    logging.info(f"Authorization 헤더: {auth_header}")
+
     user_id = "비회원"  # 기본값으로 비회원 설정
 
     if auth_header:
         try:
             token = auth_header.split(" ")[1]
+            logging.info(f"JWT 토큰 추출: {token}")
             decoded_token = decode_jwt_token(token)
             if decoded_token:
                 user_id = decoded_token.get('id', '비회원')
-                logging.info(f"user_id : '{user_id}'")
+                logging.info(f"user_id 추출: {user_id}")
             else:
                 logging.warning("토큰 디코딩 실패로 비회원 처리")
         except Exception as e:
             logging.error(f"JWT 디코딩 중 오류 발생: {e}")
 
-    # 검사 결과 저장
-    save_scan_result(user_id, url_data, scan_result, cat)
+    # 검사 결과 저장 시 QR_CAT도 함께 저장
+    save_scan_result(user_id, url_data, scan_result, cat)  # QR_CAT으로 받은 category 값도 저장
     return response
+
+
+@urlscan_bp.route('/tt', methods=['POST'])
+def test_token():
+    logging.info("Received request on /tt endpoint")
+    
+    # 요청 헤더에 포함된 Authorization 헤더 확인
+    auth_header = request.headers.get("Authorization")
+    logging.info(f"Received Authorization header: {auth_header}")
+    
+    user_id = "비회원"  # 기본값 설정
+    
+    if auth_header:
+        try:
+            token = auth_header.split(" ")[1]
+            logging.info(f"JWT 토큰 추출: {token}")
+            decoded_token = decode_jwt_token(token)
+            if decoded_token:
+                user_id = decoded_token.get('id', '비회원')
+                logging.info(f"디코딩된 사용자 ID: {user_id}")
+            else:
+                logging.warning("토큰 디코딩 실패 - 비회원 처리")
+        except Exception as e:
+            logging.error(f"JWT 디코딩 중 오류 발생: {e}")
+    
+    # 테스트 응답 반환
+    return jsonify({"message": f"인증된 사용자: {user_id}"}), 200

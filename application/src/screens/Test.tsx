@@ -5,6 +5,7 @@ import api from '../../axios';
 import axios, { AxiosError } from 'axios';
 import { RootStackParamList } from '../../types';
 import { useCsrf } from '../../context/CsrfContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -46,14 +47,24 @@ const Test: React.FC<Props> = ({ navigation }) => {
 
   const sendData1 = async () => {
     try {
-      const res = await axios.post('http://220.95.41.232:5000/tt', { data: inputValue });
+      const token = await AsyncStorage.getItem('accessToken'); // JWT 토큰 가져오기
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  
+      console.log("보내는 Authorization 헤더:", headers.Authorization); // 토큰 로그 확인
+  
+      const res = await axios.post(
+        'http://220.93.173.19:5000/tt',
+        { data: inputValue },
+        { headers } // 헤더 추가
+      );
+  
       Alert.alert('서버응답', res.data.message);
     } catch (error) {
       console.error(error);
       Alert.alert('오류', '요청 중 문제가 발생했습니다.');
     }
   };
-
+  
 
   // URL 검사 및 처리 함수
   const urlData = async () => {

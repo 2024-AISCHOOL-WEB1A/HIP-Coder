@@ -7,6 +7,7 @@ import AnimateNumber from 'react-native-animate-number';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../../axios';
 import { useCsrf } from '../../context/CsrfContext';
+import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
 
 const Home: React.FC = () => {
   const navigation = useNavigation();
@@ -17,11 +18,9 @@ const Home: React.FC = () => {
 
   // 로그인 상태 확인 (토큰)
   const checkIsLogin = async () => {
-
     const accessToken = await AsyncStorage.getItem('accessToken')
     setIsLoggedIn(!!accessToken)
   }
-
 
   // 렌더링 시 로그인 상태 확인 및 카운트 데이터 가져오기
   useEffect(() => {
@@ -76,7 +75,6 @@ const Home: React.FC = () => {
     api.defaults.headers.Authorization = null;
 
     // AsyncStorage에서 토큰 삭제 확인
-
     const accessToken = await AsyncStorage.getItem('accessToken');
     if (!accessToken) {
       console.log('AsyncStorage에서 JWT 토큰이 정상 삭제되었습니다.');
@@ -93,6 +91,30 @@ const Home: React.FC = () => {
 
   const getIconColor = (screen) => {
     return navigation.isFocused(screen) ? '#3182f6' : '#9DA3B4';
+  };
+
+  // 이미지 선택 후 GalleryQrScan 화면으로 이동하는 함수
+  const handleGalleryNavigation = async () => {
+    const options = {
+      mediaType: 'photo',
+      quality: 1,
+    };
+
+    // 이미지 선택 창 호출
+    launchImageLibrary(options, (response: ImagePickerResponse) => {
+      if (response.didCancel) {
+        console.log('이미지 선택이 취소되었습니다.');
+        // 이미지가 선택되지 않았으므로 GalleryQrScan 화면으로 이동하지 않음
+        return;
+      } else if (response.assets && response.assets.length > 0) {
+        const uri = response.assets[0].uri;
+        if (uri) {
+          console.log('선택한 이미지 URI:', uri);
+          // 이미지가 선택된 경우에만 GalleryQrScan 화면으로 이동
+          navigation.navigate('GalleryQrScan' as never);
+        }
+      }
+    });
   };
 
   return (
@@ -195,7 +217,8 @@ const Home: React.FC = () => {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('GalleryQrScan' as never)}>
+          {/* 갤러리에서 이미지 선택하여 검사 페이지로 이동 */}
+          <TouchableOpacity style={styles.card} onPress={handleGalleryNavigation}>
             <View style={styles.cardIconContainer}>
               <Image
                 source={require('../assets/free-icon-gallery.png')}
@@ -209,12 +232,12 @@ const Home: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/* <TouchableOpacity
+        <TouchableOpacity
           style={styles.testButton}
           onPress={() => navigation.navigate('Test' as never)}
         >
           <Text style={styles.testButtonText}>테스트 지우지마세요!</Text>
-        </TouchableOpacity> */}
+        </TouchableOpacity>
       </ScrollView>
 
       <View style={styles.navBar}>

@@ -15,7 +15,7 @@ load_dotenv()
 
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}}, expose_headers=["Authorization"])
+CORS(app, resources={r"/*": {"origins": "*"}}, expose_headers=["Authorization"], supports_credentials=True)
 
 app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY')  # JWTManager와 호환되도록 JWT_SECRET_KEY 설정
 jwt = JWTManager(app)
