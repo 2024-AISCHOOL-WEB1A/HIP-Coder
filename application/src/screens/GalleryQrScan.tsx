@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, Image, ScrollView } from 'react-native';
 import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
 import axios from 'axios';
-import { useCsrf } from '../../context/CsrfContext';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FLASK_URL } from '@env';
@@ -22,7 +21,6 @@ interface ScanHistory {
 const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [scanHistory, setScanHistory] = useState<ScanHistory[]>([]);
-  const { csrfToken } = useCsrf();
 
   const selectImageFromGallery = () => {
     const options = {
@@ -62,23 +60,32 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
       name: `photo.${selectedImageUri.split('.').pop()}`,
     } as any);
 
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    const headers = {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': accessToken ? `Bearer ${accessToken}` : '',
+    };
+
     try {
       const response = await axios.post(
         `${FLASK_URL}/test`,
         formData,
         {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'X-CSRF-Token': csrfToken,
-          },
-          withCredentials: true,
+          headers,
+          
         }
       );
 
       console.log('서버 응답 데이터:', response.data);
       if (response.data.qrCodeData) {
         const url = response.data.qrCodeData;
-        const scanResponse = await axios.post(`${FLASK_URL}/scan`, { url , category: 'IMG'   });
+
+        // /scan 엔드포인트에 토큰과 user_idx 포함하여 요청
+        const scanResponse = await axios.post(
+          `${FLASK_URL}/scan`,
+          { url, category: 'IMG', user_idx },  // user_idx를 바디에 추가
+          { headers }  // JWT 토큰이 포함된 헤더
+        );
 
         if (scanResponse.data.status === 'good') {
           Alert.alert('업로드 성공', `서버 응답: 이 URL은 안전합니다. (${scanResponse.data.url})`);
@@ -122,7 +129,6 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Header 임포트한 부분 */}
       <Header />
 
       <View style={styles.mainContent}>

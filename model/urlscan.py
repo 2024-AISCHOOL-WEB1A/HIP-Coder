@@ -12,23 +12,20 @@ from urllib.parse import urlparse
 import pandas as pd
 from scipy.sparse import hstack
 from bs4 import BeautifulSoup
-from flask_jwt_extended import verify_jwt_in_request,get_jwt_identity,JWTManager
+from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity, JWTManager
 from dotenv import load_dotenv
 import pymysql
+from config.db import db_con  # config.db에서 db_con 가져오기
+from config.jwt import decode_jwt_token
+
 
 load_dotenv()
+
+flask_url = os.getenv('FLASK_URL')
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-
-db_config = {
-    'host': os.getenv('DB_HOST'),
-    'user': os.getenv('DB_USER'),
-    'password': os.getenv('DB_PASSWORD'),
-    'database': os.getenv('DB_NAME'),
-    'port': int(os.getenv('DB_PORT'))  # 포트 정보 추가
-}
 urlscan_bp = Blueprint('urlscan', __name__)
 
 # 신뢰 URL 로드
@@ -36,21 +33,17 @@ trust_url = pd.read_csv('./data_with_trust_url.csv')
 trust_urls = trust_url[trust_url['type'] == 'trust']['url'].values
 
 trusted_tlds = {
-    '.com', '.org', '.net', '.gov', '.edu', '.mil', '.int',  # 일반적인 신뢰 TLD
-    '.co', '.us', '.uk', '.ca', '.de', '.fr', '.au', '.jp',  # 국가별 일반 TLD
-    '.eu', '.nz', '.ie', '.ch', '.nl', '.in', '.br', '.kr',  # 국가별 일반 TLD
-    '.cn', '.sg', '.hk', '.za', '.mx', '.es', '.it', '.se',  # 국가별 일반 TLD
-    '.fi', '.no', '.pl', '.pt', '.ru', '.be', '.gr', '.dk',  # 국가별 일반 TLD
-    '.cz', '.sk', '.tr', '.ar', '.tw', '.id', '.th', '.vn'   # 기타 국가별 TLD
+    '.com', '.org', '.net', '.gov', '.edu', '.mil', '.int',
+    '.co', '.us', '.uk', '.ca', '.de', '.fr', '.au', '.jp',
+    '.eu', '.nz', '.ie', '.ch', '.nl', '.in', '.br', '.kr',
+    '.cn', '.sg', '.hk', '.za', '.mx', '.es', '.it', '.se',
+    '.fi', '.no', '.pl', '.pt', '.ru', '.be', '.gr', '.dk',
+    '.cz', '.sk', '.tr', '.ar', '.tw', '.id', '.th', '.vn'
 }
 
-
-#model_path = os.path.join(os.path.dirname(__file__), 'mnb_model_with_vectorizer.pkl')
-#model_path = os.path.join(os.path.dirname(__file__), 'log_reg_model_with_vectorizer.pkl')
+# 모델 로드
 model_path = os.path.join(os.path.dirname(__file__), 'ensemble_model_with_vectorizer.pkl')
 vectorizer, ensemble_model = joblib.load(model_path)
-
-
 
 def extract_domain(url):
     parsed_url = urlparse(url)
@@ -59,48 +52,31 @@ def extract_domain(url):
         domain = domain[4:]
     return domain
 
+# URL을 토큰화하는 함수
 def tokenize_url(url):
     tokens = []
     for part in url.split('/'):
         tokens.extend(part.split('.'))
     return ' '.join(tokens)
 
-
-
 # 추가 피처 추출 함수
 def extract_features(url):
-    features = {}
     parsed_url = urlparse(url)
-
-    # URL 기반 특징
-    features['url_length'] = len(url)
-    features['hostname_length'] = len(parsed_url.hostname) if parsed_url.hostname else 0
-    features['num_slashes'] = url.count('/')
-    features['num_special_chars'] = sum([url.count(char) for char in ['-', '_', '.', '@', '&']])
-    features['is_https'] = 1 if parsed_url.scheme == 'https' else 0
-
-    # 도메인 기반 특징
     hostname = parsed_url.hostname if parsed_url.hostname else ""
-    features['num_digits_in_domain'] = sum(char.isdigit() for char in hostname)
+    return pd.Series({
+        'url_length': len(url),
+        'hostname_length': len(hostname),
+        'num_slashes': url.count('/'),
+        'num_special_chars': sum(url.count(char) for char in ['-', '_', '.', '@', '&']),
+        'is_https': int(parsed_url.scheme == 'https'),
+        'num_digits_in_domain': sum(char.isdigit() for char in hostname),
+        'is_trusted_tld': int(any(hostname.endswith(tld) for tld in trusted_tlds)),
+        'is_short_url': int(len(hostname) <= 10)
+    })
 
-    # 추가 특징
-    features['is_trusted_tld'] = 1 if any(hostname.endswith(tld) for tld in trusted_tlds) else 0
-    features['is_short_url'] = 1 if features['hostname_length'] <= 10 else 0
-
-    return pd.Series(features)
-
+# URL을 예측하는 함수
 def predict_url(url):
-    prediction = None
-    
     try:
-        # domain = extract_domain(url)
-        # logging.info(f"추출된 도메인: {domain}")
-
-        # # 신뢰할 수 있는 도메인 검사
-        # if domain in trust_urls:
-        #     logging.info(f"URL '{url}'는 신뢰할 수 있는 도메인 '{domain}'을 포함합니다.")
-        #     return 'good'  
-
         new_url = [url]
         new_feature_df = pd.DataFrame(new_url, columns=['url']).apply(lambda x: extract_features(x['url']), axis=1)
         new_vec = vectorizer.transform(new_url)
@@ -108,19 +84,14 @@ def predict_url(url):
 
         # 예측
         prediction_prob = ensemble_model.predict_proba(new_combined)
-        logging.info(f"MNB Prediction Probability for new URL: {prediction_prob}")
+        logging.info(f"Prediction Probability for URL: {prediction_prob}")
 
-        # 예측 결과 출력
-        prediction = 'good' if prediction_prob[0][1] > 0.5 else 'bad'
-        logging.info(f"MNB  {new_url[0]}: {prediction}")
-
-        return prediction
-
+        return 'good' if prediction_prob[0][1] > 0.5 else 'bad'
     except Exception as e:
         logging.error("URL 예측 중 오류 발생: %s", str(e), exc_info=True)
-        return None 
+        return None
 
-# 갤러리에서 검사 하는 부분
+# QR 코드 검사 엔드포인트
 @urlscan_bp.route('/test', methods=['POST'])
 def test():
     if 'photo' not in request.files:
@@ -138,28 +109,17 @@ def test():
                 logging.error("이미지를 읽지 못했습니다.")
                 return jsonify({'error': 'Failed to read image'}), 500
 
-            # 이미지 흑백 변환
             gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-            # QR 코드 디코딩
             qr_codes = decode(gray_image)
-            if len(qr_codes) == 0:
+            if not qr_codes:
                 logging.warning('QR 코드가 인식되지 않았습니다.')
                 return jsonify({'error': 'No QR code detected'}), 400
 
-            # QR 코드 데이터 추출
             qr_data = qr_codes[0].data.decode('utf-8')
             logging.info(f'QR 코드에서 추출한 URL: {qr_data}')
             
-            # URL을 /scan으로 전송
-            logging.info(f'QR 데이터로 전송할 URL: {qr_data}')
-            response = requests.post('{FLASK_URL}/scan', json={'url': qr_data, 'category': "IMG" })
-
-            if response.status_code == 200:
-                return response.json()
-            else:
-                logging.error(f'/scan 요청 실패: {response.status_code}, 응답 내용: {response.text}')
-                return jsonify({'error': 'Failed to send URL to /scan'}), 500
+            response = requests.post(f'{flask_url}/scan', json={'url': qr_data, 'category': "IMG"})
+            return response.json() if response.status_code == 200 else jsonify({'error': 'Failed to send URL to /scan'}), 500
 
     except Exception as e:
         logging.error(f"예외 발생: {str(e)}", exc_info=True)
@@ -171,11 +131,10 @@ def test():
                 os.remove(temp_file.name)
             except PermissionError as pe:
                 logging.error(f"파일 삭제 오류: {temp_file.name} - {str(pe)}")
-                
 
 def save_scan_result(user_id, url_data, scan_result, category):
     try:
-        connection = pymysql.connect(**db_config)
+        connection = db_con()
         with connection.cursor() as cursor:
             sql = "INSERT INTO SCAN_QR (USER_IDX, SCAN_URL, SCAN_RESULT, QR_CAT) VALUES (%s, %s, %s, %s)"
             cursor.execute(sql, (user_id, url_data, scan_result, category))
@@ -185,8 +144,6 @@ def save_scan_result(user_id, url_data, scan_result, category):
     finally:
         connection.close()
 
-
-# 카메라에서 qr스캔 했을때
 @urlscan_bp.route('/scan', methods=['POST'])
 def scanurl():
     url_data = request.json.get('url')
@@ -197,29 +154,31 @@ def scanurl():
         return jsonify({'status': 'error', 'message': 'URL이 제공되지 않았습니다.'}), 400
 
     logging.info(f"요청받은 URL: {url_data}")
-
     prediction = predict_url(url_data)
+    scan_result = 'G' if prediction == 'good' else 'B'
 
-    if prediction == 'good':
-        scan_result = 'good'
-        logging.info(f"URL '{url_data}'는 안전합니다.")
-        response = jsonify({'status': 'good', 'message': '이 URL은 안전합니다.', 'url': url_data})
-    elif prediction == 'bad':
-        scan_result = 'bad'
-        logging.warning(f"URL '{url_data}'는 위험할 수 있습니다.")
-        response = jsonify({'status': 'bad', 'message': '이 URL은 보안 위험이 있을 수 있습니다.', 'url': url_data})
-    else:
-        return jsonify({'status': 'error', 'message': 'URL을 분류할 수 없습니다.', 'url': url_data}), 500
-    try:
-        verify_jwt_in_request(optional=True)
-        user_id = get_jwt_identity()
-        logging.info(f"user_id : '{user_id}'")
-        
-        if user_id:
-            save_scan_result(user_id, url_data, scan_result, cat)
-            logging.info(f"결과값 저장  : '{save_scan_result(user_id, url_data, scan_result, cat)}'")
-    except Exception as e:
-        logging.error(f"JWT 확인 중 오류 발생: {e}")
-    logging.info(f"respose  : '{response}'")
+    response = jsonify({
+        'status': 'good' if scan_result == 'G' else 'bad',
+        'message': '이 URL은 안전합니다.' if scan_result == 'G' else '이 URL은 보안 위험이 있을 수 있습니다.',
+        'url': url_data
+    })
+
+    # JWT 토큰이 있는 경우에만 가져와서 디코딩 처리
+    auth_header = request.headers.get("Authorization")
+    user_id = "비회원"  # 기본값으로 비회원 설정
+
+    if auth_header:
+        try:
+            token = auth_header.split(" ")[1]
+            decoded_token = decode_jwt_token(token)
+            if decoded_token:
+                user_id = decoded_token.get('id', '비회원')
+                logging.info(f"user_id : '{user_id}'")
+            else:
+                logging.warning("토큰 디코딩 실패로 비회원 처리")
+        except Exception as e:
+            logging.error(f"JWT 디코딩 중 오류 발생: {e}")
+
+    # 검사 결과 저장
+    save_scan_result(user_id, url_data, scan_result, cat)
     return response
-
