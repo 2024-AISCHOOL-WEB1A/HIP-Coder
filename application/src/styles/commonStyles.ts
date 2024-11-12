@@ -9,6 +9,14 @@ const commonStyles = StyleSheet.create({
     // paddingLeft: 40,
     // paddingRight: 40,
   },
+  containerWhite: {
+    backgroundColor: '#ffffff',
+    flex: 1,
+    justifyContent: 'center',
+    padding: 0,
+    // paddingLeft: 40,
+    // paddingRight: 40,
+  },
   innerContainer:{
     // flex: 1,
     // justifyContent: 'center',
@@ -73,16 +81,17 @@ const commonStyles = StyleSheet.create({
   // header: {
   //   fontSize: 24,
   // },
-  headerTitle:{
+  // headerTitle:{
+  //   fontSize: 20,
+  //   color: '#ffffff',
+  //   fontWeight: 'bold',
+  //   textAlign: 'center',
+  // },
+  termsHeaderTitle:{
     fontSize: 20,
-    color: '#ffffff',
+    color: 'black',
     fontWeight: 'bold',
-    textAlign: 'left',
-    // textAlign: 'center',
-    paddingTop: 20,
-    paddingBottom: 0,
-    paddingLeft: 50,
-    paddingVertical: 13,
+    textAlign: 'center',
   },
   fixedFooter: {
     height: '8%',
@@ -120,7 +129,7 @@ const commonStyles = StyleSheet.create({
     height: 50,
     borderColor: '#E0E0E0',
     borderWidth: 1,
-    borderRadius: 20,
+    borderRadius: 12,
     marginBottom: 20,
     paddingHorizontal: 10,
   },
@@ -129,7 +138,7 @@ const commonStyles = StyleSheet.create({
     height: 50,
     borderColor: '#E0E0E0',
     borderWidth: 1,
-    borderRadius: 20,
+    borderRadius: 12,
     paddingHorizontal: 10,
   },
   smallButton: {
@@ -137,7 +146,7 @@ const commonStyles = StyleSheet.create({
     height: 50,
     borderColor: '#3182f6',
     borderWidth: 1,
-    borderRadius: 20,
+    borderRadius: 12,
     paddingHorizontal: 10,
   },
   checkBox:{
@@ -286,7 +295,7 @@ const commonStyles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '400',
     // color: '#2c2b2b',
-    color: '#ffffff',
+    color: 'black',
     paddingLeft: 20,
     paddingRight: 20,
   },

@@ -18,8 +18,8 @@ const Home: React.FC = () => {
   // 로그인 상태 확인 (토큰)
   const checkIsLogin = async () => {
 
-    const token = await AsyncStorage.getItem('accessToken')
-    setIsLoggedIn(!!token)
+    const accessToken = await AsyncStorage.getItem('accessToken')
+    setIsLoggedIn(!!accessToken)
   }
 
 
@@ -39,10 +39,10 @@ const Home: React.FC = () => {
   // /scan/counting API 호출하여 urlCount 및 qrCount 값을 가져오는 함수
   const getCounts = async () => {
     try {
-      const token = await AsyncStorage.getItem('accessToken');
+      const accessToken = await AsyncStorage.getItem('accessToken');
       const response = await api.get('/scan/counting', {
         headers: {
-          'Authorization': `Bearer ${token}`,  // JWT 토큰 추가
+          'Authorization': `Bearer ${accessToken}`,  // JWT 토큰 추가
           'X-CSRF-Token': csrfToken            // CSRF 토큰 추가
         },
         withCredentials: true                  // 쿠키 사용을 위한 설정
@@ -76,11 +76,12 @@ const Home: React.FC = () => {
     api.defaults.headers.Authorization = null;
 
     // AsyncStorage에서 토큰 삭제 확인
-    const token = await AsyncStorage.getItem('accessToken');
-    if (!token) {
+
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    if (!accessToken) {
       console.log('AsyncStorage에서 JWT 토큰이 정상 삭제되었습니다.');
     } else {
-      console.error('AsyncStorage에서 JWT 토큰 삭제 실패:', token);
+      console.error('AsyncStorage에서 JWT 토큰 삭제 실패:', accessToken);
     }
     // Axios 헤더에서 토큰 삭제 확인
     if (!api.defaults.headers.Authorization) {
@@ -90,8 +91,8 @@ const Home: React.FC = () => {
     }
   };
 
-  const getIconColor = (screen: string) => {
-    return navigation.isFocused() ? '#9C59B5' : '#9DA3B4';
+  const getIconColor = (screen) => {
+    return navigation.isFocused(screen) ? '#3182f6' : '#9DA3B4';
   };
 
   return (
@@ -99,31 +100,42 @@ const Home: React.FC = () => {
       <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={styles.mainTitle}>Thing Q</Text>
+        <View style={styles.mainTitleContainer}>
+          <Image
+            source={require('../assets/images/ThingQFulllogo.png')}
+            style={styles.mainTitleImage}
+          />
+        </View>
 
         <View style={styles.counterContainer}>
           <View style={styles.counterBox}>
-            <Text style={styles.counterTitle}>차단된 URL 수</Text>
-            <AnimateNumber
-              value={urlCount}
-              formatter={(val) => Math.floor(val).toString()}
-              timing="easeOut"
-              steps={30}
-              interval={16}
-              style={styles.counterValue}
-            />
+            <Text style={styles.counterTitle}>악성 URL 탐지</Text>
+            <View style={styles.counterValueContainer}>
+              <AnimateNumber
+                value={urlCount}
+                formatter={(val) => Math.floor(val).toString()}
+                timing="easeOut"
+                steps={30}
+                interval={16}
+                style={styles.counterValue}
+              />
+              <Text style={styles.counterUnit}>건</Text>
+            </View>
           </View>
 
           <View style={styles.counterBox}>
-            <Text style={styles.counterTitle}>QR 코드 검사 수</Text>
-            <AnimateNumber
-              value={qrCount}
-              formatter={(val) => Math.floor(val).toString()}
-              timing="easeOut"
-              steps={30}
-              interval={16}
-              style={styles.counterValue}
-            />
+            <Text style={styles.counterTitle}>QR 코드 검사</Text>
+            <View style={styles.counterValueContainer}>
+              <AnimateNumber
+                value={qrCount}
+                formatter={(val) => Math.floor(val).toString()}
+                timing="easeOut"
+                steps={30}
+                interval={16}
+                style={styles.counterValue}
+              />
+              <Text style={styles.counterUnit}>건</Text>
+            </View>
           </View>
         </View>
 
@@ -197,12 +209,12 @@ const Home: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.testButton}
           onPress={() => navigation.navigate('Test' as never)}
         >
           <Text style={styles.testButtonText}>테스트 지우지마세요!</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </ScrollView>
 
       <View style={styles.navBar}>
@@ -235,12 +247,16 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
   },
-  mainTitle: {
-    fontSize: 30,
-    fontFamily: 'Pretendard-Bold',
-    color: '#1A1D1E',
-    textAlign: 'center',
+  mainTitleContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
     marginVertical: 20,
+  },
+  mainTitleImage: {
+    width: 150,
+    height: 30, 
+    resizeMode: 'contain', 
+    top: -10,
   },
   counterContainer: {
     flexDirection: 'row',
@@ -248,7 +264,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     padding: 16,
     borderRadius: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#ffffff',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -265,10 +281,20 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   counterValue: {
-    fontSize: 20,
+    fontSize: 24,
     fontFamily: 'Pretendard-Bold',
     color: '#4A4A4A',
   },
+  counterValueContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  counterUnit: {
+    fontSize: 18,
+    fontFamily: 'Pretendard-Bold',
+    color: '#4A4A4A',
+    marginLeft: 4,
+  }, 
   categoryContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -281,7 +307,7 @@ const styles = StyleSheet.create({
   categoryIconContainer: {
     width: 64,
     height: 64,
-    backgroundColor: '#3182f6',
+    backgroundColor: '#4593fc',
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
