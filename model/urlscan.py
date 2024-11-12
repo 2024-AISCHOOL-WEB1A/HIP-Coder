@@ -243,7 +243,13 @@ def scanurl():
         user_idx = get_jwt_identity()
         logging.info(f"요청한 사용자 ID: {user_idx}")
         
+        
+            
         if user_idx:
+            if scan_result =='bad' :
+                scan_result = 'B'
+            elif scan_result =='good' :
+                scan_result = 'G'
             # 스캔 결과 저장
             save_scan_result(user_idx, url_data, scan_result, category)  # user_idx로 수정
             logging.info(f"결과값 저장 완료: user_idx={user_idx}, url={url_data}, scan_result={scan_result}, category={category}")
