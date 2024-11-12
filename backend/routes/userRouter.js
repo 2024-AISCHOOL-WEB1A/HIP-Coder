@@ -96,7 +96,7 @@ router.post('/mypage', authenticateToken, async (req, res) => {
         INNER JOIN EMG_CON E ON U.USER_IDX = E.USER_IDX
         WHERE U.USER_IDX = ?
     `;
-    
+
     try {
         const [results] = await conn.promise().query(sql, [userId]);
         if (results.length === 0) {
@@ -109,7 +109,29 @@ router.post('/mypage', authenticateToken, async (req, res) => {
     }
 });
 
-  
+// 비상연락망 수정 라우터
+router.post('/update', authenticateToken, async (req, res) => {
+    const userId = req.userId; // 미들웨어에서 설정한 사용자 ID 사용
+    const { emergencyContact1, emergencyContact2 } = req.body;
+
+    console.log('userId', userId);
+
+    try {
+        // 비상 연락망 업데이트
+        const sql = 'UPDATE EMG_CON SET CONTACT_INFO1 = ?, CONTACT_INFO2 = ? WHERE USER_IDX = ?';
+        const [results] = await conn.promise().query(sql, [emergencyContact1, emergencyContact2, userId]);
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: '사용자 정보를 찾을 수 없습니다.' });
+        }
+
+        res.status(200).json({ message: '비상 연락망이 성공적으로 수정되었습니다.' });
+        console.log('비상 연락망 수정 완료');
+    } catch (error) {
+        console.error('비상 연락망 수정 오류', error);
+        res.status(500).json({ error: '비상 연락망 수정 중 오류가 발생했습니다.' });
+    }
+})
 
 /** 비밀번호 찾기 요청 처리 */
 router.post('/FindPw', async (req, res) => {
@@ -216,7 +238,6 @@ router.post('/changePassword', authenticateToken, async (req, res) => {
     }
 });
 
-
 // 로그인 라우터
 router.post('/handleLogin', async (req, res) => {
     const { id, password } = req.body;
@@ -239,8 +260,8 @@ router.post('/handleLogin', async (req, res) => {
             isMatch = await verifypw(password, user.USER_PW);
 
             if (isMatch) {
-                const accessToken = jwtoken.generateToken({ id: user.USER_IDX });
-                const refreshToken = jwtoken.generateRefreshToken({ id: user.USER_IDX });
+                const accessToken = jwtoken.generateToken({ id: user.USER_IDX , sub : user.USER_IDX});
+                const refreshToken = jwtoken.generateRefreshToken({ id: user.USER_IDX});
 
                 // 리프레시 토큰을 쿠키에 설정
                 res.cookie('refreshToken', refreshToken, {
@@ -254,12 +275,13 @@ router.post('/handleLogin', async (req, res) => {
                     token: accessToken,
                     temporaryPassword: true
                 });
+                
             }
         }
 
         isMatch = await verifypw(password, user.USER_PW);
         if (isMatch) {
-            const accessToken = jwtoken.generateToken({ id: user.USER_IDX });
+            const accessToken = jwtoken.generateToken({ id: user.USER_IDX ,  sub : user.USER_IDX });
             const refreshToken = jwtoken.generateRefreshToken({ id: user.USER_IDX });
 
             // 리프레시 토큰을 쿠키에 설정
@@ -381,7 +403,33 @@ router.get('/verify-id/:token', (req, res) => {
     });
 });
 
+// 회원 탈퇴 라우터
+router.post('/withdrawal', authenticateToken, async (req, res) => {
+    const userId = req.userId; // 미들웨어에서 설정한 사용자 ID 사용
 
+    console.log('회원 탈퇴 요청 - userId:', userId);
+
+    try {
+        // 사용자 정보 삭제
+        const deleteUserSql = 'DELETE FROM USER WHERE USER_IDX = ?';
+        const deleteEmgConSql = 'DELETE FROM EMG_CON WHERE USER_IDX = ?';
+
+        // 비상 연락망 정보 삭제
+        await conn.promise().query(deleteEmgConSql, [userId]);
+        // 사용자 정보 삭제
+        const [results] = await conn.promise().query(deleteUserSql, [userId]);
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: '사용자 정보를 찾을 수 없습니다.' });
+        }
+
+        res.status(200).json({ message: '회원 탈퇴가 성공적으로 완료되었습니다.' });
+        console.log('회원 탈퇴 완료');
+    } catch (error) {
+        console.error('회원 탈퇴 오류', error);
+        res.status(500).json({ error: '회원 탈퇴 중 오류가 발생했습니다.' });
+    }
+})
 
 
 module.exports = router;
