@@ -102,6 +102,38 @@ router.post('/scanlist', authenticateToken, (req, res) => {
     })
 })
 
+/** 검사 내역 카운팅 */
+router.get('/counting', (req, res) => {
+    const sql = `SELECT TYPE, SUM(COUNT_VALUE) AS total_count
+                 FROM COUNT_LOGS
+                 GROUP BY TYPE`;
+
+    conn.query(sql, (err, results) => {
+        if (err) {
+            console.error('집계 실패:', err);
+            res.status(500).json({ message: '집계 실패', error: err });
+        } else {
+            // 집계 결과를 통해 URL과 QR 카운트를 구분합니다.
+            let totalUrlCount = 0;
+            let totalQrCount = 0;
+
+            results.forEach(result => {
+                if (result.TYPE === 'URL') {
+                    totalUrlCount = result.total_count;
+                } else if (result.TYPE === 'QR') {
+                    totalQrCount = result.total_count;
+                }
+            });
+
+            // 클라이언트에 JSON 응답으로 집계 결과 전송
+            res.status(200).json({
+                total_url_count: totalUrlCount,
+                total_qr_count: totalQrCount
+            });
+        }
+    });
+});
+
 
 
 

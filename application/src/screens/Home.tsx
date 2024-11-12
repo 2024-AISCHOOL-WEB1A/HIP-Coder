@@ -6,22 +6,27 @@ import Header from '../components/Header';
 import AnimateNumber from 'react-native-animate-number';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../../axios';
+import { useCsrf } from '../../context/CsrfContext';
 
-const Home = () => {
+const Home: React.FC = () => {
   const navigation = useNavigation();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [urlCount, setUrlCount] = useState(100);
-  const [qrCount, setQrCount] = useState(50000);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [urlCount, setUrlCount] = useState<number>(0);
+  const [qrCount, setQrCount] = useState<number>(0);
+  const { csrfToken } = useCsrf();
 
   // 로그인 상태 확인 (토큰)
   const checkIsLogin = async () => {
-    const token = await AsyncStorage.getItem('token')
+
+    const token = await AsyncStorage.getItem('accessToken')
     setIsLoggedIn(!!token)
   }
 
-  // 렌더링시 로그인 상태 확인
+
+  // 렌더링 시 로그인 상태 확인 및 카운트 데이터 가져오기
   useEffect(() => {
     checkIsLogin();
+    getCounts();  // 페이지 렌더링 시 카운트 값을 가져오는 함수 호출
   }, []);
 
   // Home 화면이 다시 포커스될 때 로그인 상태 확인
@@ -31,9 +36,35 @@ const Home = () => {
     }, [])
   );
 
+  // /scan/counting API 호출하여 urlCount 및 qrCount 값을 가져오는 함수
+  const getCounts = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const response = await api.get('/scan/counting', {
+        headers: {
+          'Authorization': `Bearer ${token}`,  // JWT 토큰 추가
+          'X-CSRF-Token': csrfToken            // CSRF 토큰 추가
+        },
+        withCredentials: true                  // 쿠키 사용을 위한 설정
+      });
+      if (response.data) {
+        setUrlCount(response.data.total_url_count || 0);
+        setQrCount(response.data.total_qr_count || 0);
+      }
+    } catch (error: any) {
+      console.error('카운트 데이터를 가져오는 중 오류 발생:', error);
+      if (error.response && error.response.status === 403) {
+        Alert.alert('오류', '권한이 없습니다. 로그인이 필요합니다.');
+        navigation.navigate('Login' as never); // 'Login'을 'never'로 캐스팅하여 TypeScript 오류 방지
+      } else {
+        Alert.alert('오류', '카운트 데이터를 가져오는 데 실패했습니다.');
+      }
+    }
+  };
+
   const handleLogin = () => {
-    navigation.navigate('Login')
-  }
+    navigation.navigate('Login' as never);
+  };
 
   const handleLogout = async () => {
     // 로그인 상태, 인풋창 초기화
@@ -49,27 +80,18 @@ const Home = () => {
     if (!token) {
       console.log('AsyncStorage에서 JWT 토큰이 정상 삭제되었습니다.');
     } else {
-      console.error('AsyncStorage에서 JWT 토큰 삭제 실패:', token);}
+      console.error('AsyncStorage에서 JWT 토큰 삭제 실패:', token);
+    }
     // Axios 헤더에서 토큰 삭제 확인
     if (!api.defaults.headers.Authorization) {
       console.log('Axios Authorization 헤더에서 JWT 토큰이 정상 삭제되었습니다.');
     } else {
       console.error('Axios Authorization 헤더에서 JWT 토큰 삭제 실패:', api.defaults.headers.Authorization);
     }
-
-    // Alert.alert('로그아웃되었습니다.');
   };
 
-  const incrementUrlCount = () => {
-    setUrlCount((prevCount) => prevCount + 1);
-  };
-
-  const incrementQrCount = () => {
-    setQrCount((prevCount) => prevCount + 1);
-  };
-
-  const getIconColor = (screen) => {
-    return navigation.isFocused(screen) ? '#9C59B5' : '#9DA3B4';
+  const getIconColor = (screen: string) => {
+    return navigation.isFocused() ? '#9C59B5' : '#9DA3B4';
   };
 
   return (
@@ -106,14 +128,14 @@ const Home = () => {
         </View>
 
         <View style={styles.categoryContainer}>
-          <TouchableOpacity style={styles.categoryButton} onPress={() => navigation.navigate('Report')}>
+          <TouchableOpacity style={styles.categoryButton} onPress={() => navigation.navigate('Report' as never)}>
             <View style={styles.categoryIconContainer}>
               <Icon name="notifications-outline" size={24} color="#fff" />
             </View>
             <Text style={styles.categoryText}>신고하기</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.categoryButton} onPress={() => navigation.navigate(isLoggedIn ? 'MyPage' : 'Join')}>
+          <TouchableOpacity style={styles.categoryButton} onPress={() => navigation.navigate(isLoggedIn ? 'MyPage' as never : 'Join' as never)}>
             <View style={styles.categoryIconContainer}>
               <Icon name={isLoggedIn ? "document-text-outline" : "person-add-outline"} size={24} color="#fff" />
             </View>
@@ -135,7 +157,7 @@ const Home = () => {
         <View style={styles.CodeCheckerSection}>
           <Text style={styles.CodeCheckerTitle}>큐싱 검사</Text>
 
-          <TouchableOpacity style={styles.card} onPress={() => { incrementQrCount(); navigation.navigate('QrScan'); }}>
+          <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('QrScan' as never)}>
             <View style={styles.cardIconContainer}>
               <Image
                 source={require('../assets/free-icon-scan.png')}
@@ -148,7 +170,7 @@ const Home = () => {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.card} onPress={() => { incrementUrlCount(); navigation.navigate('UrlCheck'); }}>
+          <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('UrlCheck' as never)}>
             <View style={styles.cardIconContainer}>
               <Image
                 source={require('../assets/free-icon-url.png')}
@@ -161,7 +183,7 @@ const Home = () => {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('GalleryQrScan')}>
+          <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('GalleryQrScan' as never)}>
             <View style={styles.cardIconContainer}>
               <Image
                 source={require('../assets/free-icon-gallery.png')}
@@ -177,7 +199,7 @@ const Home = () => {
 
         <TouchableOpacity
           style={styles.testButton}
-          onPress={() => navigation.navigate('Test')}
+          onPress={() => navigation.navigate('Test' as never)}
         >
           <Text style={styles.testButtonText}>테스트 지우지마세요!</Text>
         </TouchableOpacity>
@@ -189,13 +211,13 @@ const Home = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.navButton}
-          onPress={() => navigation.navigate('History')}
+          onPress={() => navigation.navigate('History' as never)}
         >
           <Icon name="time-outline" size={24} color="#9DA3B4" />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.navButton}
-          onPress={() => navigation.navigate('MyPage')}
+          onPress={() => navigation.navigate('MyPage' as never)}
         >
           <Icon name="person-outline" size={24} color="#9DA3B4" />
         </TouchableOpacity>
@@ -203,7 +225,7 @@ const Home = () => {
     </View>
   );
 };
-
+//
 const styles = StyleSheet.create({
   container: {
     flex: 1,
