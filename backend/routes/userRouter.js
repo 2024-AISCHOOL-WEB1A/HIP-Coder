@@ -241,15 +241,16 @@ router.post('/handleLogin', async (req, res) => {
             if (isMatch) {
                 return res.status(200).json({
                     message: '임시 비밀번호로 로그인되었습니다. 비밀번호를 변경해 주세요.',
-                    token: jwtoken.generateToken({ id: user.USER_IDX }),
+                    token: jwtoken.generateToken({ id: user.USER_IDX , sub: user.USER_IDX,}),                    
                     temporaryPassword: true
                 });
+                
             }
         }
 
         isMatch = await verifypw(password, user.USER_PW);
         if (isMatch) {
-            const token = jwtoken.generateToken({ id: user.USER_IDX });
+            const token = jwtoken.generateToken({ id: user.USER_IDX , sub: user.USER_IDX,});
             console.log('jwt 토큰 확인:', token);
             return res.status(200).json({ message: '로그인 성공!', token, temporaryPassword: false });
         } else {

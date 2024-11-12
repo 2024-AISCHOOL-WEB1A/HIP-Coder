@@ -4,6 +4,9 @@ import { requireNativeComponent } from 'react-native';
 import axios from 'axios';
 import { FLASK_URL } from '@env';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 
 const { CameraModule } = NativeModules;
 const PreviewView = requireNativeComponent('PreviewView');
@@ -46,7 +49,15 @@ const QRScannerScreen = () => {
 
   const sendUrlToBackend = async (url) => {
     try {
-      const response = await axios.post(`${FLASK_URL}/scan`, { url, category: 'QR'   });
+      const token = await AsyncStorage.getItem('token');
+      const response = await axios.post(`${FLASK_URL}/scan`,{
+        url: 'naver.com',  // 예시 데이터
+        category: 'QR',
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       const { status, message } = response.data;
       Alert.alert('URL Classification', message);
     } catch (error) {

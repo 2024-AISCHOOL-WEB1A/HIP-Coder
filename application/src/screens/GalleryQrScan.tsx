@@ -63,12 +63,14 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
     } as any);
 
     try {
+      const token = await AsyncStorage.getItem('token');
       const response = await axios.post(
         `${FLASK_URL}/test`,
         formData,
         {
           headers: {
             'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`,
             'X-CSRF-Token': csrfToken,
           },
           withCredentials: true,
@@ -78,8 +80,15 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
       console.log('서버 응답 데이터:', response.data);
       if (response.data.qrCodeData) {
         const url = response.data.qrCodeData;
-        const scanResponse = await axios.post(`${FLASK_URL}/scan`, { url , category: 'IMG'   });
-
+        const scanResponse = await axios.post(
+          `${FLASK_URL}/scan`, 
+          { url, category: 'IMG' },
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
         if (scanResponse.data.status === 'good') {
           Alert.alert('업로드 성공', `서버 응답: 이 URL은 안전합니다. (${scanResponse.data.url})`);
         } else if (scanResponse.data.status === 'bad') {
