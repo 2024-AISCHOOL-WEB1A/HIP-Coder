@@ -15,6 +15,8 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
   const navigation = useNavigation();
   const slideAnim = useRef(new Animated.Value(500)).current;
 
+  const username = "ooo"; // 예시 사용자 이름
+
   const menuItems = [
     { label: 'Home', icon: 'home-outline', action: () => navigation.navigate('Home') },
     { label: '신고하기', icon: 'notifications-outline', action: () => navigation.navigate('Report') },
@@ -28,7 +30,7 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
     setModalVisible(true);
     Animated.timing(slideAnim, {
       toValue: 0,
-      duration: 500, 
+      duration: 500,
       easing: Easing.ease,
       useNativeDriver: true,
     }).start();
@@ -37,8 +39,8 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
   const closeSidebar = () => {
     Animated.timing(slideAnim, {
       toValue: 500,
-      duration: 500, 
-      easing: Easing.ease, 
+      duration: 500,
+      easing: Easing.ease,
       useNativeDriver: true,
     }).start(() => setModalVisible(false));
   };
@@ -69,8 +71,12 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
             </TouchableOpacity>
           </View>
           <View style={styles.profileSection}>
-            <Image source={{ uri: 'path/to/profile-picture' }} style={styles.profileImage} />
-            <Text style={styles.profileName}>큐싱의 모든것. Thing Q</Text>
+            <Image source={require('../assets/images/ThingQFulllogo.png')} style={styles.logoImage} />
+            {isLoggedIn ? (
+              <Text style={styles.welcomeText}>{`${username}님, 환영합니다!`}</Text>
+            ) : (
+              <Text style={styles.profileName}>큐싱의 모든것 , Thing Q</Text>
+            )}
           </View>
           <FlatList
             data={menuItems}
@@ -80,7 +86,7 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
                 item.action();
                 closeSidebar();
               }} style={styles.menuItem}>
-                <Icon name={item.icon} size={20} color="#3182f6" style={styles.menuIcon} />
+                <Icon name={item.icon} size={22} color="#3182f6" style={styles.menuIcon} />
                 <Text style={styles.menuItemText}>{item.label}</Text>
               </TouchableOpacity>
             )}
@@ -93,7 +99,7 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
             }
             closeSidebar();
           }} style={styles.menuItem}>
-            <Icon name="log-out-outline" size={20} color="#3182f6" style={styles.menuIcon} />
+            <Icon name="log-out-outline" size={22} color="#3182f6" style={styles.menuIcon} />
             <Text style={styles.menuItemText}>{isLoggedIn ? '로그아웃' : '로그인'}</Text>
           </TouchableOpacity>
         </Animated.View>
@@ -112,11 +118,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     color: '#0D47A1',
     textAlign: 'left',
     fontFamily: 'Pretendard-Bold',
-    marginLeft: 15, 
+    marginLeft: 15,
   },
   iconContainer: {
     padding: 10,
@@ -129,9 +135,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '70%',
     height: '100%',
-    backgroundColor: '#F9F9F9',
+    backgroundColor: '#FFFFFF',
     padding: 20,
-    justifyContent: 'flex-start', 
+    justifyContent: 'flex-start',
     borderTopLeftRadius: 20,
     borderBottomLeftRadius: 20,
     right: 0,
@@ -139,38 +145,50 @@ const styles = StyleSheet.create({
   sidebarHeader: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    paddingBottom: 20, 
+    paddingBottom: 20,
   },
   closeButton: {
     padding: 10,
   },
   profileSection: {
     alignItems: 'center',
-    marginBottom: 30, 
+    marginBottom: 20,
+    marginTop: 20, // 로고와 상단 여백
   },
-  profileImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginBottom: 15, 
+  logoImage: {
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
   },
   profileName: {
     fontSize: 18,
-    color: '#0D47A1',
+    color: '#333',
     fontFamily: 'Pretendard-SemiBold',
+    marginTop: 5,
+  },
+  welcomeText: {
+    fontSize: 18,
+    color: '#333',
+    fontFamily: 'Pretendard-SemiBold',
+    marginTop: 5,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 20, 
-  },
-  menuIcon: {
-    marginRight: 20,
+    paddingVertical: 18,
+    paddingHorizontal: 10,
+    borderRadius: 10,
   },
   menuItemText: {
     fontSize: 18,
     color: '#333',
     fontFamily: 'Pretendard-Regular',
+  },
+  menuIcon: {
+    marginRight: 15,
+  },
+  selectedMenuItem: {
+    backgroundColor: '#e6f0ff',
   },
 });
 

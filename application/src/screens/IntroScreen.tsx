@@ -57,7 +57,7 @@ const IntroScreen = ({ navigation }) => {
     title: "Thing Q ",
     description: "위험한 QR? 바로 차단!\n Thing Q로 안전하게 스캔하세요.",
     icon: "shield-alert",
-    bgColor: ['#7A47C1', '#9C59B5'],
+    bgColor: ['#66A3FF', '#1A5DB4'],
   };
 
   return (

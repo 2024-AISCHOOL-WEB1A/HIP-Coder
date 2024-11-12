@@ -21,72 +21,61 @@ const MyPage = () => {
     newPassword: '',
     confirmPassword: '',
   });
-  const [isEditing, setIsEditing] = useState(false); // 편집 모드 상태
+  const [isEditing, setIsEditing] = useState(false);
   const navigation = useNavigation();
   const { csrfToken } = useCsrf();
 
-// 사용자 데이터를 가져오는 함수
-const mypagelist = async () => {
-  try {
-    const accessToken = await AsyncStorage.getItem('accessToken'); // 일관된 명칭 사용
-    if (!accessToken) {
-      Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
-        {
-          text: '확인',
-          onPress: () => navigation.navigate('Login'),
-        },
-      ]);
-      return;
-    }
-
-    if (!csrfToken) {
-      Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
-        {
-          text: '확인',
-          onPress: () => navigation.navigate('Login'),
-        },
-      ]);
-      return;
-    }
-
-    const res = await api.post(
-      '/user/mypage',
-      {}, // Body가 비어있다면 빈 객체 전달
-      {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'X-CSRF-Token': csrfToken,
-        },
-        withCredentials: true,
+  // 사용자 데이터를 가져오는 함수
+  const mypagelist = async () => {
+    try {
+      const accessToken = await AsyncStorage.getItem('accessToken');
+      if (!accessToken) {
+        Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
+          { text: '확인', onPress: () => navigation.navigate('Login') },
+        ]);
+        return;
       }
-    );
 
-    if (res.data && Array.isArray(res.data.message)) {
-      const userData = res.data.message[0];
-      setProfileData({
-        name: userData.USER_NAME,
-        phone: userData.PHONE,
-        email: userData.EMAIL,
-        emergencyContact1: userData.CONTACT_INFO1 || '',
-        emergencyContact2: userData.CONTACT_INFO2 || '',
-      });
-      Alert.alert('서버 응답', '사용자 데이터를 불러왔습니다.');
-    } else {
-      console.error('잘못된 데이터 형식:', res.data);
-      Alert.alert('오류', '서버로부터 잘못된 형식의 데이터가 반환되었습니다.');
+      if (!csrfToken) {
+        Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
+          { text: '확인', onPress: () => navigation.navigate('Login') },
+        ]);
+        return;
+      }
+
+      const res = await api.post(
+        '/user/mypage',
+        {},
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'X-CSRF-Token': csrfToken,
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (res.data && Array.isArray(res.data.message)) {
+        const userData = res.data.message[0];
+        setProfileData({
+          name: userData.USER_NAME,
+          phone: userData.PHONE,
+          email: userData.EMAIL,
+          emergencyContact1: userData.CONTACT_INFO1 || '',
+          emergencyContact2: userData.CONTACT_INFO2 || '',
+        });
+      } else {
+        console.error('잘못된 데이터 형식:', res.data);
+        Alert.alert('오류', '서버로부터 잘못된 형식의 데이터가 반환되었습니다.');
+      }
+    } catch (error) {
+      console.error('API 오류 발생:', error);
+      Alert.alert('오류', '사용자 데이터를 가져오는 중 오류가 발생했습니다.');
     }
-  } catch (error) {
-    console.error('API 오류 발생:', error);
-    Alert.alert('오류', '사용자 데이터를 가져오는 중 오류가 발생했습니다.');
-  }
-};
-
+  };
 
   // 비밀번호 변경 함수
   const handlePasswordChange = async () => {
-    console.log("비밀번호 변경 요청", passwords);
-
-    // 새 비밀번호 매칭 확인
     if (passwords.newPassword !== passwords.confirmPassword) {
       Alert.alert('오류', '새 비밀번호가 일치하지 않습니다.');
       return;
@@ -95,25 +84,23 @@ const mypagelist = async () => {
       const token = await AsyncStorage.getItem('token');
       if (!token) {
         Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
-          {
-            text: '확인',
-            onPress: () => navigation.navigate('Login'),
-          },
+          { text: '확인', onPress: () => navigation.navigate('Login') },
         ]);
         return;
       }
 
-      const res = await api.post('/user/changePassword', {
-        currentPassword: passwords.currentPassword,
-        newPassword: passwords.newPassword,
-        confirmPassword: passwords.confirmPassword,
-      },
-      { headers: { 'X-CSRF-Token': csrfToken, 'Authorization': `Bearer ${token}` }, withCredentials: true } 
-    );
+      const res = await api.post(
+        '/user/changePassword',
+        {
+          currentPassword: passwords.currentPassword,
+          newPassword: passwords.newPassword,
+          confirmPassword: passwords.confirmPassword,
+        },
+        { headers: { 'X-CSRF-Token': csrfToken, 'Authorization': `Bearer ${token}` }, withCredentials: true }
+      );
 
       if (res.status === 200) {
         Alert.alert('알림', '비밀번호가 성공적으로 변경되었습니다.');
-        // 비밀번호 입력 초기화
         setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
       } else {
         Alert.alert('오류', res.data.error || '비밀번호 변경 중 오류가 발생했습니다.');
@@ -131,7 +118,7 @@ const mypagelist = async () => {
       '정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
       [
         { text: '취소', style: 'cancel' },
-        { text: '탈퇴', style: 'destructive', onPress: () => navigation.navigate('LogoutPage') }
+        { text: '탈퇴', style: 'destructive', onPress: () => navigation.navigate('LogoutPage') },
       ]
     );
   };
@@ -143,20 +130,17 @@ const mypagelist = async () => {
 
   const handleProfileUpdate = () => {
     if (isEditing) {
-      // 프로필 수정 완료
       Alert.alert('알림', '프로필이 성공적으로 수정되었습니다.');
-      setIsEditing(false); // 편집 모드 해제
+      setIsEditing(false);
     } else {
-      // 편집 모드로 전환
       setIsEditing(true);
     }
   };
 
   return (
     <View style={styles.container}>
-      <Header onBackPress={() => navigation.goBack()} />
+      <Header title="내정보"  onBackPress={() => navigation.goBack()} />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* 프로필 정보 섹션 */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>프로필 정보</Text>
           <View style={styles.card}>
@@ -164,47 +148,39 @@ const mypagelist = async () => {
               <TextInput
                 style={[styles.input, styles.fullInput, { backgroundColor: '#F0F0F0' }]}
                 placeholder="이름"
-                placeholderTextColor="#838383"
                 value={profileData.name}
-                onChangeText={(text) => setProfileData({ ...profileData, name: text })}
-                editable={false} // 항상 readonly
+                editable={false}
               />
             </View>
             <View style={styles.inputRow}>
               <TextInput
                 style={[styles.input, styles.fullInput, { backgroundColor: '#F0F0F0' }]}
                 placeholder="핸드폰번호"
-                placeholderTextColor="#838383"
                 value={profileData.phone}
-                onChangeText={(text) => setProfileData({ ...profileData, phone: text })}
-                editable={false} // 항상 readonly
+                editable={false}
               />
             </View>
             <TextInput
               style={[styles.input, { backgroundColor: '#F0F0F0' }]}
               placeholder="이메일"
-              placeholderTextColor="#838383"
               value={profileData.email}
-              onChangeText={(text) => setProfileData({ ...profileData, email: text })}
-              editable={false} // 항상 readonly
+              editable={false}
             />
             <Text style={styles.emergencyContactTitle}>비상연락망(1)</Text>
             <TextInput
-              style={[styles.input, { backgroundColor: isEditing ? '#FFFFFF' : '#F0F0F0' }]} // 비상 연락망 편집 가능
+              style={[styles.input, { backgroundColor: isEditing ? '#FFFFFF' : '#F0F0F0' }]}
               placeholder="비상연락망(1)"
-              placeholderTextColor="#838383"
               value={profileData.emergencyContact1}
               onChangeText={(text) => setProfileData({ ...profileData, emergencyContact1: text })}
-              editable={isEditing} // 편집 모드일 때만 수정 가능
+              editable={isEditing}
             />
             <Text style={styles.emergencyContactTitle}>비상연락망(2)</Text>
             <TextInput
-              style={[styles.input, { backgroundColor: isEditing ? '#FFFFFF' : '#F0F0F0' }]} // 비상 연락망 편집 가능
+              style={[styles.input, { backgroundColor: isEditing ? '#FFFFFF' : '#F0F0F0' }]}
               placeholder="비상연락망(2)"
-              placeholderTextColor="#838383"
               value={profileData.emergencyContact2}
               onChangeText={(text) => setProfileData({ ...profileData, emergencyContact2: text })}
-              editable={isEditing} // 편집 모드일 때만 수정 가능
+              editable={isEditing}
             />
             <CustomButton
               title={isEditing ? "완료" : "프로필 수정"}
@@ -221,7 +197,6 @@ const mypagelist = async () => {
             <TextInput
               style={styles.input}
               placeholder="현재 비밀번호"
-              placeholderTextColor="#838383"
               secureTextEntry
               value={passwords.currentPassword}
               onChangeText={(text) => setPasswords({ ...passwords, currentPassword: text })}
@@ -229,7 +204,6 @@ const mypagelist = async () => {
             <TextInput
               style={styles.input}
               placeholder="새 비밀번호"
-              placeholderTextColor="#838383"
               secureTextEntry
               value={passwords.newPassword}
               onChangeText={(text) => setPasswords({ ...passwords, newPassword: text })}
@@ -237,14 +211,13 @@ const mypagelist = async () => {
             <TextInput
               style={styles.input}
               placeholder="새 비밀번호 확인"
-              placeholderTextColor="#838383"
               secureTextEntry
               value={passwords.confirmPassword}
               onChangeText={(text) => setPasswords({ ...passwords, confirmPassword: text })}
             />
             <CustomButton
               title="비밀번호 변경"
-              onPress={()=> handlePasswordChange()}
+              onPress={handlePasswordChange}
               style={styles.actionButton}
             />
           </View>
@@ -264,14 +237,14 @@ const mypagelist = async () => {
                 <Text style={styles.historyButtonText}>검사 이력 보기</Text>
                 <Icon name="search-outline" size={24} color="#FFFFFF" />
               </View>
-              <Text style={styles.historyDate}>2023-01-01 ~ 2023-11-01</Text>
+              <Text style={styles.qrCodeText}>검사 이력 (최근 3개월)</Text>
               <Text style={styles.qrCodeText}>QR코드 / URL 검사 결과</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* 회원 탈퇴 섹션 */}
-        <TouchableOpacity onPress={handleWithdrawal}>
+        <TouchableOpacity onPress={handleWithdrawal} style={styles.withdrawalContainer}>
           <Text style={styles.withdrawalText}>회원 탈퇴</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -285,39 +258,28 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   scrollContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     paddingBottom: 40,
   },
   section: {
-    marginTop: 24,
+    marginTop: 16,
   },
   sectionTitle: {
-    fontSize: 18,
-    color: '#000000',
-    marginBottom: 12,
-    paddingHorizontal: 4,
+    fontSize: 20,
+    color: '#2D2D2D',
     fontFamily: 'Pretendard-SemiBold',
+    marginBottom: 16,
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 18,
+    padding: 20,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-  },
-  inputRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  fullInput: {
-    width: '100%', // 넓이 100%로 설정
+    marginBottom: 24,
   },
   input: {
     height: 48,
@@ -325,66 +287,69 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 16,
-    marginBottom: 12,
+    marginBottom: 14, // 모든 인풋 필드 간의 간격을 일정하게 설정
     backgroundColor: '#FFFFFF',
-    color: '#000000',
+    color: '#333333',
     fontFamily: 'Pretendard-Regular',
+  },
+  inputRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 14, // 동일한 간격 적용
+  },
+  fullInput: {
+    width: '100%',
   },
   emergencyContactTitle: {
     fontSize: 14,
-    color: '#000000',
+    color: '#2D2D2D',
     marginBottom: 4,
     fontFamily: 'Pretendard-Regular',
   },
   actionButton: {
-    marginTop: 8,
-  },
-  historyLabel: {
-    fontSize: 16,
-    color: '#000000',
-    marginBottom: 8,
-    fontFamily: 'Pretendard-Medium',
-  },
-  historyDescription: {
-    fontSize: 14,
-    color: '#666666',
-    marginBottom: 16,
-    fontFamily: 'Pretendard-Regular',
+    marginTop: 16,
+    backgroundColor: '#4B8DF8',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   historyButton: {
-    backgroundColor: '#9C59B5',
+    backgroundColor: '#4B8DF8',
     borderRadius: 12,
     padding: 16,
   },
   historyButtonContent: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   historyButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontFamily: 'Pretendard-Medium',
+    fontFamily: 'Pretendard-SemiBold',
+    marginRight: 8,
   },
-  historyDate: {
-    color: '#FFFFFF',
-    marginTop: 8,
+  historyDescription: {
     fontSize: 14,
+    color: '#666666',
+    marginBottom: 12,
     fontFamily: 'Pretendard-Regular',
   },
   qrCodeText: {
     color: '#FFFFFF',
     marginTop: 4,
     fontSize: 14,
-    fontFamily: 'Pretendard-Regular',
+    fontFamily: 'Pretendard-Medium',
+  },
+  withdrawalContainer: {
+    marginTop: 16,
+    alignItems: 'center',
   },
   withdrawalText: {
-    alignSelf: 'center',
-    marginTop: 32,
-    paddingVertical: 8,
     color: '#838383',
     fontSize: 16,
-    fontFamily: 'Pretendard-Regular',
+    fontFamily: 'Pretendard-Medium',
   },
 });
 

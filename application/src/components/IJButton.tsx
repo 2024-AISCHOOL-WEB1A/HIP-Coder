@@ -18,7 +18,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   textColor = 'white',
   borderRadius = 25,
   fontSize = 16,
-  marginBottom = 20,
+  marginBottom = 10,
 }) => {
   return (
     <TouchableOpacity
