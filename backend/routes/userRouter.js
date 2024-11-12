@@ -402,7 +402,33 @@ router.get('/verify-id/:token', (req, res) => {
     });
 });
 
+// 회원 탈퇴 라우터
+router.post('/withdrawal', authenticateToken, async (req, res) => {
+    const userId = req.userId; // 미들웨어에서 설정한 사용자 ID 사용
 
+    console.log('회원 탈퇴 요청 - userId:', userId);
+
+    try {
+        // 사용자 정보 삭제
+        const deleteUserSql = 'DELETE FROM USER WHERE USER_IDX = ?';
+        const deleteEmgConSql = 'DELETE FROM EMG_CON WHERE USER_IDX = ?';
+
+        // 비상 연락망 정보 삭제
+        await conn.promise().query(deleteEmgConSql, [userId]);
+        // 사용자 정보 삭제
+        const [results] = await conn.promise().query(deleteUserSql, [userId]);
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: '사용자 정보를 찾을 수 없습니다.' });
+        }
+
+        res.status(200).json({ message: '회원 탈퇴가 성공적으로 완료되었습니다.' });
+        console.log('회원 탈퇴 완료');
+    } catch (error) {
+        console.error('회원 탈퇴 오류', error);
+        res.status(500).json({ error: '회원 탈퇴 중 오류가 발생했습니다.' });
+    }
+})
 
 
 module.exports = router;

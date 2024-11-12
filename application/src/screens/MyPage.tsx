@@ -130,13 +130,44 @@ const MyPage = () => {
   };
 
   // 회원 탈퇴
-  const handleWithdrawal = () => {
+  const handleWithdrawal = async () => {
     Alert.alert(
       '회원 탈퇴',
       '정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
       [
         { text: '취소', style: 'cancel' },
-        { text: '탈퇴', style: 'destructive', onPress: () => navigation.navigate('LogoutPage') }
+        {
+          text: '탈퇴', style: 'destructive', onPress: async () => {
+            try {
+              const token = await AsyncStorage.getItem('accessToken');
+              if (!token) {
+                Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
+                  {
+                    text: '확인',
+                    onPress: () => navigation.navigate('Login'),
+                  },
+                ]);
+                return;
+              }
+
+              const response = await api.post('/user/withdrawal', {},
+                { headers: { 'X-CSRF-Token': csrfToken, 'Authorization': `Bearer ${token}` }, withCredentials: true }
+              );
+
+              if (response.status === 200) {
+                // 토큰 삭제 및 로그아웃 처리
+                await AsyncStorage.removeItem('accessToken');
+                Alert.alert('알림', '회원 탈퇴가 완료되었습니다.');
+                navigation.navigate('Login');
+              } else {
+                Alert.alert('오류', response.data.error || '회원 탈퇴 중 오류가 발생했습니다.');
+              }
+            } catch (error) {
+              console.error('회원 탈퇴 요청 오류:', error);
+              Alert.alert('오류', '회원 탈퇴 요청 중 오류가 발생했습니다.');
+            }
+          }
+        }
       ]
     );
   };
