@@ -76,6 +76,7 @@ const Home: React.FC = () => {
     api.defaults.headers.Authorization = null;
 
     // AsyncStorage에서 토큰 삭제 확인
+
     const accessToken = await AsyncStorage.getItem('accessToken');
     if (!accessToken) {
       console.log('AsyncStorage에서 JWT 토큰이 정상 삭제되었습니다.');

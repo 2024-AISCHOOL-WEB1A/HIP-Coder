@@ -19,6 +19,7 @@ from config.db import db_con  # config.db에서 db_con 가져오기
 from config.jwt import decode_jwt_token
 
 
+
 load_dotenv()
 
 flask_url = os.getenv('FLASK_URL')
@@ -28,10 +29,24 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 urlscan_bp = Blueprint('urlscan', __name__)
 
-# 신뢰 URL 로드
-trust_url = pd.read_csv('./data_with_trust_url.csv')
-trust_urls = trust_url[trust_url['type'] == 'trust']['url'].values
 
+# 데이터베이스 설정
+db_config2 = {
+    'host': os.getenv('DB_HOST'),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD'),
+    'database': os.getenv('DB_NAME'),
+    'port': int(os.getenv('DB_PORT'))  # 포트 정보 추가
+}
+
+try:
+    trust_url_df = pd.read_sql("SELECT URL FROM SAFE_SITE WHERE SAFE_TYPE = 'G'", con=engine)
+    trust_urls = trust_url_df['URL'].values
+except Exception as e:
+    logging.error("데이터베이스에서 신뢰 URL을 로드하는 동안 오류 발생: %s", str(e))
+    trust_urls = []
+logging.info(f"총 {len(trust_urls)}개의 신뢰할 수 있는 URL이 로드되었습니다.")
+    
 trusted_tlds = {
     '.com', '.org', '.net', '.gov', '.edu', '.mil', '.int',
     '.co', '.us', '.uk', '.ca', '.de', '.fr', '.au', '.jp',
@@ -46,13 +61,14 @@ model_path = os.path.join(os.path.dirname(__file__), 'ensemble_model_with_vector
 vectorizer, ensemble_model = joblib.load(model_path)
 
 def extract_domain(url):
+    if not url.startswith(('http://', 'https://')):
+        url = 'http://' + url
     parsed_url = urlparse(url)
     domain = parsed_url.netloc
     if domain.startswith('www.'):
         domain = domain[4:]
     return domain
 
-# URL을 토큰화하는 함수
 def tokenize_url(url):
     tokens = []
     for part in url.split('/'):
@@ -84,7 +100,9 @@ def predict_url(url):
 
         # 예측
         prediction_prob = ensemble_model.predict_proba(new_combined)
+
         logging.info(f"Prediction Probability for URL: {prediction_prob}")
+
 
         return 'good' if prediction_prob[0][1] > 0.5 else 'bad'
     except Exception as e:
@@ -132,12 +150,12 @@ def test():
             except PermissionError as pe:
                 logging.error(f"파일 삭제 오류: {temp_file.name} - {str(pe)}")
 
-def save_scan_result(user_id, url_data, scan_result, category):
+def save_scan_result(user_idx, url_data, scan_result, category):
     try:
         connection = db_con()
         with connection.cursor() as cursor:
             sql = "INSERT INTO SCAN_QR (USER_IDX, SCAN_URL, SCAN_RESULT, QR_CAT) VALUES (%s, %s, %s, %s)"
-            cursor.execute(sql, (user_id, url_data, scan_result, category))
+            cursor.execute(sql, (user_idx, url_data, scan_result, category))
             connection.commit()
     except Exception as e:
         logging.error(f"데이터베이스에 저장하는 중 오류 발생: {e}")
@@ -147,38 +165,49 @@ def save_scan_result(user_id, url_data, scan_result, category):
 @urlscan_bp.route('/scan', methods=['POST'])
 def scanurl():
     url_data = request.json.get('url')
-    cat = request.json.get('category')
+    category = request.json.get('category')
     
     if not url_data:
         logging.warning("URL이 제공되지 않았습니다.")
         return jsonify({'status': 'error', 'message': 'URL이 제공되지 않았습니다.'}), 400
 
+
     logging.info(f"요청받은 URL: {url_data}")
+
     prediction = predict_url(url_data)
     scan_result = 'G' if prediction == 'good' else 'B'
 
-    response = jsonify({
-        'status': 'good' if scan_result == 'G' else 'bad',
-        'message': '이 URL은 안전합니다.' if scan_result == 'G' else '이 URL은 보안 위험이 있을 수 있습니다.',
-        'url': url_data
-    })
-
-    # JWT 토큰이 있는 경우에만 가져와서 디코딩 처리
-    auth_header = request.headers.get("Authorization")
-    user_id = "비회원"  # 기본값으로 비회원 설정
-
-    if auth_header:
-        try:
-            token = auth_header.split(" ")[1]
-            decoded_token = decode_jwt_token(token)
-            if decoded_token:
-                user_id = decoded_token.get('id', '비회원')
-                logging.info(f"user_id : '{user_id}'")
-            else:
-                logging.warning("토큰 디코딩 실패로 비회원 처리")
-        except Exception as e:
-            logging.error(f"JWT 디코딩 중 오류 발생: {e}")
-
-    # 검사 결과 저장
-    save_scan_result(user_id, url_data, scan_result, cat)
+    # 분류 결과에 따른 응답 생성
+    if prediction == 'good':
+        scan_result = 'good'
+        logging.info(f"URL '{url_data}'는 안전합니다.")
+        response = jsonify({'status': 'good', 'message': '이 URL은 안전합니다.', 'url': url_data})
+    elif prediction == 'bad':
+        scan_result = 'bad'
+        logging.warning(f"URL '{url_data}'는 위험할 수 있습니다.")
+        response = jsonify({'status': 'bad', 'message': '이 URL은 보안 위험이 있을 수 있습니다.', 'url': url_data})
+    else:
+        logging.error("URL을 분류할 수 없습니다.")
+        return jsonify({'status': 'error', 'message': 'URL을 분류할 수 없습니다.', 'url': url_data}), 500
+    try:
+        verify_jwt_in_request(optional=True)
+        user_idx = get_jwt_identity()
+        logging.info(f"요청한 사용자 ID: {user_idx}")
+        
+            
+        if user_idx:
+            if scan_result =='bad' :
+                scan_result = 'B'
+            elif scan_result =='good' :
+                scan_result = 'G'
+            # 스캔 결과 저장
+            save_scan_result(user_idx, url_data, scan_result, category)  # user_idx로 수정
+            logging.info(f"결과값 저장 완료: user_idx={user_idx}, url={url_data}, scan_result={scan_result}, category={category}")
+        else:
+            logging.info("JWT가 없거나 user_idx를 찾을 수 없습니다. 결과값은 저장되지 않았습니다.")
+    except Exception as e:
+        logging.error(f"JWT 확인 중 오류 발생: {e}")
+    
+    logging.info(f"응답 데이터: {response}")
     return response
+

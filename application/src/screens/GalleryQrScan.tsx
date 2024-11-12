@@ -67,25 +67,25 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation }) => {
     };
 
     try {
+      const token = await AsyncStorage.getItem('token');
       const response = await axios.post(
         `${FLASK_URL}/test`,
         formData,
         {
-          headers,
-          
+          headers,   
         }
       );
 
       console.log('서버 응답 데이터:', response.data);
       if (response.data.qrCodeData) {
         const url = response.data.qrCodeData;
-
         // /scan 엔드포인트에 토큰과 user_idx 포함하여 요청
         const scanResponse = await axios.post(
           `${FLASK_URL}/scan`,
           { url, category: 'IMG', user_idx },  // user_idx를 바디에 추가
           { headers }  // JWT 토큰이 포함된 헤더
         );
+
 
         if (scanResponse.data.status === 'good') {
           Alert.alert('업로드 성공', `서버 응답: 이 URL은 안전합니다. (${scanResponse.data.url})`);

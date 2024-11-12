@@ -25,65 +25,66 @@ const MyPage = () => {
   const navigation = useNavigation();
   const { csrfToken } = useCsrf();
 
-// 사용자 데이터를 가져오는 함수
-const mypagelist = async () => {
-  try {
-    const accessToken = await AsyncStorage.getItem('accessToken'); // 일관된 명칭 사용
-    if (!accessToken) {
-      Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
-        {
-          text: '확인',
-          onPress: () => navigation.navigate('Login'),
-        },
-      ]);
-      return;
-    }
-
-    if (!csrfToken) {
-      Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
-        {
-          text: '확인',
-          onPress: () => navigation.navigate('Login'),
-        },
-      ]);
-      return;
-    }
-
-    const res = await api.post(
-      '/user/mypage',
-      {}, // Body가 비어있다면 빈 객체 전달
-      {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'X-CSRF-Token': csrfToken,
-        },
-        withCredentials: true,
+  // 사용자 데이터를 가져오는 함수
+  const mypagelist = async () => {
+    try {
+      const accessToken = await AsyncStorage.getItem('accessToken'); // 일관된 명칭 사용
+      if (!accessToken) {
+        Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
+          {
+            text: '확인',
+            onPress: () => navigation.navigate('Login'),
+          },
+        ]);
+        return;
       }
-    );
 
-    if (res.data && Array.isArray(res.data.message)) {
-      const userData = res.data.message[0];
-      setProfileData({
-        name: userData.USER_NAME,
-        phone: userData.PHONE,
-        email: userData.EMAIL,
-        emergencyContact1: userData.CONTACT_INFO1 || '',
-        emergencyContact2: userData.CONTACT_INFO2 || '',
-      });
-      Alert.alert('서버 응답', '사용자 데이터를 불러왔습니다.');
-    } else {
-      console.error('잘못된 데이터 형식:', res.data);
-      Alert.alert('오류', '서버로부터 잘못된 형식의 데이터가 반환되었습니다.');
+      if (!csrfToken) {
+        Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
+          {
+            text: '확인',
+            onPress: () => navigation.navigate('Login'),
+          },
+        ]);
+        return;
+      }
+
+      const res = await api.post(
+        '/user/mypage',
+        {}, // Body가 비어있다면 빈 객체 전달
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'X-CSRF-Token': csrfToken,
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (res.data && Array.isArray(res.data.message)) {
+        const userData = res.data.message[0];
+        setProfileData({
+          name: userData.USER_NAME,
+          phone: userData.PHONE,
+          email: userData.EMAIL,
+          emergencyContact1: userData.CONTACT_INFO1 || '',
+          emergencyContact2: userData.CONTACT_INFO2 || '',
+        });
+        Alert.alert('서버 응답', '사용자 데이터를 불러왔습니다.');
+      } else {
+        console.error('잘못된 데이터 형식:', res.data);
+        Alert.alert('오류', '서버로부터 잘못된 형식의 데이터가 반환되었습니다.');
+      }
+    } catch (error) {
+      console.error('API 오류 발생:', error);
+      Alert.alert('오류', '사용자 데이터를 가져오는 중 오류가 발생했습니다.');
     }
-  } catch (error) {
-    console.error('API 오류 발생:', error);
-    Alert.alert('오류', '사용자 데이터를 가져오는 중 오류가 발생했습니다.');
-  }
-};
+  };
 
 
   // 비밀번호 변경 함수
   const handlePasswordChange = async () => {
+    // const navigation = useNavigation();
     console.log("비밀번호 변경 요청", passwords);
 
     // 새 비밀번호 매칭 확인
@@ -92,7 +93,7 @@ const mypagelist = async () => {
       return;
     }
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem('accessToken');
       if (!token) {
         Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
           {
@@ -108,11 +109,15 @@ const mypagelist = async () => {
         newPassword: passwords.newPassword,
         confirmPassword: passwords.confirmPassword,
       },
-      { headers: { 'X-CSRF-Token': csrfToken, 'Authorization': `Bearer ${token}` }, withCredentials: true } 
-    );
+        { headers: { 'X-CSRF-Token': csrfToken, 'Authorization': `Bearer ${token}` }, withCredentials: true }
+      );
 
       if (res.status === 200) {
         Alert.alert('알림', '비밀번호가 성공적으로 변경되었습니다.');
+
+        // 변경 완료 후 메인페이지 이동
+        navigation.navigate('Home');
+
         // 비밀번호 입력 초기화
         setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
       } else {
@@ -125,13 +130,44 @@ const mypagelist = async () => {
   };
 
   // 회원 탈퇴
-  const handleWithdrawal = () => {
+  const handleWithdrawal = async () => {
     Alert.alert(
       '회원 탈퇴',
       '정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
       [
         { text: '취소', style: 'cancel' },
-        { text: '탈퇴', style: 'destructive', onPress: () => navigation.navigate('LogoutPage') }
+        {
+          text: '탈퇴', style: 'destructive', onPress: async () => {
+            try {
+              const token = await AsyncStorage.getItem('accessToken');
+              if (!token) {
+                Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
+                  {
+                    text: '확인',
+                    onPress: () => navigation.navigate('Login'),
+                  },
+                ]);
+                return;
+              }
+
+              const response = await api.post('/user/withdrawal', {},
+                { headers: { 'X-CSRF-Token': csrfToken, 'Authorization': `Bearer ${token}` }, withCredentials: true }
+              );
+
+              if (response.status === 200) {
+                // 토큰 삭제 및 로그아웃 처리
+                await AsyncStorage.removeItem('accessToken');
+                Alert.alert('알림', '회원 탈퇴가 완료되었습니다.');
+                navigation.navigate('Login');
+              } else {
+                Alert.alert('오류', response.data.error || '회원 탈퇴 중 오류가 발생했습니다.');
+              }
+            } catch (error) {
+              console.error('회원 탈퇴 요청 오류:', error);
+              Alert.alert('오류', '회원 탈퇴 요청 중 오류가 발생했습니다.');
+            }
+          }
+        }
       ]
     );
   };
@@ -141,10 +177,38 @@ const mypagelist = async () => {
     mypagelist();
   }, []);
 
-  const handleProfileUpdate = () => {
+  // 프로필 수정(비상연락망)
+  const handleProfileUpdate = async () => {
     if (isEditing) {
-      // 프로필 수정 완료
-      Alert.alert('알림', '프로필이 성공적으로 수정되었습니다.');
+      // 프로필 수정 완료 시 API 요청 전송
+      try {
+        const token = await AsyncStorage.getItem('accessToken');
+        if (!token) {
+          Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
+            {
+              text: '확인',
+              onPress: () => navigation.navigate('Login'),
+            },
+          ]);
+          return;
+        }
+
+        const response = await api.post('/user/update', {
+          emergencyContact1: profileData.emergencyContact1,
+          emergencyContact2: profileData.emergencyContact2,
+        },
+          { headers: { 'X-CSRF-Token': csrfToken, 'Authorization': `Bearer ${token}` }, withCredentials: true }
+        );
+
+        if (response.status === 200) {
+          Alert.alert('알림', '프로필이 성공적으로 수정되었습니다.');
+        } else {
+          Alert.alert('오류', response.data.error || '프로필 수정에 실패했습니다.');
+        }
+      } catch (error) {
+        Alert.alert('오류', '서버와의 통신 중 문제가 발생했습니다.');
+      }
+
       setIsEditing(false); // 편집 모드 해제
     } else {
       // 편집 모드로 전환
@@ -244,7 +308,7 @@ const mypagelist = async () => {
             />
             <CustomButton
               title="비밀번호 변경"
-              onPress={()=> handlePasswordChange()}
+              onPress={() => handlePasswordChange()}
               style={styles.actionButton}
             />
           </View>
