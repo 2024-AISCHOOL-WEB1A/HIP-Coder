@@ -260,8 +260,8 @@ router.post('/handleLogin', async (req, res) => {
             isMatch = await verifypw(password, user.USER_PW);
 
             if (isMatch) {
-                const accessToken = jwtoken.generateToken({ id: user.USER_IDX });
-                const refreshToken = jwtoken.generateRefreshToken({ id: user.USER_IDX });
+                const accessToken = jwtoken.generateToken({ id: user.USER_IDX , sub : user.USER_IDX});
+                const refreshToken = jwtoken.generateRefreshToken({ id: user.USER_IDX, sub : user.USER_IDX });
 
                 // 리프레시 토큰을 쿠키에 설정
                 res.cookie('refreshToken', refreshToken, {
@@ -281,8 +281,8 @@ router.post('/handleLogin', async (req, res) => {
 
         isMatch = await verifypw(password, user.USER_PW);
         if (isMatch) {
-            const accessToken = jwtoken.generateToken({ id: user.USER_IDX });
-            const refreshToken = jwtoken.generateRefreshToken({ id: user.USER_IDX });
+            const accessToken = jwtoken.generateToken({ id: user.USER_IDX ,  sub : user.USER_IDX });
+            const refreshToken = jwtoken.generateRefreshToken({ id: user.USER_IDX,  sub : user.USER_IDX });
 
             // 리프레시 토큰을 쿠키에 설정
             res.cookie('refreshToken', refreshToken, {
