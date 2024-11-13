@@ -180,14 +180,14 @@ const Join: React.FC<Props> = () => {
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.headerContainer}>
-      <Header title="회원가입" onBackPress={() => navigation.goBack()} />
+      <Header title="회원가입" onBackPress={handleBackPress} />
         {/* <Text style={commonStyles.headerTitle}>회원가입</Text> */}
       </View>
       <View style={commonStyles.formContainer}>
         <View style={commonStyles.innerContainer}>
           {step === 1 && (
             <> 
-              <Text>이용약관에 동의하시겠습니까?{'\n'}</Text>
+              <Text style={commonStyles.textGraySmall}>이용약관에 동의하시겠습니까?{'\n'}</Text>
               <View style={commonStyles.view3}>
               <BouncyCheckbox
                 isChecked={allTermsAccepted}
@@ -210,8 +210,8 @@ const Join: React.FC<Props> = () => {
                   setAllTermsAccepted(newValue && terms2Accepted);
                 }}
               />
-                <Text onPress={() => navigation.navigate('TermsScreen', { termType: 'personalInfo' })}>
-                (필수) 개인정보 수집·이용에 동의합니다.
+                <Text onPress={() => navigation.navigate('TermsScreen', { termType: 'personalInfo' })} style={commonStyles.textGrayMedium}>
+                (필수) 개인정보 수집·이용 약관
                 </Text>
                 </View>
                 <TouchableOpacity onPress={() => navigation.navigate('TermsScreen', { termType: 'ageRestriction' })}>
@@ -230,7 +230,7 @@ const Join: React.FC<Props> = () => {
                 }}
               />
                <Text onPress={() => navigation.navigate('TermsScreen', { termType: 'ageRestriction' })}>
-                (필수) 만 14세 이상입니다.
+                (필수) 만 14세 이상 약관
                 </Text>
                </View>
               <Text> > </Text>

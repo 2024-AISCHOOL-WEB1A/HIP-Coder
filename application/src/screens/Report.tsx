@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Linking, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
 import Header from '../components/BGHeader';
 import commonStyles from '../styles/commonStyles';
+// import Carousel from 'react-native-snap-carousel';
+// import { ViewStyle } from 'react-native';
+
 import axios from 'axios';
 
 // type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
@@ -14,6 +17,8 @@ import axios from 'axios';
 //   // csrfToken: string | null;
 // }
 
+const { width: screenWidth } = Dimensions.get('window');
+
 const Report: React.FC<Props> = () => {
   const navigation = useNavigation();
 
@@ -22,6 +27,40 @@ const Report: React.FC<Props> = () => {
     Linking.openURL(url).catch(err => console.error('Failed to open URL:', err));
   };
 
+  // 상태 관리: 클릭된 박스에 따라 보여줄 콘텐츠 변경
+  const [selectedBox, setSelectedBox] = useState<'none' | 'box2' | 'box2Banner2'>('none');
+
+  // box2 클릭 시 ReportImage로 이동
+  const handleBox2Click = () => {
+    navigation.navigate('ReportImage', { imageType: 'image1' });
+  };
+
+  // box2Banner2 클릭 시 ReportImage로 이동
+  const handleBox2Banner2Click = () => {
+    navigation.navigate('ReportImage', { imageType: 'image2' });
+  };
+
+    // // 상태 관리: 클릭된 박스에 따라 보여줄 콘텐츠 변경
+    // const [selectedBox, setSelectedBox] = useState<'none' | 'box2' | 'box2Banner2'>('none');
+
+    // // 로컬 이미지 배열 (슬라이드에 사용할 이미지들)
+    // const slideImages = [
+    //   require('../assets/images/Banner1.png'),
+    //   require('../assets/images/Banner2.png'),
+    //   // require('../assets/images/Banner3.png'),
+    // ];
+  
+    // // 단일 이미지 URL (box2 클릭 시 보여줄 이미지)
+    // const singleImageUrl = require('../assets/images/Banner.png');
+  
+    // // 슬라이드 이미지 렌더링 함수
+    // const renderItem = ({ item }: any) => (
+    //   <View style={commonStyles.slide}>
+    //     <Image source={item} style={commonStyles.image} />
+    //   </View>
+    // );
+
+  
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.headerContainer}>
@@ -106,9 +145,27 @@ const Report: React.FC<Props> = () => {
             </View>
           </View>
           
-           <View style={commonStyles.box2}>
+
+          {/* box2 클릭 시 이미지 1을 보여주는 ReportImage 화면으로 이동 */}
+          <TouchableOpacity onPress={handleBox2Click} style={commonStyles.box2}>
+            <Image
+              source={require('../assets/images/Banner1.png')}
+              style={commonStyles.boxImage}
+            />
+          </TouchableOpacity>
+
+          {/* box2Banner2 클릭 시 이미지 2를 보여주는 ReportImage 화면으로 이동 */}
+          <TouchableOpacity onPress={handleBox2Banner2Click} style={commonStyles.box2Banner2}>
+            <Image
+              source={require('../assets/images/Banner2.png')}
+              style={commonStyles.boxImageBanner2}
+            />
+          </TouchableOpacity>
+
+          
+           {/* <View style={commonStyles.box2}>
              <Image
-              source={require('../assets/images/Banner.png')}
+              source={require('../assets/images/Banner1.png')}
               style={commonStyles.boxImage}
             />
           </View>
@@ -118,9 +175,7 @@ const Report: React.FC<Props> = () => {
               source={require('../assets/images/Banner2.png')}
               style={commonStyles.boxImageBanner2}
             />
-          </View>
-
-
+          </View> */}
 
         </View>
       </View>
@@ -129,6 +184,5 @@ const Report: React.FC<Props> = () => {
 };
 
 export default Report;
-
 
 

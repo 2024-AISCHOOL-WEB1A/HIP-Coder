@@ -19,6 +19,7 @@ import GalleryQrScan from './src/screens/GalleryQrScan';
 import History from './src/screens/History'; 
 import TermsScreen from './src/screens/TermsScreen';
 import Report from './src/screens/Report';
+import ReportImage from './src/screens/ReportImage';
 
 const Stack = createStackNavigator();
 
@@ -102,6 +103,7 @@ const App = () => {
       <Stack.Screen name="History" component={History} />
       <Stack.Screen name="TermsScreen" component={TermsScreen} />
       <Stack.Screen name="Report" component={Report} />
+      <Stack.Screen name="ReportImage" component={ReportImage} />
     </Stack.Navigator>
   );
 };

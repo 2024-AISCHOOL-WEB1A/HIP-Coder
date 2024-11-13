@@ -78,13 +78,15 @@ const commonStyles = StyleSheet.create({
     textAlign: 'center',
   },
   fixedFooter: {
-    height: '8%',
+    height: 60,
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     padding: 10,
     backgroundColor: '#3182f6',
+    justifyContent: 'center', // 수직 정렬 추가
+    alignItems: 'center', // 수평 정렬 추가
     // borderTopWidth: 1,
     // borderColor: '#ddd',
   },
@@ -93,6 +95,7 @@ const commonStyles = StyleSheet.create({
     color: '#ffffff',
     fontWeight: 'bold',
     textAlign: 'center',
+
   },
   view1: {
     flexDirection: 'row',
@@ -218,6 +221,14 @@ const commonStyles = StyleSheet.create({
     height: 30,
     overflow: 'hidden',
   },
+  reportFullImage: {
+    width: '100%',
+    height: '60%',
+    // width: '100%',
+    // height: '80%',
+    alignItems: 'center', // 수평 중앙 정렬
+    justifyContent: 'center', // 수직 중앙 정렬
+  },
 
   // 텍스트와 버튼 세로 정렬을 위한 컨테이너
   textContainer: {
@@ -256,7 +267,7 @@ const commonStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 25,
-    borderWidth: 3,
+    borderWidth: 1,
     borderColor: '#FFF',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -272,7 +283,7 @@ const commonStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 25,
-    borderWidth: 3,
+    borderWidth: 1,
     borderColor: '#FFF',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -284,7 +295,7 @@ const commonStyles = StyleSheet.create({
   boxImage: {
     width: '70%',
     height: '70%',
-    borderRadius: 25,
+    // borderRadius: 25,
     resizeMode: 'cover',
   },
   boxImageBanner2: {
@@ -294,6 +305,14 @@ const commonStyles = StyleSheet.create({
     borderRadius: 25,
     resizeMode: 'cover',
   },
+  reportFullImage : {
+    width: '100%',
+    height: '80%',
+    // flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
   text1: {
     fontSize: 16,
     fontWeight: '800',
@@ -320,7 +339,14 @@ const commonStyles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  
+  textGraySmall:{
+    color: 'gray',
+    fontSize: 12,
+  },
+  textGrayMedium:{
+    color: 'gray',
+    fontSize: 16,
+  },
 });
 
 
