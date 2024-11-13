@@ -36,35 +36,35 @@ const Home: React.FC = () => {
     }, [])
   );
   // 카운트 데이터를 다시 가져오는 함수 수정
-const getCounts = async () => {
-  try {
-    const accessToken = await AsyncStorage.getItem('accessToken');
-    const response = await api.get('/scan/counting', {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`, // JWT 토큰 추가
-        'X-CSRF-Token': csrfToken                 // CSRF 토큰 추가
-      },
-      withCredentials: true                        // 쿠키 사용을 위한 설정
-    });
-    if (response.data) {
-      // 애니메이션이 재실행되도록 null로 상태 초기화 후 설정
-      setUrlCount(null);
-      setQrCount(null);
-      setTimeout(() => {
-        setUrlCount(response.data.total_url_count || 0);
-        setQrCount(response.data.total_qr_count || 0);
-      }, 0);
+  const getCounts = async () => {
+    try {
+      const accessToken = await AsyncStorage.getItem('accessToken');
+      const response = await api.get('/scan/counting', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`, // JWT 토큰 추가
+          'X-CSRF-Token': csrfToken                 // CSRF 토큰 추가
+        },
+        withCredentials: true                        // 쿠키 사용을 위한 설정
+      });
+      if (response.data) {
+        // 애니메이션이 재실행되도록 null로 상태 초기화 후 설정
+        setUrlCount(null);
+        setQrCount(null);
+        setTimeout(() => {
+          setUrlCount(response.data.total_url_count || 0);
+          setQrCount(response.data.total_qr_count || 0);
+        }, 0);
+      }
+    } catch (error: any) {
+      console.error('카운트 데이터를 가져오는 중 오류 발생:', error);
+      if (error.response && error.response.status === 403) {
+        Alert.alert('오류', '권한이 없습니다. 로그인이 필요합니다.');
+        navigation.navigate('Login' as never); // 'Login'을 'never'로 캐스팅하여 TypeScript 오류 방지
+      } else {
+        Alert.alert('오류', '카운트 데이터를 가져오는 데 실패했습니다.');
+      }
     }
-  } catch (error: any) {
-    console.error('카운트 데이터를 가져오는 중 오류 발생:', error);
-    if (error.response && error.response.status === 403) {
-      Alert.alert('오류', '권한이 없습니다. 로그인이 필요합니다.');
-      navigation.navigate('Login' as never); // 'Login'을 'never'로 캐스팅하여 TypeScript 오류 방지
-    } else {
-      Alert.alert('오류', '카운트 데이터를 가져오는 데 실패했습니다.');
-    }
-  }
-};
+  };
 
   const handleLogin = () => {
     navigation.navigate('Login' as never);
@@ -74,6 +74,13 @@ const getCounts = async () => {
     setIsLoggedIn(false);
     await AsyncStorage.removeItem('accessToken');
     api.defaults.headers.Authorization = null;
+    
+    // 로그아웃 완료 후 알림 메시지 표시
+    Alert.alert(
+      "로그아웃 완료",
+      "로그아웃이 완료되었습니다.",
+      [{ text: "확인" }]
+    );
   };
 
   // Home.tsx에서 handleGalleryQrScanNavigation 함수 수정
@@ -265,8 +272,8 @@ const styles = StyleSheet.create({
   },
   mainTitleImage: {
     width: 150,
-    height: 30, 
-    resizeMode: 'contain', 
+    height: 30,
+    resizeMode: 'contain',
     top: -10,
   },
   counterContainer: {
@@ -305,7 +312,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-Bold',
     color: '#4A4A4A',
     marginLeft: 4,
-  }, 
+  },
   categoryContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',

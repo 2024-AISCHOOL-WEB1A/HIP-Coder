@@ -1,7 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList, Animated, Image, Easing } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 interface HeaderProps {
   title?: string;
@@ -14,8 +16,25 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
   const slideAnim = useRef(new Animated.Value(500)).current;
+  const [username, setUsername] = useState(''); // 사용자 이름 상태 관리
 
-  const username = "ooo"; // 예시 사용자 이름
+  const getUsername = async () => {
+    try {
+      const storedUsername = await AsyncStorage.getItem('username');
+      if (storedUsername) {
+        setUsername(storedUsername);
+      }
+    } catch (error) {
+      console.error('Failed to fetch the username:', error);
+    }
+  };
+
+  // 컴포넌트가 마운트될 때 사용자 이름 불러오기
+  useEffect(() => {
+    if (isLoggedIn) {
+      getUsername();
+    }
+  }, [isLoggedIn]);
 
   const menuItems = [
     { label: 'Home', icon: 'home-outline', action: () => navigation.navigate('Home') },
