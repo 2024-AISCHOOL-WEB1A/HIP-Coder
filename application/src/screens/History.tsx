@@ -1,4 +1,3 @@
-// History.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ActivityIndicator, Alert, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -19,6 +18,8 @@ const History = () => {
   const [hasMoreData, setHasMoreData] = useState(true);
 
   const scanlist = async (page = 1) => {
+    if (!hasMoreData) return; // 데이터가 더 없을 때 추가 호출 방지
+
     try {
       const accessToken = await AsyncStorage.getItem('accessToken');
       if (!accessToken) {
@@ -53,8 +54,12 @@ const History = () => {
           imageUrl: item.QR_CAT === 'IMG' ? 'path/to/your/image' : undefined
         }));
 
-        setHistoryData(prevData => [...prevData, ...scanItems]);
-        setHasMoreData(scanItems.length >= ITEMS_PER_PAGE); 
+        setHistoryData(prevData => {
+          const newData = [...prevData, ...scanItems];
+          const uniqueData = Array.from(new Map(newData.map(item => [item.id, item])).values());
+          return uniqueData;
+        });
+        setHasMoreData(scanItems.length >= ITEMS_PER_PAGE);
       }
     } catch (error) {
       console.error('API 오류 발생:', error);
@@ -74,14 +79,12 @@ const History = () => {
   };
 
   useEffect(() => {
-    scanlist();
-  }, []);
+    scanlist(currentPage);
+  }, [currentPage]);
 
   const handleLoadMore = () => {
     if (!isLoading && hasMoreData) {
-      const nextPage = currentPage + 1;
-      setCurrentPage(nextPage);
-      scanlist(nextPage);
+      setCurrentPage(prevPage => prevPage + 1);
     }
   };
 
@@ -198,7 +201,7 @@ const History = () => {
         <FlatList
           data={historyData}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item, index) => `${item.id}-${index}`}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={<Text style={styles.emptyText}>검사 이력이 없습니다.</Text>}
@@ -206,19 +209,6 @@ const History = () => {
           onEndReachedThreshold={0.5}
           ListFooterComponent={isLoading && <ActivityIndicator size="large" color="#5A9FFF" />}
         />
-      </View>
-
-      {/* 하단 네비게이션 바 */}
-      <View style={styles.navBar}>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
-          <Icon name="home" size={24} color="#9DA3B4" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('History')}>
-          <Icon name="time-outline" size={24} color="#3182f6" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('MyPage')}>
-          <Icon name="person-outline" size={24} color="#9DA3B4" />
-        </TouchableOpacity>
       </View>
     </View>
   );
