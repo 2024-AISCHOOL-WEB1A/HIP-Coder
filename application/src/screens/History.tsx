@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ActivityIndicator, Alert, Linking } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../components/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -11,21 +11,22 @@ const ITEMS_PER_PAGE = 5;
 
 const History = () => {
   const navigation = useNavigation();
+  const route = useRoute();
   const [isLoading, setIsLoading] = useState(false);
   const [historyData, setHistoryData] = useState([]);
   const { csrfToken } = useCsrf();
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMoreData, setHasMoreData] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
-  const [totalCount, setTotalCount] = useState(0); // 전체 데이터 수를 추적하기 위한 상태 추가
+  const [totalCount, setTotalCount] = useState(0);
 
   const scanlist = async (page) => {
     if ((isLoading && page === 1) || isFetchingMore || !hasMoreData) return;
-  
+
     try {
       if (page === 1) setIsLoading(true);
       else setIsFetchingMore(true);
-  
+
       const accessToken = await AsyncStorage.getItem('accessToken');
       if (!accessToken) {
         Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
@@ -33,7 +34,7 @@ const History = () => {
         ]);
         return;
       }
-  
+
       const res = await api.post(
         '/scan/scanlist',
         { page, limit: ITEMS_PER_PAGE },
@@ -45,7 +46,7 @@ const History = () => {
           withCredentials: true
         }
       );
-  
+
       if (res.data && Array.isArray(res.data.message)) {
         const scanItems = res.data.message.map(item => ({
           id: item.SCAN_ID.toString(),
@@ -53,10 +54,9 @@ const History = () => {
           type: item.QR_CAT === 'QR' ? 'QR 코드' : item.QR_CAT === 'IMG' ? 'QR 이미지' : 'URL',
           status: item.SCAN_RESULT === 'G' ? '클린 URL' : '악성 URL',
           content: item.SCAN_URL,
-          // 'imageUrl'을 동적으로 가져오기
           imageUrl: item.IMAGE_URL ? item.IMAGE_URL : 'https://via.placeholder.com/150'
         }));
-  
+
         if (page === 1) {
           setHistoryData(scanItems);
         } else {
@@ -66,9 +66,9 @@ const History = () => {
             return uniqueData;
           });
         }
-  
+
         setHasMoreData(scanItems.length === ITEMS_PER_PAGE);
-  
+
         if (res.data.totalCount) {
           setTotalCount(res.data.totalCount);
         }
@@ -84,7 +84,6 @@ const History = () => {
       setIsFetchingMore(false);
     }
   };
-  
 
   useEffect(() => {
     scanlist(1);
@@ -193,6 +192,10 @@ const History = () => {
     </TouchableOpacity>
   );
 
+  const getIconColor = (screen) => {
+    return route.name === screen ? '#3182f6' : '#9DA3B4';
+  };
+
   return (
     <View style={styles.container}>
       <Header title="검사 이력 보기" onBackPress={() => navigation.goBack()} />
@@ -223,16 +226,15 @@ const History = () => {
         )}
       </View>
 
-      {/* 하단 네비게이션 바 추가 */}
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
-          <Icon name="home" size={24} color="#3182f6" />
+          <Icon name="home" size={24} color={getIconColor('Home')} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('History')}>
-          <Icon name="time-outline" size={24} color="#9DA3B4" />
+          <Icon name="time-outline" size={24} color={getIconColor('History')} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('MyPage')}>
-          <Icon name="person-outline" size={24} color="#9DA3B4" />
+          <Icon name="person-outline" size={24} color={getIconColor('MyPage')} />
         </TouchableOpacity>
       </View>
     </View>
