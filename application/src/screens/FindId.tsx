@@ -118,7 +118,6 @@ const FindId: React.FC = () => {
                     // console.log('Back button pressed');
                     navigation.goBack();
                 }} />
-                <Text style={commonStyles.headerTitle}>아이디 찾기</Text>
             </View>
             <View style={commonStyles.formContainer}>
                 <View style={commonStyles.innerContainer}>
