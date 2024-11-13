@@ -255,7 +255,7 @@ const Home: React.FC = () => {
   );
 };
 
-// 스타일 정의는 동일
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
