@@ -243,7 +243,7 @@ router.post('/handleLogin', async (req, res) => {
     const { id, password } = req.body;
     console.log('req : ', req.body);
     try {
-        const sql = 'SELECT USER_IDX, USER_PW, TEMP_PASSWORD_EXPIRES FROM USER WHERE USER_ID = ?';
+        const sql = 'SELECT USER_IDX, USER_NAME, USER_PW, TEMP_PASSWORD_EXPIRES FROM USER WHERE USER_ID = ?';
         const [rows] = await conn.promise().query(sql, [id]);
 
         if (rows.length === 0) {
@@ -273,6 +273,7 @@ router.post('/handleLogin', async (req, res) => {
                 return res.status(200).json({
                     message: '임시 비밀번호로 로그인되었습니다. 비밀번호를 변경해 주세요.',
                     token: accessToken,
+                    userName: user.USER_NAME,  // USER_NAME을 응답에 추가
                     temporaryPassword: true
                 });
                 
@@ -294,7 +295,7 @@ router.post('/handleLogin', async (req, res) => {
             console.log('jwt 토큰 확인:', accessToken);
             console.log('refresh 토큰 확인(쿠키):', refreshToken)
 
-            return res.status(200).json({ message: '로그인 성공!', token: accessToken, temporaryPassword: false });
+            return res.status(200).json({ message: '로그인 성공!', token: accessToken, userName: user.USER_NAME, temporaryPassword: false });
         } else {
             return res.status(400).json({ error: '아이디 또는 비밀번호가 일치하지 않습니다.' });
         }
