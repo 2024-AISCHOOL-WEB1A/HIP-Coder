@@ -8,6 +8,7 @@ import commonStyles from '../styles/commonStyles';
 import HEButton from '../components/HEButton';
 import axios from 'axios';
 import { FLASK_URL } from '@env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -17,8 +18,16 @@ const UrlCheck: React.FC<Props> = () => {
 
   const checkUrlSafety = async (inputUrl: string) => {
     try {
-      const response = await axios.post(`${FLASK_URL}/scan`, { url: inputUrl , category: 'URL'  });
+      const token = await AsyncStorage.getItem('token');
 
+      const response = await axios.post(`${FLASK_URL}/scan`,{
+        url : inputUrl,
+        category: 'URL',
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
       // 서버 응답 확인
       console.log('서버 응답 데이터:', response.data);
 

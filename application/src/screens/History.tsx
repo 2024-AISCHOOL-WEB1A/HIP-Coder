@@ -1,9 +1,9 @@
+// History.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ActivityIndicator, Alert, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../components/Header';
-import Pagination from '../components/Pagination';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../../axios';
 import { useCsrf } from '../../context/CsrfContext';
@@ -12,25 +12,16 @@ const ITEMS_PER_PAGE = 5;
 
 const History = () => {
   const navigation = useNavigation();
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [historyData, setHistoryData] = useState<any[]>([]);
+  const [historyData, setHistoryData] = useState([]);
   const { csrfToken } = useCsrf();
-  const [scandata, setScandata] = useState({
-    id : '',
-    date : '',
-    type : '',
-    status : '',
-    content : ''
-  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMoreData, setHasMoreData] = useState(true);
 
-  // scanlist 함수 수정
-  const scanlist = async () => {
+  const scanlist = async (page = 1) => {
     try {
-      const token = await AsyncStorage.getItem('token');
-      if (!token) {
+      const accessToken = await AsyncStorage.getItem('accessToken');
+      if (!accessToken) {
         Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
           {
             text: '확인',
@@ -39,13 +30,14 @@ const History = () => {
         ]);
         return;
       }
+      setIsLoading(true);
       const res = await api.post(
         '/scan/scanlist',
-        {},
+        { page, limit: ITEMS_PER_PAGE },
         {
           headers: {
             'X-CSRF-Token': csrfToken,
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${accessToken}`
           },
           withCredentials: true
         }
@@ -58,12 +50,11 @@ const History = () => {
           type: item.QR_CAT === 'QR' ? 'QR 코드' : item.QR_CAT === 'IMG' ? 'QR 이미지' : 'URL',
           status: item.SCAN_RESULT === 'G' ? '클린 URL' : '악성 URL',
           content: item.SCAN_URL,
-          imageUrl: item.QR_CAT === 'IMG' ? 'path/to/your/image' : undefined // QR 이미지인 경우만 imageUrl 추가
+          imageUrl: item.QR_CAT === 'IMG' ? 'path/to/your/image' : undefined
         }));
 
-        // 받아온 데이터를 historyData로 설정하여 리스트에 반영합니다.
-        setHistoryData(scanItems);
-        setTotalPages(Math.ceil(scanItems.length / ITEMS_PER_PAGE));
+        setHistoryData(prevData => [...prevData, ...scanItems]);
+        setHasMoreData(scanItems.length >= ITEMS_PER_PAGE); 
       }
     } catch (error) {
       console.error('API 오류 발생:', error);
@@ -77,26 +68,21 @@ const History = () => {
       } else {
         Alert.alert('오류', '사용자 데이터를 가져오는 중 오류가 발생했습니다.');
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // useEffect에서 scanlist 호출
   useEffect(() => {
     scanlist();
   }, []);
 
-  // 페이지네이션 관련 데이터 설정
-  useEffect(() => {
-    setTotalPages(Math.ceil(historyData.length / ITEMS_PER_PAGE)); 
-    loadData(currentPage);
-  }, [currentPage]);
-
-  const loadData = (page: number) => {
-    setIsLoading(true);
-    const startIndex = (page - 1) * ITEMS_PER_PAGE;
-    const currentData = historyData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-    setHistoryData(currentData);
-    setIsLoading(false);
+  const handleLoadMore = () => {
+    if (!isLoading && hasMoreData) {
+      const nextPage = currentPage + 1;
+      setCurrentPage(nextPage);
+      scanlist(nextPage);
+    }
   };
 
   const getStatusBadgeStyle = (status) => {
@@ -151,10 +137,6 @@ const History = () => {
     return null;
   };
 
-  useEffect(() => {
-    scanlist()
-  }, [])
-
   const openURL = (url) => {
     Linking.openURL(url).catch(err => console.error("URL 열기 실패:", err));
   };
@@ -177,8 +159,7 @@ const History = () => {
         } else {
           Alert.alert('상세보기', '해당 항목의 자세한 내용을 확인하세요.');
         }
-      }
-    }
+      }}
     >
       <View style={styles.contentContainer}>
         <View style={styles.mainInfo}>
@@ -186,7 +167,7 @@ const History = () => {
             <Icon 
               name={getTypeIcon(item.type)} 
               size={24} 
-              color="#9C59B5"
+              color="#5A9FFF"
             />
           </View>
           <View style={styles.textContainer}>
@@ -200,14 +181,14 @@ const History = () => {
             <Text style={styles.dateText}>{formatDate(item.date)}</Text>
           </View>
         </View>
-        <Icon name="chevron-forward-outline" size={20} color="#9C59B5" />
+        <Icon name="chevron-forward-outline" size={20} color="#5A9FFF" /> 
       </View>
     </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
-      <Header title="" onBackPress={() => navigation.goBack()} />
+      <Header title="검사 이력 보기" onBackPress={() => navigation.goBack()} />
       <View style={styles.scrollContainer}>
         <View style={styles.headerContainer}>
           <Text style={styles.subtitle}>검사 이력</Text>
@@ -221,13 +202,23 @@ const History = () => {
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={<Text style={styles.emptyText}>검사 이력이 없습니다.</Text>}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={isLoading && <ActivityIndicator size="large" color="#5A9FFF" />}
         />
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-          isLoading={isLoading}
-        />
+      </View>
+
+      {/* 하단 네비게이션 바 */}
+      <View style={styles.navBar}>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
+          <Icon name="home" size={24} color="#9DA3B4" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('History')}>
+          <Icon name="time-outline" size={24} color="#3182f6" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('MyPage')}>
+          <Icon name="person-outline" size={24} color="#9DA3B4" />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -246,7 +237,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   subtitle: {
-    fontSize: 22,
+    fontSize: 20,
     color: '#333333',
     fontFamily: 'Pretendard-Bold',
   },
@@ -259,7 +250,7 @@ const styles = StyleSheet.create({
   separator: {
     height: 1,
     width: '100%',
-    backgroundColor: '#B490CA',
+    backgroundColor: '#E0E0E0', 
     marginVertical: 20,
   },
   listContainer: {
@@ -269,22 +260,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     marginBottom: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
+    padding: 16,
     borderWidth: 1,
-    borderColor: '#F0E6F5',
+    borderColor: '#E0E0E0',
   },
   contentContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
   },
   mainInfo: {
     flexDirection: 'row',
@@ -292,7 +275,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   iconContainer: {
-    backgroundColor: '#F0E6F5',
+    backgroundColor: '#F5F5F5',
     borderRadius: 12,
     padding: 10,
     marginRight: 12,
@@ -324,7 +307,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 8,
-    backgroundColor: '#F0E6F5',
+    backgroundColor: '#F5F5F5', 
   },
   contentPreview: {
     fontSize: 12,
@@ -352,15 +335,26 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-SemiBold',
   },
   safeBadge: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#E6F2FF', 
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
   },
   safeText: {
-    color: '#4CAF50',
+    color: '#5A9FFF',
     fontSize: 12,
     fontFamily: 'Pretendard-SemiBold',
+  },
+  navBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 16,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  navButton: {
+    alignItems: 'center',
   },
 });
 

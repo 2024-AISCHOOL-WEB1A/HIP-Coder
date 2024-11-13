@@ -16,7 +16,7 @@ const Login: React.FC<Props> = () => {
   const { csrfToken } = useCsrf();
 
   const handleLogin = async () => {
-    console.log("로그인 정보:", { id, password }); // email을 id로 변경
+    console.log("로그인 정보:", { id, password });
     try {
       const res = await api.post('/user/handleLogin', {
         id: id,
@@ -26,8 +26,9 @@ const Login: React.FC<Props> = () => {
       });
       
       if (res.status === 200) {
-        const { token, temporaryPassword } = res.data;
+        const { token, temporaryPassword, userName } = res.data;
         await AsyncStorage.setItem('accessToken', token);
+        await AsyncStorage.setItem('username', userName); // 사용자 이름을 AsyncStorage에 저장
         console.log('AsyncStorage에 저장된 token', await AsyncStorage.getItem('accessToken'));
 
         // Alert.alert('알림' ,'환영합니다');
@@ -112,12 +113,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingTop: 120, 
+    paddingTop: 60, 
     paddingHorizontal: 40,
     width: '100%',
   },
   textContainer: {
-    marginTop: 40,
+    marginTop: 25,
     alignItems: 'flex-start',
     width: '100%',
   },
@@ -137,28 +138,32 @@ const styles = StyleSheet.create({
   input: {
     width: '100%',
     height: 55,
-    borderColor: '#3182f6',
+    borderColor: '#B0BEC5',
     borderWidth: 1,
     borderRadius: 25,
     paddingHorizontal: 20,
     marginVertical: 10,
     backgroundColor: '#FFFFFF',
     fontFamily: 'Pretendard-Regular',
+    fontSize: 16,
+    color: '#000000',
   },
   buttonContainer: {
     width: '100%',
     alignItems: 'center',
     paddingTop: 20,
-    marginVertical: 10,
   },
   linkContainer: {
     width: '100%',
     alignItems: 'center',
+    marginTop: 20,
   },
   link: {
     color: '#1E88E5',
     textAlign: 'center',
     fontFamily: 'Pretendard-Regular', 
+    fontSize: 16,
+    marginBottom: 10,
   },
 });
 

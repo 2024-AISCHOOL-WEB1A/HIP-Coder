@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -7,6 +7,7 @@ import AnimateNumber from 'react-native-animate-number';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../../axios';
 import { useCsrf } from '../../context/CsrfContext';
+import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
 
 const Home: React.FC = () => {
   const navigation = useNavigation();
@@ -17,39 +18,42 @@ const Home: React.FC = () => {
 
   // 로그인 상태 확인 (토큰)
   const checkIsLogin = async () => {
-
-    const token = await AsyncStorage.getItem('accessToken')
-    setIsLoggedIn(!!token)
-  }
-
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    setIsLoggedIn(!!accessToken);
+  };
 
   // 렌더링 시 로그인 상태 확인 및 카운트 데이터 가져오기
   useEffect(() => {
     checkIsLogin();
-    getCounts();  // 페이지 렌더링 시 카운트 값을 가져오는 함수 호출
+    getCounts(); // 페이지 렌더링 시 카운트 값을 가져오는 함수 호출
   }, []);
 
-  // Home 화면이 다시 포커스될 때 로그인 상태 확인
+  // Home 화면이 다시 포커스될 때 로그인 상태 및 카운트 데이터를 다시 확인
   useFocusEffect(
     React.useCallback(() => {
       checkIsLogin();
+      getCounts(); // 페이지 포커스 시 카운트 값을 다시 가져오기
     }, [])
   );
-
-  // /scan/counting API 호출하여 urlCount 및 qrCount 값을 가져오는 함수
+  // 카운트 데이터를 다시 가져오는 함수 수정
   const getCounts = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const accessToken = await AsyncStorage.getItem('accessToken');
       const response = await api.get('/scan/counting', {
         headers: {
-          'Authorization': `Bearer ${token}`,  // JWT 토큰 추가
-          'X-CSRF-Token': csrfToken            // CSRF 토큰 추가
+          'Authorization': `Bearer ${accessToken}`, // JWT 토큰 추가
+          'X-CSRF-Token': csrfToken                 // CSRF 토큰 추가
         },
-        withCredentials: true                  // 쿠키 사용을 위한 설정
+        withCredentials: true                        // 쿠키 사용을 위한 설정
       });
       if (response.data) {
-        setUrlCount(response.data.total_url_count || 0);
-        setQrCount(response.data.total_qr_count || 0);
+        // 애니메이션이 재실행되도록 null로 상태 초기화 후 설정
+        setUrlCount(null);
+        setQrCount(null);
+        setTimeout(() => {
+          setUrlCount(response.data.total_url_count || 0);
+          setQrCount(response.data.total_qr_count || 0);
+        }, 0);
       }
     } catch (error: any) {
       console.error('카운트 데이터를 가져오는 중 오류 발생:', error);
@@ -67,31 +71,45 @@ const Home: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    // 로그인 상태, 인풋창 초기화
     setIsLoggedIn(false);
-
-    // AsyncStorage에서 JWT 토큰 삭제
-    await AsyncStorage.removeItem('token');
-    // Axios 헤더 JWT 토큰 삭제
+    await AsyncStorage.removeItem('accessToken');
     api.defaults.headers.Authorization = null;
-
-    // AsyncStorage에서 토큰 삭제 확인
-    const token = await AsyncStorage.getItem('token');
-    if (!token) {
-      console.log('AsyncStorage에서 JWT 토큰이 정상 삭제되었습니다.');
-    } else {
-      console.error('AsyncStorage에서 JWT 토큰 삭제 실패:', token);
-    }
-    // Axios 헤더에서 토큰 삭제 확인
-    if (!api.defaults.headers.Authorization) {
-      console.log('Axios Authorization 헤더에서 JWT 토큰이 정상 삭제되었습니다.');
-    } else {
-      console.error('Axios Authorization 헤더에서 JWT 토큰 삭제 실패:', api.defaults.headers.Authorization);
-    }
+    
+    // 로그아웃 완료 후 알림 메시지 표시
+    Alert.alert(
+      "로그아웃 완료",
+      "로그아웃이 완료되었습니다.",
+      [{ text: "확인" }]
+    );
   };
 
-  const getIconColor = (screen: string) => {
-    return navigation.isFocused() ? '#9C59B5' : '#9DA3B4';
+  // Home.tsx에서 handleGalleryQrScanNavigation 함수 수정
+  const handleGalleryQrScanNavigation = () => {
+    const options = {
+      mediaType: 'photo',
+      quality: 1,
+    };
+
+    launchImageLibrary(options, (response: ImagePickerResponse) => {
+      if (response.didCancel) {
+        console.log('이미지 선택이 취소되었습니다.');
+        // 이미지 선택이 취소되었을 때 페이지 이동 없이 함수 종료
+        return;
+      } else if (response.errorMessage) {
+        console.log('에러: ', response.errorMessage);
+      } else if (response.assets && response.assets.length > 0) {
+        const uri = response.assets[0].uri;
+        if (uri) {
+          console.log('선택한 이미지 URI:', uri);
+          // 이미지를 성공적으로 선택했을 때 GalleryQrScan 페이지로 이동, 선택한 이미지 URI를 함께 전달
+          navigation.navigate('GalleryQrScan' as never, { imageUri: uri } as never);
+        }
+      }
+    });
+  };
+
+  const getIconColor = (screen) => {
+    return navigation.isFocused(screen) ? '#3182f6' : '#9DA3B4';
   };
 
   return (
@@ -99,33 +117,47 @@ const Home: React.FC = () => {
       <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={styles.mainTitle}>Thing Q</Text>
+        <View style={styles.mainTitleContainer}>
+          <Image
+            source={require('../assets/images/ThingQFulllogo.png')}
+            style={styles.mainTitleImage}
+          />
+        </View>
 
         <View style={styles.counterContainer}>
           <View style={styles.counterBox}>
-            <Text style={styles.counterTitle}>차단된 URL 수</Text>
-            <AnimateNumber
-              value={urlCount}
-              formatter={(val) => Math.floor(val).toString()}
-              timing="easeOut"
-              steps={30}
-              interval={16}
-              style={styles.counterValue}
-            />
+            <Text style={styles.counterTitle}>악성 URL 탐지</Text>
+            <View style={styles.counterValueContainer}>
+              <AnimateNumber
+                key={urlCount}  // key prop 추가
+                value={urlCount}
+                formatter={(val) => Math.floor(val).toString()}
+                timing="easeOut"
+                steps={30}
+                interval={16}
+                style={styles.counterValue}
+              />
+              <Text style={styles.counterUnit}>건</Text>
+            </View>
           </View>
 
           <View style={styles.counterBox}>
-            <Text style={styles.counterTitle}>QR 코드 검사 수</Text>
-            <AnimateNumber
-              value={qrCount}
-              formatter={(val) => Math.floor(val).toString()}
-              timing="easeOut"
-              steps={30}
-              interval={16}
-              style={styles.counterValue}
-            />
+            <Text style={styles.counterTitle}>QR 코드 검사</Text>
+            <View style={styles.counterValueContainer}>
+              <AnimateNumber
+                key={qrCount}  // key prop 추가
+                value={qrCount}
+                formatter={(val) => Math.floor(val).toString()}
+                timing="easeOut"
+                steps={30}
+                interval={16}
+                style={styles.counterValue}
+              />
+              <Text style={styles.counterUnit}>건</Text>
+            </View>
           </View>
         </View>
+
 
         <View style={styles.categoryContainer}>
           <TouchableOpacity style={styles.categoryButton} onPress={() => navigation.navigate('Report' as never)}>
@@ -183,12 +215,9 @@ const Home: React.FC = () => {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('GalleryQrScan' as never)}>
+          <TouchableOpacity style={styles.card} onPress={handleGalleryQrScanNavigation}>
             <View style={styles.cardIconContainer}>
-              <Image
-                source={require('../assets/free-icon-gallery.png')}
-                style={styles.iconImage}
-              />
+              <Image source={require('../assets/free-icon-gallery.png')} style={styles.iconImage} />
             </View>
             <View style={styles.cardTextContainer}>
               <Text style={styles.cardTitle}>QR 이미지 검사</Text>
@@ -225,7 +254,8 @@ const Home: React.FC = () => {
     </View>
   );
 };
-//
+
+// 스타일 정의는 동일
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -235,12 +265,16 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
   },
-  mainTitle: {
-    fontSize: 30,
-    fontFamily: 'Pretendard-Bold',
-    color: '#1A1D1E',
-    textAlign: 'center',
+  mainTitleContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
     marginVertical: 20,
+  },
+  mainTitleImage: {
+    width: 150,
+    height: 30,
+    resizeMode: 'contain',
+    top: -10,
   },
   counterContainer: {
     flexDirection: 'row',
@@ -248,7 +282,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     padding: 16,
     borderRadius: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#ffffff',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -265,9 +299,19 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   counterValue: {
-    fontSize: 20,
+    fontSize: 24,
     fontFamily: 'Pretendard-Bold',
     color: '#4A4A4A',
+  },
+  counterValueContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  counterUnit: {
+    fontSize: 18,
+    fontFamily: 'Pretendard-Bold',
+    color: '#4A4A4A',
+    marginLeft: 4,
   },
   categoryContainer: {
     flexDirection: 'row',
@@ -281,7 +325,7 @@ const styles = StyleSheet.create({
   categoryIconContainer: {
     width: 64,
     height: 64,
-    backgroundColor: '#3182f6',
+    backgroundColor: '#4593fc',
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
