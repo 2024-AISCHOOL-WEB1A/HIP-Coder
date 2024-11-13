@@ -1,4 +1,3 @@
-// History.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ActivityIndicator, Alert, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -17,20 +16,24 @@ const History = () => {
   const { csrfToken } = useCsrf();
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMoreData, setHasMoreData] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [totalCount, setTotalCount] = useState(0); // 전체 데이터 수를 추적하기 위한 상태 추가
 
-  const scanlist = async (page = 1) => {
+  const scanlist = async (page) => {
+    if ((isLoading && page === 1) || isFetchingMore || !hasMoreData) return;
+
     try {
+      if (page === 1) setIsLoading(true);
+      else setIsFetchingMore(true);
+
       const accessToken = await AsyncStorage.getItem('accessToken');
       if (!accessToken) {
         Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
-          {
-            text: '확인',
-            onPress: () => navigation.navigate('Login'),
-          },
+          { text: '확인', onPress: () => navigation.navigate('Login') },
         ]);
         return;
       }
-      setIsLoading(true);
+
       const res = await api.post(
         '/scan/scanlist',
         { page, limit: ITEMS_PER_PAGE },
@@ -53,35 +56,49 @@ const History = () => {
           imageUrl: item.QR_CAT === 'IMG' ? 'path/to/your/image' : undefined
         }));
 
-        setHistoryData(prevData => [...prevData, ...scanItems]);
-        setHasMoreData(scanItems.length >= ITEMS_PER_PAGE); 
+        if (page === 1) {
+          setHistoryData(scanItems);
+        } else {
+          setHistoryData(prevData => {
+            const newData = [...prevData, ...scanItems];
+            const uniqueData = Array.from(new Map(newData.map(item => [item.id, item])).values());
+            return uniqueData;
+          });
+        }
+
+        setHasMoreData(scanItems.length === ITEMS_PER_PAGE);
+        
+        if (res.data.totalCount) {
+          setTotalCount(res.data.totalCount);
+        }
+      } else {
+        setHasMoreData(false);
       }
     } catch (error) {
       console.error('API 오류 발생:', error);
-      if (error.response && error.response.status === 403) {
-        Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
-          {
-            text: '확인',
-            onPress: () => navigation.navigate('Login'),
-          },
-        ]);
-      } else {
-        Alert.alert('오류', '사용자 데이터를 가져오는 중 오류가 발생했습니다.');
-      }
+      Alert.alert('오류', '데이터를 불러오는 중 문제가 발생했습니다.');
+      setHasMoreData(false);
     } finally {
       setIsLoading(false);
+      setIsFetchingMore(false);
     }
   };
 
   useEffect(() => {
-    scanlist();
+    scanlist(1);
   }, []);
 
   const handleLoadMore = () => {
-    if (!isLoading && hasMoreData) {
-      const nextPage = currentPage + 1;
-      setCurrentPage(nextPage);
-      scanlist(nextPage);
+    if (!hasMoreData || isFetchingMore || isLoading) return;
+
+    if (totalCount === 0 || historyData.length < totalCount) {
+      setCurrentPage(prevPage => {
+        const nextPage = prevPage + 1;
+        scanlist(nextPage);
+        return nextPage;
+      });
+    } else {
+      setHasMoreData(false);
     }
   };
 
@@ -198,23 +215,27 @@ const History = () => {
         <FlatList
           data={historyData}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item, index) => `${item.id}-${index}`}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={<Text style={styles.emptyText}>검사 이력이 없습니다.</Text>}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
-          ListFooterComponent={isLoading && <ActivityIndicator size="large" color="#5A9FFF" />}
+          ListFooterComponent={
+            (isLoading || isFetchingMore) && hasMoreData ? 
+              <ActivityIndicator size="large" color="#5A9FFF" /> 
+              : null
+          }
         />
       </View>
 
-      {/* 하단 네비게이션 바 */}
+      {/* 하단 네비게이션 바 추가 */}
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
-          <Icon name="home" size={24} color="#9DA3B4" />
+          <Icon name="home" size={24} color="#3182f6" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('History')}>
-          <Icon name="time-outline" size={24} color="#3182f6" />
+          <Icon name="time-outline" size={24} color="#9DA3B4" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('MyPage')}>
           <Icon name="person-outline" size={24} color="#9DA3B4" />

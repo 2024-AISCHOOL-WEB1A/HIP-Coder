@@ -61,8 +61,7 @@ const FindPw: React.FC = () => {
     return (
         <View style={commonStyles.container}>
             <View style={commonStyles.headerContainer}>
-                <Header onBackPress={() => navigation.goBack()} />
-                <Text style={commonStyles.headerTitle}>비밀번호 찾기</Text>
+                <Header title="비밀번호 찾기" onBackPress={() => navigation.goBack()} />
             </View>
             <View style={commonStyles.formContainer}>
                 <View style={commonStyles.innerContainer}>

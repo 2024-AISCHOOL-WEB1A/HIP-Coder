@@ -47,46 +47,30 @@ const commonStyles = StyleSheet.create({
   innerContainer2:{
     // flex: 1,
     // justifyContent: 'center',
-    paddingTop: 30,
+    paddingTop: 20,
     margin: 0,
     backgroundColor: '#ffffff',
+    // backgroundColor: '#fbfbfb',
     width: '100%',
     height: '100%',
     // borderRadius: 30,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    paddingLeft: 20,
-    paddingRight: 20,
+    paddingLeft: 30,
+    paddingRight: 30,
   },
-  // innerContainer2:{
-  //   backgroundColor: '#ffffff',
-  //   paddingLeft: 40,
-  //   paddingRight: 40,
-  //   width: '100%',
-  //   height: '80%',
-  //   paddingTop: 20,
-  //   // borderRadius: 30,
-  // },
+
   headerContainer: {
     width: '100%',
     // alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 30,
     color: '#ffffff',
   },
   formContainer: {
     flex: 1,
     justifyContent: 'flex-start',
   },
-  // header: {
-  //   fontSize: 24,
-  // },
-  // headerTitle:{
-  //   fontSize: 20,
-  //   color: '#ffffff',
-  //   fontWeight: 'bold',
-  //   textAlign: 'center',
-  // },
+
   termsHeaderTitle:{
     fontSize: 20,
     color: 'black',
@@ -123,6 +107,12 @@ const commonStyles = StyleSheet.create({
   view3: {
     flexDirection: 'row',
     marginBottom: 20,
+  },
+  view4: {
+    width: '80%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    // backgroundColor: 'red',
   },
 
   input: {
@@ -179,31 +169,90 @@ const commonStyles = StyleSheet.create({
   activeButton: {
     backgroundColor: '#3182f6',
   },
-  modalView: {
-    borderColor: '#3182f6',
-  },
+  // modalView: {
+  //   borderColor: '#3182f6',
+  // },
   linkContainer:{
     paddingLeft: 5,
   },
   link: {
     color: '#838383',
   },
-  wheel1: {
-    width: '100%',
-    height: '22%',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    // alignItems: 'center',
-    // backgroundColor: 'rgba(255, 0, 0, 0.2)',
-    // marginRight: 20,
-    // justifyContent: 'space-between',
-    marginBottom: '5%',
+  image: {
+    width: '80%',
+    height: '80%',
+    resizeMode: 'contain',
+  },
+  textCenter: {
+    textAlign: 'center',
+    color: '#000',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   box1: {
-    width: '30%',
-    height: '90%',
-    backgroundColor: '#ffffff',
-    // backgroundColor: 'green',
+    width: '100%',
+    height: '12%',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+    justifyContent: 'space-between',
+    // marginBottom: 20,
+    flexDirection: 'row', // 이미지와 텍스트를 가로로 배치
+    alignItems: 'center', // 세로로 정렬을 맞추기 위해 추가
+  },
+
+  // circleContainer: 이미지 좌측에 배치
+  circleContainer: {
+    justifyContent: 'center',
+    marginRight: 10, // 텍스트와 이미지 간의 간격
+    // backgroundColor: 'blue',
+  },
+
+  // 이미지 스타일
+  circleImage: {
+    width: 40,
+    height: 40,
+    overflow: 'hidden',
+  },
+  reportImage:{
+    width: 30,
+    height: 30,
+    overflow: 'hidden',
+  },
+
+  // 텍스트와 버튼 세로 정렬을 위한 컨테이너
+  textContainer: {
+    flexDirection: 'column', // 텍스트는 세로로 정렬
+    justifyContent: 'center', // 텍스트들을 세로로 정렬
+    alignItems: 'flex-start', // 텍스트 왼쪽 정렬
+    // marginLeft: 10, // 텍스트와 이미지 간 간격
+  },
+
+  // 신고하기 버튼을 세로 정렬로 배치
+  reportButtonContainer: {
+    flexDirection: 'column', // 버튼과 이미지 세로 배치
+    justifyContent: 'center',
+    alignItems: 'center',
+    // marginLeft: 130,
+  },
+
+  textNextToImageTitle: {
+    textAlign: 'left',
+    color: '#1c1c1c',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
+  textNextToImage: {
+    textAlign: 'left',
+    color: '#8e8e8e',
+    fontSize: 12,
+  },
+ 
+
+  box2: {
+    width: '100%',
+    height: '20%',
+    backgroundColor: '#486ec5', 
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 25,
@@ -214,45 +263,14 @@ const commonStyles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 10,
-    // marginRight:'10%',
-    // marginBottom: 30,
+    marginTop: 20,
   },
-  //   box0: {
-  //   width: '30%',
-  //   height: '100%',
-  //   backgroundColor: '#fff',
-  //   justifyContent: 'center',   // **이미지 중앙 정렬 추가**
-  //   alignItems: 'center',       // **이미지 중앙 정렬 추가**
-  //   marginRight: '5%',
-  //   marginTop: 0,
-  // },
-
-  // box1: {
-  //   width: '100%',
-  //   height: '90%',
-  //   // backgroundColor: '#ffffff',
-  //   backgroundColor: 'green',
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  //   borderRadius: 25,
-  //   borderWidth: 3,
-  //   borderColor: '#FFF',
-  //   shadowColor: '#000',
-  //   shadowOffset: { width: 0, height: 4 },
-  //   shadowOpacity: 0.2,
-  //   shadowRadius: 6,
-  //   elevation: 10,
-  //   // marginRight:'10%',
-  //   // marginBottom: 30,
-  //   marginTop: 20,
-  // },
-  box2: {
+  box2Banner2: {
     width: '100%',
-    height: '60%',
-    backgroundColor: 'rgba(0, 255, 0, 0.2)', 
-    // backgroundColor: '#ffffff',
-    // justifyContent: 'center',
-    // alignItems: 'center',
+    height: '20%',
+    backgroundColor: '#2c61ad', 
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 25,
     borderWidth: 3,
     borderColor: '#FFF',
@@ -261,22 +279,20 @@ const commonStyles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 10,
+    marginTop: 20,
   },
   boxImage: {
-    width: '100%',
-    height: '100%',
+    width: '70%',
+    height: '70%',
     borderRadius: 25,
+    resizeMode: 'cover',
   },
-  text: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  textCenter: {
-    textAlign: 'center',
-    color: 'black',
-    fontSize: 16,
-    fontWeight: 'bold',
+  boxImageBanner2: {
+    // paddingTop: '10%',
+    width: '100%',
+    height: '90%',
+    borderRadius: 25,
+    resizeMode: 'cover',
   },
   text1: {
     fontSize: 16,
@@ -288,52 +304,24 @@ const commonStyles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
     fontWeight: '600',
-    color: '#bd90ce',
+    color: '#3182f6',
     marginBottom: 10,
   },
   text3: {
     fontSize: 12,
     fontWeight: '400',
-    // color: '#2c2b2b',
+    // color: '#2c2b2b',cd android && ./gradlew clean && cd ..
     color: 'black',
     paddingLeft: 20,
     paddingRight: 20,
   },
-  // circleContainer: {
-  //   flexDirection: 'column',  // 변경: column으로 수정하여 이미지 아래 텍스트 배치
-  //   alignItems: 'center',    // 텍스트를 가운데 정렬
-  //   justifyContent: 'center',
-  //   width: 80,
-  //   height: 80,             // 충분한 공간을 주어 텍스트와 이미지 간의 여유를 추가
-  //   // backgroundColor: '#fff2e4',
-  //   // borderRadius: 40,
-  //   marginBottom: 0,        // 텍스트와 이미지 사이의 여유 공간 추가
-  // },
-
-  // circleContainer1: {
-  //   flexDirection: 'column',  // 변경: column으로 수정하여 이미지 아래 텍스트 배치
-  //   alignItems: 'center',     // 텍스트를 가운데 정렬
-  //   justifyContent: 'center',
-  //   width: 80,
-  //   height: 80,              // 충분한 공간을 주어 텍스트와 이미지 간의 여유를 추가
-  //   backgroundColor: '#ffc484',
-  //   borderRadius: 40,
-  //   marginBottom: 10,         // 텍스트와 이미지 사이의 여유 공간 추가
-  // },
-
-  circleImage: {
-    width: 60,
-    height: 60,
-    overflow: 'hidden',
+  text: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
-
-  // circleText: {
-  //   marginTop: 10,            // 이미지와 텍스트 사이의 간격을 조정
-  //   textAlign: 'center',      // 텍스트를 가운데 정렬
-  //   fontSize: 14,
-  //   fontWeight: '600',
-  //   color: '#2c2b2b',
-  // },
+  
 });
+
 
 export default commonStyles;
