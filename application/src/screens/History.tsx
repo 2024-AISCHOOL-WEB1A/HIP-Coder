@@ -21,11 +21,11 @@ const History = () => {
 
   const scanlist = async (page) => {
     if ((isLoading && page === 1) || isFetchingMore || !hasMoreData) return;
-
+  
     try {
       if (page === 1) setIsLoading(true);
       else setIsFetchingMore(true);
-
+  
       const accessToken = await AsyncStorage.getItem('accessToken');
       if (!accessToken) {
         Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
@@ -33,7 +33,7 @@ const History = () => {
         ]);
         return;
       }
-
+  
       const res = await api.post(
         '/scan/scanlist',
         { page, limit: ITEMS_PER_PAGE },
@@ -45,7 +45,7 @@ const History = () => {
           withCredentials: true
         }
       );
-
+  
       if (res.data && Array.isArray(res.data.message)) {
         const scanItems = res.data.message.map(item => ({
           id: item.SCAN_ID.toString(),
@@ -53,9 +53,10 @@ const History = () => {
           type: item.QR_CAT === 'QR' ? 'QR 코드' : item.QR_CAT === 'IMG' ? 'QR 이미지' : 'URL',
           status: item.SCAN_RESULT === 'G' ? '클린 URL' : '악성 URL',
           content: item.SCAN_URL,
-          imageUrl: item.QR_CAT === 'IMG' ? 'path/to/your/image' : undefined
+          // 'imageUrl'을 동적으로 가져오기
+          imageUrl: item.IMAGE_URL ? item.IMAGE_URL : 'https://via.placeholder.com/150'
         }));
-
+  
         if (page === 1) {
           setHistoryData(scanItems);
         } else {
@@ -65,9 +66,9 @@ const History = () => {
             return uniqueData;
           });
         }
-
+  
         setHasMoreData(scanItems.length === ITEMS_PER_PAGE);
-        
+  
         if (res.data.totalCount) {
           setTotalCount(res.data.totalCount);
         }
@@ -83,6 +84,7 @@ const History = () => {
       setIsFetchingMore(false);
     }
   };
+  
 
   useEffect(() => {
     scanlist(1);
@@ -132,18 +134,6 @@ const History = () => {
   };
 
   const renderContentPreview = (item) => {
-    if (item.type === 'QR 이미지' && item.imageUrl) {
-      return (
-        <View style={styles.previewContainer}>
-          <Image 
-            source={{ 
-              uri: item.imageUrl || 'https://via.placeholder.com/150'
-            }} 
-            style={styles.previewImage}
-          />
-        </View>
-      );
-    }
     if (item.content) {
       return (
         <Text style={styles.contentPreview} numberOfLines={1}>
@@ -212,21 +202,25 @@ const History = () => {
           <Text style={styles.description}>QR코드 / URL / 이미지 검사 결과를 확인하세요.</Text>
         </View>
         <View style={styles.separator} />
-        <FlatList
-          data={historyData}
-          renderItem={renderItem}
-          keyExtractor={(item, index) => `${item.id}-${index}`}
-          contentContainerStyle={styles.listContainer}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={<Text style={styles.emptyText}>검사 이력이 없습니다.</Text>}
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
-          ListFooterComponent={
-            (isLoading || isFetchingMore) && hasMoreData ? 
-              <ActivityIndicator size="large" color="#5A9FFF" /> 
-              : null
-          }
-        />
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#5A9FFF" />
+        ) : (
+          <FlatList
+            data={historyData}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => `${item.id}-${index}`}
+            contentContainerStyle={styles.listContainer}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={<Text style={styles.emptyText}>검사 이력이 없습니다.</Text>}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={
+              isFetchingMore && hasMoreData ? 
+                <ActivityIndicator size="large" color="#5A9FFF" /> 
+                : null
+            }
+          />
+        )}
       </View>
 
       {/* 하단 네비게이션 바 추가 */}
@@ -323,12 +317,6 @@ const styles = StyleSheet.create({
   previewContainer: {
     marginTop: 4,
     marginBottom: 4,
-  },
-  previewImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
-    backgroundColor: '#F5F5F5', 
   },
   contentPreview: {
     fontSize: 12,
