@@ -21,7 +21,7 @@ const UrlCheck: React.FC<Props> = () => {
       const token = await AsyncStorage.getItem('token');
 
       const response = await axios.post(`${FLASK_URL}/scan`,{
-        url: 'naver.com',  // 예시 데이터
+        url : inputUrl,
         category: 'URL',
       }, {
         headers: {
