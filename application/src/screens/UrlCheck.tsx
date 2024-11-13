@@ -18,7 +18,7 @@ const UrlCheck: React.FC<Props> = () => {
 
   const checkUrlSafety = async (inputUrl: string) => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem('accessToken');
 
       const response = await axios.post(`${FLASK_URL}/scan`,{
         url : inputUrl,

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { PermissionsAndroid, Alert, BackHandler, Linking } from 'react-native';
+import { Alert, BackHandler, ToastAndroid, NativeModules, Linking } from 'react-native';
+import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import api from './axios';
-import { useCsrf } from './context/CsrfContext'; // CsrfProvider는 이미 최상위에서 감스리고 있으니로 useCsrf만 사용
+import { useCsrf } from './context/CsrfContext';
 
-// 각 화면들 import
-import IntroScreen from './src/screens/IntroScreen'; // IntroScreen 추가
+import IntroScreen from './src/screens/IntroScreen';
 import Home from './src/screens/Home';
 import Join from './src/screens/Join';
 import Login from './src/screens/Login';
@@ -16,57 +16,117 @@ import Test from './src/screens/Test';
 import FindId from './src/screens/FindId';
 import FindPw from './src/screens/FindPw';
 import GalleryQrScan from './src/screens/GalleryQrScan';
-import History from './src/screens/History'; 
+import History from './src/screens/History';
 import TermsScreen from './src/screens/TermsScreen';
 import Report from './src/screens/Report';
 
 const Stack = createStackNavigator();
+const { ExitAppModule } = NativeModules; // 네이티브 모듈 가져오기
 
-const App = () => {
+const App: React.FC = () => {
   const { csrfToken, setCsrfToken } = useCsrf();
+  const backPressCount = useRef(0);
+  const [isAlertVisible, setIsAlertVisible] = useState(false); // 경고창 플래그
+  const [hasRequestedPermissionBefore, setHasRequestedPermissionBefore] = useState(false); // 최초 권한 요청 여부 추적
 
-  const openAppSettings = () => {
-    Alert.alert(
-      "권한 필요",
-      "이 앱은 필수 권한이 거부되었습니다. 앱 설정에서 지정권한을 허용해주세요.",
-      [
-        { text: "취소", style: "cancel" },
-        { text: "설정으로 이동", onPress: () => Linking.openSettings() }
-      ]
-    );
-  };
-
-  const requestStoragePermissions = async () => {
-    console.log('권한 요청 시작');
-
+  // 카메라 권한 요청 함수
+  const requestCameraPermission = async (): Promise<boolean> => {
     try {
-      const granted = await PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-      ]);
-
-      if (
-        granted['android.permission.WRITE_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.GRANTED &&
-        granted['android.permission.READ_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.GRANTED
-      ) {
-        // 권한이 허용됨
-      } else if (
-        granted['android.permission.WRITE_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN ||
-        granted['android.permission.READ_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN
-      ) {
-        openAppSettings();
-      } else {
-        Alert.alert(
-          '권한 거부',
-          '저장소 접근 권한이 거부되었습니다. 이 앱은 권한이 없으면 실행할 수 없습니다.',
-          [{ text: '확인', onPress: () => BackHandler.exitApp() }]
-        );
+      const result = await check(PERMISSIONS.ANDROID.CAMERA);
+      if (result === RESULTS.GRANTED) {
+        console.log('카메라 권한이 이미 허용됨.');
+        return true;
+      } else if (result === RESULTS.BLOCKED || result === RESULTS.DENIED) {
+        if (hasRequestedPermissionBefore) {
+          // 이미 권한을 거부한 상태라면 설정 이동 또는 종료 옵션 제공
+          if (!isAlertVisible) {
+            setIsAlertVisible(true);
+            Alert.alert(
+              '권한 필요',
+              '카메라 권한이 필요합니다. 권한을 허용하려면 설정으로 이동해 주세요.',
+              [
+                {
+                  text: '종료',
+                  onPress: () => {
+                    console.log('사용자가 종료를 선택했습니다.');
+                    setIsAlertVisible(false);
+                    ExitAppModule.exitApp(); // 앱 종료
+                  },
+                },
+                {
+                  text: '설정으로 이동',
+                  onPress: () => {
+                    setIsAlertVisible(false);
+                    Linking.openSettings(); // 설정 페이지로 이동
+                    ExitAppModule.exitApp(); // 설정 페이지로 이동 후 앱 종료
+                  },
+                },
+              ],
+              { cancelable: false }
+            );
+          }
+          return false;
+        } else {
+          // 최초 권한 요청 시
+          const requestResult = await request(PERMISSIONS.ANDROID.CAMERA);
+          console.log('카메라 권한 요청 결과:', requestResult);
+          if (requestResult !== RESULTS.GRANTED) {
+            // 사용자가 권한 거부한 경우 이후 실행부터는 설정 및 종료 옵션만 제공
+            setHasRequestedPermissionBefore(true);
+            setIsAlertVisible(true);
+            Alert.alert(
+              '권한 거부됨',
+              '카메라 권한을 거부하셨습니다. 카메라 권한이 없으면 앱을 사용할 수 없습니다.',
+              [
+                {
+                  text: '종료',
+                  onPress: () => {
+                    console.log('사용자가 종료를 선택했습니다.');
+                    setIsAlertVisible(false);
+                    ExitAppModule.exitApp(); // 앱 종료
+                  },
+                },
+                {
+                  text: '설정으로 이동',
+                  onPress: () => {
+                    setIsAlertVisible(false);
+                    Linking.openSettings(); // 설정 페이지로 이동
+                    ExitAppModule.exitApp(); // 설정 페이지로 이동 후 앱 종료
+                  },
+                },
+              ],
+              { cancelable: false }
+            );
+            return false;
+          }
+          setHasRequestedPermissionBefore(true); // 권한 요청을 시도했음을 기록
+          return requestResult === RESULTS.GRANTED;
+        }
       }
     } catch (err) {
-      console.warn('권한 요청 실패:', err);
+      console.warn('카메라 권한 요청 실패:', err);
+      // 오류 발생 시 안내 메시지 추가
+      if (!isAlertVisible) {
+        setIsAlertVisible(true);
+        Alert.alert(
+          '오류 발생',
+          '권한 요청 중 문제가 발생했습니다. 다시 시도해 주세요.',
+          [
+            {
+              text: '확인',
+              onPress: () => {
+                console.log('오류 확인');
+                setIsAlertVisible(false);
+              },
+            },
+          ]
+        );
+      }
+      return false;
     }
   };
 
+  // CSRF 토큰 가져오는 함수
   const fetchCsrfToken = async () => {
     try {
       const response = await api.get('/config/get-csrf-token', { withCredentials: true });
@@ -79,11 +139,39 @@ const App = () => {
 
   useEffect(() => {
     const checkPermissions = async () => {
-      await requestStoragePermissions(); // 권한 요청
-      fetchCsrfToken(); // CSRF 토큰 가져오기
+      // 카메라 권한 요청
+      const cameraPermissionGranted = await requestCameraPermission();
+      if (cameraPermissionGranted) {
+        fetchCsrfToken(); // 권한이 허용된 경우 CSRF 토큰 가져오기
+      }
     };
 
     checkPermissions();
+
+    // 뒤로가기 버튼 이벤트 설정
+    const backAction = () => {
+      if (backPressCount.current === 0) {
+        ToastAndroid.show('한 번 더 누르면 종료됩니다.', ToastAndroid.SHORT);
+        backPressCount.current += 1;
+
+        // 2초 내에 두 번째로 뒤로가기를 누르지 않으면 카운터 초기화
+        setTimeout(() => {
+          backPressCount.current = 0;
+        }, 2000);
+
+        return true; // 기본 뒤로가기 동작을 막음
+      } else if (backPressCount.current === 1) {
+        ExitAppModule.exitApp();
+        return true;
+      }
+      return false;
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+    return () => {
+      backHandler.remove();
+    };
   }, []);
 
   return (
