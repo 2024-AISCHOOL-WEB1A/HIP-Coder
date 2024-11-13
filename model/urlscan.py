@@ -28,8 +28,23 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 urlscan_bp = Blueprint('urlscan', __name__)
 
 # 신뢰 URL 로드
-trust_url = pd.read_csv('./data_with_trust_url.csv')
-trust_urls = trust_url[trust_url['type'] == 'trust']['url'].values
+def load_trust_urls_from_db():
+    connection =  db_con()
+    
+    try:
+        query = "SELECT URL FROM SAFE_SITE WHERE SAFE_TYPE = 'G'"
+        trust_urls_df = pd.read_sql(query, connection)
+        num_urls = len(trust_urls_df)
+        logging.info(f"db에서 신뢰 URL {num_urls}개를 로드했습니다.")
+        return trust_urls_df['URL'].values
+    except Exception as e:
+        print("데이터베이스에서 신뢰 URL을 로드하는 중 오류 발생:", e)
+        return []
+    finally:
+        connection.close()
+
+
+trust_urls = load_trust_urls_from_db()
 
 trusted_tlds = {
     '.com', '.org', '.net', '.gov', '.edu', '.mil', '.int',
@@ -45,6 +60,8 @@ model_path = os.path.join(os.path.dirname(__file__), 'ensemble_model_with_vector
 vectorizer, ensemble_model = joblib.load(model_path)
 
 def extract_domain(url):
+    if not url.startswith(('http://', 'https://')):
+        url = 'http://' + url
     parsed_url = urlparse(url)
     domain = parsed_url.netloc
     if domain.startswith('www.'):
@@ -75,7 +92,16 @@ def extract_features(url):
 
 # URL을 예측하는 함수
 def predict_url(url):
+    prediction = None
     try:
+        domain = extract_domain(url)
+        logging.info(f"추출된 도메인: {domain}")
+
+        
+        if domain in trust_urls:
+            logging.info(f"URL '{url}'는 신뢰할 수 있는 도메인 '{domain}'과 일치하므로 'good'으로 분류됩니다.")
+            return 'good'   
+        
         new_url = [url]
         new_feature_df = pd.DataFrame(new_url, columns=['url']).apply(lambda x: extract_features(x['url']), axis=1)
         new_vec = vectorizer.transform(new_url)
@@ -179,6 +205,7 @@ def update_count_logs(scan_result):
 
 @urlscan_bp.route('/scan', methods=['POST'])
 def scanurl():
+
     print("Headers:", request.headers)
     auth_header = request.headers.get("Authorization")
     print("Received Authorization header:", auth_header)

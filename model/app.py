@@ -20,8 +20,6 @@ CORS(app, resources={r"/*": {"origins": "*"}}, expose_headers=["Authorization"],
 app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY')  # JWTManager와 호환되도록 JWT_SECRET_KEY 설정
 jwt = JWTManager(app)
 
-app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY')
-jwt = JWTManager(app)
 
 # 블루프린트 등록
 app.register_blueprint(urlscan_bp)

@@ -141,7 +141,6 @@ const styles = StyleSheet.create({
     color: '#0D47A1',
     textAlign: 'left',
     fontFamily: 'Pretendard-Bold',
-    marginLeft: 15,
   },
   iconContainer: {
     padding: 10,
