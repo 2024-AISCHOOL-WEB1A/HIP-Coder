@@ -1,87 +1,118 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NativeModules, NativeEventEmitter, View, Text, Alert } from 'react-native';
-import { requireNativeComponent } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { FLASK_URL } from '@env';
-import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-
 const { CameraModule } = NativeModules;
-const PreviewView = requireNativeComponent('PreviewView');
+const eventEmitter = new NativeEventEmitter(CameraModule);
 
 const QRScannerScreen = () => {
-  const navigation = useNavigation(); // 네비게이션 객체 가져오기
+  const navigation = useNavigation();
   const [isCameraActive, setCameraActive] = useState(false);
-  const [isScanning, setScanning] = useState(false); // 스캔 상태를 추적하는 플래그
-  const eventEmitter = useRef(new NativeEventEmitter(CameraModule)).current;
+
   useEffect(() => {
-    const scanSuccessListener = eventEmitter.addListener('QRScanSuccess', (data) => {
-      console.log("Received data from QRScanSuccess event:", data);
-      
-      if (!isScanning) { // 스캔이 활성화되지 않은 경우에만 처리
-        const url = data.result || ''; // URL 추출
-        if (url) {
-          setScanning(true); // 스캔 중 상태로 변경
-          Alert.alert('QR Code Scanned', `URL: ${url}`);
-          sendUrlToBackend(url); // 스캔된 URL을 서버로 전송
-        } else {
-          Alert.alert('No URL detected');
-        }
-      }
-    });
+    console.log("useEffect: 이벤트 리스너 설정 중...");
 
-    const cameraCloseListener = eventEmitter.addListener('CameraCloseEvent', (data) => {
-      console.log("Camera closed event received:", data);
-      setCameraActive(false); // 카메라 비활성화
-      navigation.navigate('Home'); // 홈으로 이동
-    });
+    const handleQRScanSuccess = (data) => {
+      const url = data.result;
+      console.log("handleQRScanSuccess: QR 코드 스캔 성공 - URL:", url);
+      Alert.alert('QR 코드 스캔', `URL: ${url}`);
+      sendUrlToBackend(url);
+    };
 
-    // 컴포넌트가 마운트될 때 카메라 시작
+    const handleCameraClose = () => {
+      console.log("handleCameraClose: 카메라 종료 이벤트 수신");
+      setCameraActive(false);
+      navigation.navigate('Home');
+    };
+
+    const qrScanListener = eventEmitter.addListener('QRScanSuccess', handleQRScanSuccess);
+    const cameraCloseListener = eventEmitter.addListener('CameraCloseEvent', handleCameraClose);
+
+    console.log("useEffect: 이벤트 리스너 추가 완료");
+
+    // 카메라 자동 시작
     startScan();
 
     return () => {
-      scanSuccessListener.remove();
-      cameraCloseListener.remove(); // 리스너 정리
+      console.log("useEffect Cleanup: 모든 이벤트 리스너 제거 중...");
+      qrScanListener.remove();
+      cameraCloseListener.remove();
+      stopScan();
     };
-  }, [eventEmitter, isScanning, navigation]); // navigation 추가
+  }, []); // 한 번만 실행
 
   const sendUrlToBackend = async (url) => {
+    console.log("sendUrlToBackend: 서버로 URL 전송 시도 - URL:", url);
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.post(`${FLASK_URL}/scan`,{
-        url: 'naver.com',  // 예시 데이터
+      console.log("sendUrlToBackend: AsyncStorage에서 토큰 가져오기 성공 - 토큰:", token);
+      const response = await axios.post(`${FLASK_URL}/scan`, {
+        url: url,
         category: 'QR',
       }, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      const { status, message } = response.data;
-      Alert.alert('URL Classification', message);
+      const { message } = response.data;
+      console.log("sendUrlToBackend: 서버 응답 메시지:", message);
+      Alert.alert('URL 분류 결과', message);
     } catch (error) {
-      console.error('Error sending URL:', error);
-      Alert.alert('Error', 'QR 코드 URL을 분류하는 중 오류가 발생했습니다.');
+      console.error('sendUrlToBackend: 서버 전송 오류:', error);
+      Alert.alert('오류', 'QR 코드 URL을 분류하는 중 오류가 발생했습니다.');
     }
   };
 
-  const startScan = () => {
-    setCameraActive(true);
-    setScanning(false); // 스캔 상태 초기화
-    CameraModule?.startCamera();
+  const startScan = async () => {
+    if (isCameraActive) {
+      console.log("startScan: 카메라가 이미 활성화 상태입니다.");
+      return;
+    }
+
+    try {
+      console.log("startScan: 카메라 초기화 시도");
+      await CameraModule.resetCamera();
+      console.log("startScan: 카메라 초기화 완료");
+
+      console.log("startScan: 카메라 시작 시도");
+      await CameraModule.startCamera();
+      console.log("startScan: 카메라 시작 성공");
+      setCameraActive(true);
+    } catch (error) {
+      console.error("startScan: 카메라 시작 오류:", error);
+      Alert.alert("오류", "카메라를 시작하는 중 오류가 발생했습니다.");
+    }
   };
 
-  const cancelScan = () => {
-    CameraModule?.cancelScan(); // 카메라 종료 호출
-    setCameraActive(false); // 카메라 취소 시 비활성화
-    setScanning(false); // 스캔 상태 초기화
+  const stopScan = async () => {
+    if (!isCameraActive) {
+      console.log("stopScan: 카메라가 이미 비활성화 상태입니다.");
+      return;
+    }
+
+    try {
+      console.log("stopScan: 카메라 종료 시도");
+      await CameraModule.cancelScan();
+      console.log("stopScan: 카메라 종료 성공");
+      setCameraActive(false);
+    } catch (error) {
+      console.error("stopScan: 카메라 종료 오류:", error);
+      Alert.alert("오류", "카메라를 종료하는 중 오류가 발생했습니다.");
+    }
   };
+
+  console.log("QRScannerScreen: 컴포넌트 렌더링 중");
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      {isCameraActive && <PreviewView style={{ flex: 1, width: '100%' }} />}
-      <Text>QR 코드를 스캔 중입니다...</Text>
+      {isCameraActive ? (
+        <Text>QR 코드를 스캔 중입니다...</Text>
+      ) : (
+        <Text>카메라가 비활성화되었습니다.</Text>
+      )}
     </View>
   );
 };

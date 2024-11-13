@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.util.Log;
 import android.util.Size;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
@@ -30,7 +29,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.common.util.concurrent.ListenableFuture;
-
+import android.os.Looper;
 import java.util.concurrent.ExecutionException;
 
 public class CameraModule extends ReactContextBaseJavaModule {
@@ -41,6 +40,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
     private BarcodeScanner barcodeScanner;
     private boolean isScanning = false;
     private Button closeButton;
+    private boolean isCameraStopped = false;
 
     public CameraModule(ReactApplicationContext context) {
         super(context);
@@ -56,20 +56,21 @@ public class CameraModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void startCamera() {
-        Activity activity = getCurrentActivity();
-        if (activity != null) {
-            reactContext.runOnUiQueueThread(() -> {
-                // 카메라 프리뷰 설정
-                setupPreviewView(activity);
+        isCameraStopped = false;
+        isScanning = false;
 
-                // Close Camera 버튼 설정
+        new Handler(Looper.getMainLooper()).post(() -> {
+            Activity activity = getCurrentActivity();
+            if (activity != null) {
+                setupPreviewView(activity);
                 setupCloseButton(activity);
 
-                // 나머지 카메라 초기화 코드
                 ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(reactContext);
                 cameraProviderFuture.addListener(() -> {
                     try {
                         ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+                        cameraProvider.unbindAll(); // 카메라 시작 전에 기존의 바인딩 모두 해제
+
                         Preview preview = new Preview.Builder().build();
                         preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
@@ -87,16 +88,15 @@ public class CameraModule extends ReactContextBaseJavaModule {
                         });
 
                         CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
-                        cameraProvider.unbindAll();
                         cameraProvider.bindToLifecycle((LifecycleOwner) activity, cameraSelector, preview, imageAnalysis);
                     } catch (ExecutionException | InterruptedException e) {
                         Log.e(TAG, "카메라 초기화 중 오류 발생: ", e);
                     }
                 }, ContextCompat.getMainExecutor(reactContext));
-            });
-        } else {
-            Log.e(TAG, "현재 Activity가 null입니다.");
-        }
+            } else {
+                Log.e(TAG, "현재 Activity가 null입니다.");
+            }
+        });
     }
 
     private void setupPreviewView(Activity activity) {
@@ -136,7 +136,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
             // 버튼을 중앙에 배치
             closeButton.setX((screenWidth - closeButton.getWidth()) / 2f);
 
-            // 하단에서 조금 위로 이동 (여백 조정)
+            // 하단에서 약간 위로 이동 (여백 조정)
             closeButton.setY(screenHeight - closeButton.getHeight() - 100); // 100 픽셀 위로 조정
         });
 
@@ -146,67 +146,65 @@ public class CameraModule extends ReactContextBaseJavaModule {
     }
 
     private void stopCamera() {
-        if (previewView != null) {
-            ViewGroup rootView = (ViewGroup) previewView.getParent();
-            if (rootView != null) {
-                rootView.removeView(previewView); // 프리뷰 제거
-            }
-            previewView = null; // previewView 초기화
-        } else {
-            Log.e(TAG, "Preview view is null, cannot remove.");
+        if (isCameraStopped) {
+            return; // 중복 호출 방지
         }
-
-        // Close Camera 버튼 제거
-        if (closeButton != null) {
-            ViewGroup rootView = (ViewGroup) closeButton.getParent();
-            if (rootView != null) {
-                rootView.removeView(closeButton); // 버튼 제거
-            }
-            closeButton = null; // closeButton 초기화
-        } else {
-            Log.e(TAG, "Close button is null, cannot remove.");
-        }
-
-        // 바코드 스캐너 리소스 해제 및 상태 초기화
-        releaseBarcodeScanner();
-
+        isCameraStopped = true;
         isScanning = false; // 스캔 상태 초기화
-        Log.d(TAG, "Camera stopped and resources released."); // 로그 출력
 
-        // 이벤트 전송
-        WritableMap params = Arguments.createMap();
-        params.putString("message", "CameraClosed");
-        sendEvent("CameraCloseEvent", params); // 이벤트 전송
+        new Handler(Looper.getMainLooper()).post(() -> {
+            if (previewView != null) {
+                ViewGroup rootView = (ViewGroup) previewView.getParent();
+                if (rootView != null) {
+                    rootView.removeView(previewView);
+                }
+                previewView = null;
+            }
+
+            if (closeButton != null) {
+                ViewGroup rootView = (ViewGroup) closeButton.getParent();
+                if (rootView != null) {
+                    rootView.removeView(closeButton);
+                }
+                closeButton = null;
+            }
+
+            releaseBarcodeScanner();
+
+            WritableMap params = Arguments.createMap();
+            params.putString("message", "CameraClosed");
+            sendEvent("CameraCloseEvent", params);
+        });
     }
 
     private void releaseBarcodeScanner() {
         if (barcodeScanner != null) {
             barcodeScanner.close();
-            barcodeScanner = null; // 스캐너 초기화
+            barcodeScanner = null;
         }
     }
 
     @ReactMethod
     public void cancelScan() {
-        stopCamera(); // 카메라를 종료하고 리소스를 해제합니다.
+        stopCamera();
+    }
+
+    @ReactMethod
+    public void resetCamera() {
+        Log.d(TAG, "resetCamera: 카메라 초기화 중...");
+        isCameraStopped = false;
+        isScanning = false;
+        barcodeScanner = BarcodeScanning.getClient();
+        Log.d(TAG, "resetCamera: 카메라 초기화 완료");
     }
 
     private void scanQRCode(ImageProxy image) {
-        if (previewView == null) {
-            // previewView가 null일 경우 스캔을 중단
-            image.close();
-            return;
-        }
-
-        Bitmap bitmap = previewView.getBitmap();
-        if (bitmap == null) {
-            // bitmap이 null일 경우 스캔을 중단
-            image.close();
+        if (image == null) {
             return;
         }
 
         try {
-            InputImage inputImage = InputImage.fromBitmap(bitmap, image.getImageInfo().getRotationDegrees());
+            InputImage inputImage = InputImage.fromMediaImage(image.getImage(), image.getImageInfo().getRotationDegrees());
             barcodeScanner.process(inputImage)
                     .addOnSuccessListener(barcodes -> {
                         if (!isScanning) {
@@ -214,15 +212,14 @@ public class CameraModule extends ReactContextBaseJavaModule {
                                 String qrText = barcode.getRawValue();
                                 Log.d(TAG, "QR Code detected: " + qrText);
 
-                                // QR 코드 스캔 성공 이벤트 전송
                                 WritableMap params = Arguments.createMap();
                                 params.putString("result", qrText);
                                 sendEvent("QRScanSuccess", params);
 
-                                isScanning = true; // 스캔 중 상태로 변경
+                                isScanning = true;
                                 new Handler().postDelayed(() -> {
-                                    isScanning = false; // 10초 후 스캔 가능
-                                }, 10000);
+                                    isScanning = false;
+                                }, 3000); // 일정 시간 동안 중복 스캔 방지 (필요에 따라 조정)
                             }
                         }
                     })
@@ -230,18 +227,11 @@ public class CameraModule extends ReactContextBaseJavaModule {
                         Log.e(TAG, "QR code scan error", e);
                     })
                     .addOnCompleteListener(task -> {
-                        // 반드시 image.close() 호출
                         image.close();
-                        if (bitmap != null) {
-                            bitmap.recycle(); // 비트맵 메모리 해제
-                        }
                     });
         } catch (Exception e) {
             Log.e(TAG, "Error processing image", e);
-            image.close(); // 리소스 해제
-            if (bitmap != null) {
-                bitmap.recycle(); // 비트맵 메모리 해제
-            }
+            image.close();
         }
     }
 

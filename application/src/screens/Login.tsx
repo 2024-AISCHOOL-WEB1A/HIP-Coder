@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, Alert } from 'react-native';
+import { View, TextInput, Text, StyleSheet, Alert, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../components/IJButton';
 import Header from '../components/Header';
@@ -31,11 +31,9 @@ const Login: React.FC<Props> = () => {
         await AsyncStorage.setItem('username', userName); // 사용자 이름을 AsyncStorage에 저장
         console.log('AsyncStorage에 저장된 token', await AsyncStorage.getItem('accessToken'));
 
-        // Alert.alert('알림' ,'환영합니다');
         setIsLoggedIn(true);
 
         if (temporaryPassword) {
-          // 임시 비밀번호로 로그인한 경우 비밀번호 변경을 유도하는 화면으로 이동
           Alert.alert('알림', '임시 비밀번호로 로그인되었습니다. 비밀번호를 변경해 주세요.');
           navigation.navigate('ChangePassword');
         } else {
@@ -69,9 +67,14 @@ const Login: React.FC<Props> = () => {
       <Header onBackPress={() => navigation.goBack()} title="" />
       <View style={styles.innerContainer}>
         <View style={styles.textContainer}>
-          <Text style={styles.header}>Welcome</Text>
-          <Text style={styles.subHeader}>Thing Q</Text>
+          <Image
+            source={require('../assets/images/ThingQFulllogo.png')} 
+            style={styles.logo}
+          />
+          <View style={styles.spacer} />
+          <Text style={styles.loginText}></Text>
         </View>
+
         <TextInput
           style={styles.input}
           placeholder="아이디"
@@ -118,22 +121,23 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   textContainer: {
-    marginTop: 25,
-    alignItems: 'flex-start',
+    alignItems: 'center',
     width: '100%',
   },
-  header: {
-    fontSize: 28,
-    color: '#0D47A1', 
-    textAlign: 'left',
-    fontFamily: 'Pretendard-Regular', 
+  logo: {
+    width: 150,
+    height: 45, 
+    resizeMode: 'contain', 
   },
-  subHeader: {
-    fontSize: 32,
-    color: '#0D47A1',  
-    paddingBottom: 40,
-    textAlign: 'left',
-    fontFamily: 'Pretendard-Bold', 
+  spacer: {
+    height: 60,
+  },
+  loginText: {
+    fontSize: 24,
+    color: '#3182f6', 
+    fontFamily: 'Pretendard-Bold',
+    paddingBottom: 10, 
+    marginTop: 20,
   },
   input: {
     width: '100%',
@@ -145,7 +149,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     backgroundColor: '#FFFFFF',
     fontFamily: 'Pretendard-Regular',
-    fontSize: 16,
+    fontSize: 14,
     color: '#000000',
   },
   buttonContainer: {

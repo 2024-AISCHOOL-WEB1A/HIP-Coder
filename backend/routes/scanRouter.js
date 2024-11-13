@@ -87,7 +87,7 @@ router.get('/checkurl', async (req, res) => {
 router.post('/scanlist', authenticateToken, (req, res) => {
     const user_idx = req.userId;
     log(user_idx)
-    const sql = 'SELECT * FROM SCAN_QR WHERE USER_IDX = ?'
+    const sql = 'SELECT * FROM SCAN_QR WHERE USER_IDX = ? ORDER BY SCAN_DATE DESC'
 
     conn.query(sql, [user_idx], (err, r) => {
         if (err) {

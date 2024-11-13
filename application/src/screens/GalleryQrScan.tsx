@@ -16,34 +16,34 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation, route }) => {
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
 
   useEffect(() => {
-    if (route.params?.imageUri) {
+    if (route.params && route.params.imageUri) {
       setSelectedImageUri(route.params.imageUri);
     }
   }, [route.params]);
 
-  // 갤러리에서 이미지 선택
-  const selectImageFromGallery = () => {
-    const options = {
-      mediaType: 'photo',
-      quality: 1,
-    };
-
-    launchImageLibrary(options, (response: ImagePickerResponse) => {
-      if (response.didCancel) {
-        console.log('이미지 선택이 취소되었습니다.');
-        navigation.goBack();
-        return;
-      } else if (response.errorMessage) {
-        console.log('에러: ', response.errorMessage);
-      } else if (response.assets && response.assets.length > 0) {
-        const uri = response.assets[0].uri;
-        if (uri) {
-          console.log('선택한 이미지 URI:', uri);
-          setSelectedImageUri(uri);
-        }
-      }
-    });
+// 갤러리에서 이미지 선택
+const selectImageFromGallery = () => {
+  const options = {
+    mediaType: 'photo',
+    quality: 1,
   };
+
+  launchImageLibrary(options, (response: ImagePickerResponse) => {
+    if (response.didCancel) {
+      console.log('이미지 선택이 취소되었습니다.');
+      // 이미지 선택이 취소되었을 때, navigation.goBack()을 호출하지 않고 페이지를 유지
+      return;  // navigation.goBack() 제거
+    } else if (response.errorMessage) {
+      console.log('에러: ', response.errorMessage);
+    } else if (response.assets && response.assets.length > 0) {
+      const uri = response.assets[0].uri;
+      if (uri) {
+        console.log('선택한 이미지 URI:', uri);
+        setSelectedImageUri(uri);
+      }
+    }
+  });
+};
 
   // 서버에 이미지 업로드
   const uploadImageToBackend = async () => {
@@ -51,48 +51,64 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation, route }) => {
       Alert.alert('이미지를 먼저 선택하세요!');
       return;
     }
-
+  
     const formData = new FormData();
-    const uri = selectedImageUri.replace("file://", "");
     formData.append('photo', {
-      uri,
+      uri: selectedImageUri,
       type: 'image/jpeg',
-      name: `photo.${uri.split('.').pop()}` as string,
-    });
-
+      name: `photo.${selectedImageUri.split('.').pop()}`,
+    } as any);
+  
     const accessToken = await AsyncStorage.getItem('accessToken');
     const headers = {
       'Content-Type': 'multipart/form-data',
       ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}),
     };
-
+  
     console.log('Authorization 헤더에 추가된 JWT 토큰:', headers.Authorization);
-
+  
     try {
+      // Flask 서버로 이미지 업로드
       const response = await axios.post(
         `${FLASK_URL}/test`,
         formData,
         { headers }
       );
-
+  
       console.log('서버 응답 데이터:', response.data);
-
-      if (response.data?.status === 'good') {
-        Alert.alert('정상', '이 QR 이미지는 안전합니다.', [
-          { text: 'OK', onPress: () => navigation.navigate('Home') }
-        ]);
-      } else if (response.data?.status === 'bad') {
-        Alert.alert('위험', '이 QR 이미지는 안전하지 않을 수 있습니다.', [
-          { text: 'OK', onPress: () => navigation.navigate('Home') }
-        ]);
+  
+      // 서버 응답 데이터 구조 확인
+      if (response.data) {
+        console.log('서버 응답 내 메시지:', response.data.message);
+        console.log('서버 응답 내 상태:', response.data.status);
+      }
+  
+      // 서버 응답에 따른 결과 처리
+      if (response.data && response.data.status) {
+        if (response.data.status === 'good') {
+          Alert.alert('정상', '이 QR 이미지는 안전합니다.', [
+            { text: 'OK', onPress: () => navigation.navigate('Home') }
+          ]);
+        } else if (response.data.status === 'bad') {
+          Alert.alert('위험', '이 QR 이미지는 안전하지 않을 수 있습니다.', [
+            { text: 'OK', onPress: () => navigation.navigate('Home') }
+          ]);
+        } else {
+          Alert.alert('업로드 실패', '예측 결과를 확인할 수 없습니다.', [
+            { text: 'OK', onPress: () => navigation.navigate('Home') }
+          ]);
+        }
       } else {
-        Alert.alert('업로드 실패', '예측 결과를 확인할 수 없습니다.', [
+        Alert.alert('업로드 실패', '서버로부터 예상하지 못한 응답을 받았습니다.', [
           { text: 'OK', onPress: () => navigation.navigate('Home') }
         ]);
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error('네트워크 오류 발생:', error.message);
+        Alert.alert('네트워크 오류', `서버에 연결할 수 없습니다. 오류 메시지: ${error.message}`, [
+          { text: 'OK', onPress: () => navigation.navigate('Home') }
+        ]);
       } else {
         console.error('알 수 없는 오류 발생:', error);
         Alert.alert('업로드 실패', '이미지 업로드 중 알 수 없는 오류가 발생했습니다.', [
