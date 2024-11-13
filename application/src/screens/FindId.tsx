@@ -114,7 +114,7 @@ const FindId: React.FC = () => {
     return (
         <View style={commonStyles.container}>
             <View style={commonStyles.headerContainer}>
-                <Header onBackPress={() => {
+                <Header title="ID 찾기" onBackPress={() => {
                     // console.log('Back button pressed');
                     navigation.goBack();
                 }} />
