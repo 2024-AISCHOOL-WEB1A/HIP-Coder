@@ -72,7 +72,7 @@ const Login: React.FC<Props> = () => {
             style={styles.logo}
           />
           <View style={styles.spacer} />
-          <Text style={styles.loginText}>Welcome !</Text>
+          <Text style={styles.loginText}></Text>
         </View>
 
         <TextInput
