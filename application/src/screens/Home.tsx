@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -18,103 +18,91 @@ const Home: React.FC = () => {
 
   // 로그인 상태 확인 (토큰)
   const checkIsLogin = async () => {
-    const accessToken = await AsyncStorage.getItem('accessToken')
-    setIsLoggedIn(!!accessToken)
-  }
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    setIsLoggedIn(!!accessToken);
+  };
 
   // 렌더링 시 로그인 상태 확인 및 카운트 데이터 가져오기
   useEffect(() => {
     checkIsLogin();
-    getCounts();  // 페이지 렌더링 시 카운트 값을 가져오는 함수 호출
+    getCounts(); // 페이지 렌더링 시 카운트 값을 가져오는 함수 호출
   }, []);
 
-  // Home 화면이 다시 포커스될 때 로그인 상태 확인
+  // Home 화면이 다시 포커스될 때 로그인 상태 및 카운트 데이터를 다시 확인
   useFocusEffect(
     React.useCallback(() => {
       checkIsLogin();
+      getCounts(); // 페이지 포커스 시 카운트 값을 다시 가져오기
     }, [])
   );
-
-  // /scan/counting API 호출하여 urlCount 및 qrCount 값을 가져오는 함수
-  const getCounts = async () => {
-    try {
-      const accessToken = await AsyncStorage.getItem('accessToken');
-      const response = await api.get('/scan/counting', {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,  // JWT 토큰 추가
-          'X-CSRF-Token': csrfToken            // CSRF 토큰 추가
-        },
-        withCredentials: true                  // 쿠키 사용을 위한 설정
-      });
-      if (response.data) {
+  // 카운트 데이터를 다시 가져오는 함수 수정
+const getCounts = async () => {
+  try {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    const response = await api.get('/scan/counting', {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`, // JWT 토큰 추가
+        'X-CSRF-Token': csrfToken                 // CSRF 토큰 추가
+      },
+      withCredentials: true                        // 쿠키 사용을 위한 설정
+    });
+    if (response.data) {
+      // 애니메이션이 재실행되도록 null로 상태 초기화 후 설정
+      setUrlCount(null);
+      setQrCount(null);
+      setTimeout(() => {
         setUrlCount(response.data.total_url_count || 0);
         setQrCount(response.data.total_qr_count || 0);
-      }
-    } catch (error: any) {
-      console.error('카운트 데이터를 가져오는 중 오류 발생:', error);
-      if (error.response && error.response.status === 403) {
-        Alert.alert('오류', '권한이 없습니다. 로그인이 필요합니다.');
-        navigation.navigate('Login' as never); // 'Login'을 'never'로 캐스팅하여 TypeScript 오류 방지
-      } else {
-        Alert.alert('오류', '카운트 데이터를 가져오는 데 실패했습니다.');
-      }
+      }, 0);
     }
-  };
+  } catch (error: any) {
+    console.error('카운트 데이터를 가져오는 중 오류 발생:', error);
+    if (error.response && error.response.status === 403) {
+      Alert.alert('오류', '권한이 없습니다. 로그인이 필요합니다.');
+      navigation.navigate('Login' as never); // 'Login'을 'never'로 캐스팅하여 TypeScript 오류 방지
+    } else {
+      Alert.alert('오류', '카운트 데이터를 가져오는 데 실패했습니다.');
+    }
+  }
+};
 
   const handleLogin = () => {
     navigation.navigate('Login' as never);
   };
 
   const handleLogout = async () => {
-    // 로그인 상태, 인풋창 초기화
     setIsLoggedIn(false);
-
-    // AsyncStorage에서 JWT 토큰 삭제
     await AsyncStorage.removeItem('accessToken');
-    // Axios 헤더 JWT 토큰 삭제
     api.defaults.headers.Authorization = null;
-
-    // AsyncStorage에서 토큰 삭제 확인
-    const accessToken = await AsyncStorage.getItem('accessToken');
-    if (!accessToken) {
-      console.log('AsyncStorage에서 JWT 토큰이 정상 삭제되었습니다.');
-    } else {
-      console.error('AsyncStorage에서 JWT 토큰 삭제 실패:', accessToken);
-    }
-    // Axios 헤더에서 토큰 삭제 확인
-    if (!api.defaults.headers.Authorization) {
-      console.log('Axios Authorization 헤더에서 JWT 토큰이 정상 삭제되었습니다.');
-    } else {
-      console.error('Axios Authorization 헤더에서 JWT 토큰 삭제 실패:', api.defaults.headers.Authorization);
-    }
   };
 
-  const getIconColor = (screen) => {
-    return navigation.isFocused(screen) ? '#3182f6' : '#9DA3B4';
-  };
-
-  // 이미지 선택 후 GalleryQrScan 화면으로 이동하는 함수
-  const handleGalleryNavigation = async () => {
+  // Home.tsx에서 handleGalleryQrScanNavigation 함수 수정
+  const handleGalleryQrScanNavigation = () => {
     const options = {
       mediaType: 'photo',
       quality: 1,
     };
 
-    // 이미지 선택 창 호출
     launchImageLibrary(options, (response: ImagePickerResponse) => {
       if (response.didCancel) {
         console.log('이미지 선택이 취소되었습니다.');
-        // 이미지가 선택되지 않았으므로 GalleryQrScan 화면으로 이동하지 않음
+        // 이미지 선택이 취소되었을 때 페이지 이동 없이 함수 종료
         return;
+      } else if (response.errorMessage) {
+        console.log('에러: ', response.errorMessage);
       } else if (response.assets && response.assets.length > 0) {
         const uri = response.assets[0].uri;
         if (uri) {
           console.log('선택한 이미지 URI:', uri);
-          // 이미지가 선택된 경우에만 GalleryQrScan 화면으로 이동
-          navigation.navigate('GalleryQrScan' as never);
+          // 이미지를 성공적으로 선택했을 때 GalleryQrScan 페이지로 이동, 선택한 이미지 URI를 함께 전달
+          navigation.navigate('GalleryQrScan' as never, { imageUri: uri } as never);
         }
       }
     });
+  };
+
+  const getIconColor = (screen) => {
+    return navigation.isFocused(screen) ? '#3182f6' : '#9DA3B4';
   };
 
   return (
@@ -134,6 +122,7 @@ const Home: React.FC = () => {
             <Text style={styles.counterTitle}>악성 URL 탐지</Text>
             <View style={styles.counterValueContainer}>
               <AnimateNumber
+                key={urlCount}  // key prop 추가
                 value={urlCount}
                 formatter={(val) => Math.floor(val).toString()}
                 timing="easeOut"
@@ -149,6 +138,7 @@ const Home: React.FC = () => {
             <Text style={styles.counterTitle}>QR 코드 검사</Text>
             <View style={styles.counterValueContainer}>
               <AnimateNumber
+                key={qrCount}  // key prop 추가
                 value={qrCount}
                 formatter={(val) => Math.floor(val).toString()}
                 timing="easeOut"
@@ -160,6 +150,7 @@ const Home: React.FC = () => {
             </View>
           </View>
         </View>
+
 
         <View style={styles.categoryContainer}>
           <TouchableOpacity style={styles.categoryButton} onPress={() => navigation.navigate('Report' as never)}>
@@ -217,13 +208,9 @@ const Home: React.FC = () => {
             </View>
           </TouchableOpacity>
 
-          {/* 갤러리에서 이미지 선택하여 검사 페이지로 이동 */}
-          <TouchableOpacity style={styles.card} onPress={handleGalleryNavigation}>
+          <TouchableOpacity style={styles.card} onPress={handleGalleryQrScanNavigation}>
             <View style={styles.cardIconContainer}>
-              <Image
-                source={require('../assets/free-icon-gallery.png')}
-                style={styles.iconImage}
-              />
+              <Image source={require('../assets/free-icon-gallery.png')} style={styles.iconImage} />
             </View>
             <View style={styles.cardTextContainer}>
               <Text style={styles.cardTitle}>QR 이미지 검사</Text>
@@ -260,7 +247,8 @@ const Home: React.FC = () => {
     </View>
   );
 };
-//
+
+// 스타일 정의는 동일
 const styles = StyleSheet.create({
   container: {
     flex: 1,
