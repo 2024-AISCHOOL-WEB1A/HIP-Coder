@@ -16,7 +16,7 @@ const Login: React.FC<Props> = () => {
   const { csrfToken } = useCsrf();
 
   const handleLogin = async () => {
-    console.log("로그인 정보:", { id, password }); // email을 id로 변경
+    console.log("로그인 정보:", { id, password });
     try {
       const res = await api.post('/user/handleLogin', {
         id: id,
@@ -26,8 +26,9 @@ const Login: React.FC<Props> = () => {
       });
       
       if (res.status === 200) {
-        const { token, temporaryPassword } = res.data;
+        const { token, temporaryPassword, userName } = res.data;
         await AsyncStorage.setItem('accessToken', token);
+        await AsyncStorage.setItem('username', userName); // 사용자 이름을 AsyncStorage에 저장
         console.log('AsyncStorage에 저장된 token', await AsyncStorage.getItem('accessToken'));
 
         // Alert.alert('알림' ,'환영합니다');

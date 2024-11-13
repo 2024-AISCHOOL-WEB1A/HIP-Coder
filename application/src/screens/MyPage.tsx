@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 16,
-    marginBottom: 14, // 모든 인풋 필드 간의 간격을 일정하게 설정
+    marginBottom: 14, 
     backgroundColor: '#FFFFFF',
     color: '#333333',
     fontFamily: 'Pretendard-Regular',
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 14, // 동일한 간격 적용
+    marginBottom: 14, 
   },
   fullInput: {
     width: '100%',

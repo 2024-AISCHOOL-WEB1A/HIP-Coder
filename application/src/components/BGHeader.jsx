@@ -45,12 +45,12 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
     <View style={styles.container}>
       {onBackPress && (
         <TouchableOpacity onPress={onBackPress} style={styles.iconContainer}>
-          <Icon name="arrow-back" size={24} color="#0D47A1" />
+          <Icon name="arrow-back" size={24} color="#ffffff" />
         </TouchableOpacity>
       )}
       <Text style={styles.title}>{title}</Text>
       <TouchableOpacity onPress={openSidebar} style={styles.iconContainer}>
-        <Icon name="menu" size={24} color="#0D47A1" />
+        <Icon name="menu" size={24} color="#ffffff" />
       </TouchableOpacity>
 
       <Modal
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
   },
   title: {
     padding: 10,
-    fontSize: 24,
+    fontSize: 20,
     color: '#ffffff',
     textAlign: 'center',
     fontFamily: 'Pretendard-Bold',
