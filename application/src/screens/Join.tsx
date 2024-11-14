@@ -7,7 +7,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
 import api from '../../axios';
 import axios from 'axios';
-import Header from '../components/BGHeader';
+import Header from '../components/Header';
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import { useCsrf } from '../../context/CsrfContext';
 
@@ -178,12 +178,12 @@ const Join: React.FC<Props> = () => {
   };
 
   return (
-    <View style={commonStyles.container}>
+    <View style={commonStyles.containerGray}>
       <View style={commonStyles.headerContainer}>
-      <Header title="회원가입" onBackPress={handleBackPress} />
+        <Header title="회원가입" onBackPress={handleBackPress} />
       </View>
       <View style={commonStyles.formContainer}>
-        <View style={commonStyles.innerContainer}>
+        <View style={commonStyles.innerContainerGray}>
           {step === 1 && (
             <> 
               <Text style={commonStyles.textGraySmall}>이용약관에 동의하시겠습니까?{'\n'}</Text>

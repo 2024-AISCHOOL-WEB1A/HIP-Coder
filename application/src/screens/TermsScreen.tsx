@@ -325,7 +325,7 @@ const termsTextAge= `
         <Text style={{ color: 'blue', textAlign: 'right', marginTop: 20 }}>닫기</Text>
       </TouchableOpacity> */}
       <TouchableOpacity style={commonStyles.fixedFooter} onPress={() => navigation.goBack()}>
-        <Text style={commonStyles.footerText}>다음</Text>
+        <Text style={commonStyles.footerText}>닫기</Text>
       </TouchableOpacity>
     </View>
   );
