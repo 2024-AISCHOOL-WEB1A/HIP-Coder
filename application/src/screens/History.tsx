@@ -34,13 +34,10 @@ const History = () => {
     navigation.navigate('Login');
   };
 
-
-
   // 컴포넌트 마운트 시 로그인 상태 확인
   useEffect(() => {
     checkIsLogin();
   }, []);
-
 
   const scanlist = async (page) => {
     if ((isLoading && page === 1) || isFetchingMore || !hasMoreData) return;
@@ -99,8 +96,9 @@ const History = () => {
       }
     } catch (error) {
       console.error('API 오류 발생:', error);
-      Alert.alert('오류', '데이터를 불러오는 중 문제가 발생했습니다.');
-      setHasMoreData(false);
+      if (page === 1) {
+        setHistoryData([]); // Clear history data on error when loading the first page
+      }
     } finally {
       setIsLoading(false);
       setIsFetchingMore(false);
@@ -109,6 +107,7 @@ const History = () => {
 
   useEffect(() => {
     checkIsLogin();
+    scanlist(1);
   }, []);
 
   const handleLoadMore = () => {
@@ -220,7 +219,7 @@ const History = () => {
 
   return (
     <View style={styles.container}>
-      <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} title="검사 이력 보기" onBackPress={() => navigation.goBack()} />
+      <Header title="검사 이력 보기" onBackPress={() => navigation.goBack()} />
       <View style={styles.scrollContainer}>
         <View style={styles.headerContainer}>
           <Text style={styles.subtitle}>검사 이력</Text>
@@ -236,7 +235,11 @@ const History = () => {
             keyExtractor={(item, index) => `${item.id}-${index}`}
             contentContainerStyle={styles.listContainer}
             showsVerticalScrollIndicator={false}
-            ListEmptyComponent={<Text style={styles.emptyText}>검사 이력이 없습니다.</Text>}
+            ListEmptyComponent={
+              historyData.length === 0 && !isLoading ? (
+                <Text style={styles.emptyText}>검사 이력이 없습니다.</Text>
+              ) : null
+            }
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}
             ListFooterComponent={
@@ -248,15 +251,16 @@ const History = () => {
         )}
       </View>
 
+      {/* 하단 네비게이션 바 추가 */}
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
-          <Icon name="home" size={24} color={getIconColor('Home')} />
+          <Icon name="home" size={24} color="#3182f6" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('History')}>
-          <Icon name="time-outline" size={24} color={getIconColor('History')} />
+          <Icon name="time-outline" size={24} color="#9DA3B4" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('MyPage')}>
-          <Icon name="person-outline" size={24} color={getIconColor('MyPage')} />
+          <Icon name="person-outline" size={24} color="#9DA3B4" />
         </TouchableOpacity>
       </View>
     </View>

@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList, Animated, Image, Easing } from 'react-native';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList, Animated, Image, Easing, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -36,14 +36,40 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
     }
   }, [isLoggedIn]);
 
-  const menuItems = [
-    { label: 'Home', icon: 'home-outline', action: () => navigation.navigate('Home') },
-    { label: '신고하기', icon: 'notifications-outline', action: () => navigation.navigate('Report') },
-    { label: '내정보', icon: 'person-outline', action: () => navigation.navigate('MyPage') },
-    { label: 'QR 스캔', icon: 'scan-outline', action: () => navigation.navigate('QrScan') },
-    { label: 'URL 검사', icon: 'link-outline', action: () => navigation.navigate('UrlCheck') },
-    { label: 'QR 이미지 검사', icon: 'images-outline', action: () => navigation.navigate('GalleryQrScan') },
-  ];
+  const menuItems = useMemo(() => {
+    if (isLoggedIn) {
+      return [
+        { label: 'Home', icon: 'home-outline', action: () => navigation.navigate('Home') },
+        { label: '신고하기', icon: 'notifications-outline', action: () => navigation.navigate('Report') },
+        { label: '내정보', icon: 'person-outline', action: () => navigation.navigate('MyPage') },
+        { label: 'QR 스캔', icon: 'scan-outline', action: () => navigation.navigate('QrScan') },
+        { label: 'URL 검사', icon: 'link-outline', action: () => navigation.navigate('UrlCheck') },
+        { label: 'QR 이미지 검사', icon: 'images-outline', action: () => navigation.navigate('GalleryQrScan') },
+      ];
+    } else {
+      return [
+        { label: 'Home', icon: 'home-outline', action: () => navigation.navigate('Home') },
+        { label: '신고하기', icon: 'notifications-outline', action: () => navigation.navigate('Report') },
+        { 
+          label: '내정보', 
+          icon: 'person-outline', 
+          action: () => Alert.alert(
+            '로그인이 필요합니다',
+            '계속하려면 로그인해주세요.',
+            [
+              {
+                text: '확인',
+                onPress: () => navigation.navigate('Login'),
+              },
+            ]
+          ),
+        },
+        { label: 'QR 스캔', icon: 'scan-outline', action: () => navigation.navigate('QrScan') },
+        { label: 'URL 검사', icon: 'link-outline', action: () => navigation.navigate('UrlCheck') },
+        { label: 'QR 이미지 검사', icon: 'images-outline', action: () => navigation.navigate('GalleryQrScan') },
+      ];
+    }
+  }, [isLoggedIn]);
 
   const openSidebar = () => {
     setModalVisible(true);
