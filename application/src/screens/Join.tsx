@@ -314,12 +314,6 @@ const Join: React.FC<Props> = () => {
           <TouchableOpacity style={commonStyles.fixedFooter} onPress={nextStep}>
             <Text style={commonStyles.footerText}>다음</Text>
           </TouchableOpacity>
-          {/* <HEButton style={commonStyles.fullWidthButton} title="다음" onPress={nextStep} /> */}
-          {/* <View style={commonStyles.linkContainer}>
-            <Text style={commonStyles.link} onPress={() => navigation.navigate('Login')}>
-              이미 ID가 존재합니다. 로그인하시겠습니까?
-            </Text>
-          </View> */}
         </View>
       </View>
     </View>

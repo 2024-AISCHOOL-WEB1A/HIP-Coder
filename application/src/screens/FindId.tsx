@@ -169,17 +169,4 @@ const FindId: React.FC = () => {
     );
 };
 
-const styles = StyleSheet.create({  
-    userIdText: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#333',
-        textAlign: 'center',
-        marginTop: 20,
-    },
-    buttonContainer: {
-        marginTop: 20,
-    },
-});
-
 export default FindId;
