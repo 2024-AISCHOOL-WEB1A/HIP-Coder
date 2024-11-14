@@ -40,27 +40,7 @@ const Report: React.FC<Props> = () => {
     navigation.navigate('ReportImage', { imageType: 'image2' });
   };
 
-    // // 상태 관리: 클릭된 박스에 따라 보여줄 콘텐츠 변경
-    // const [selectedBox, setSelectedBox] = useState<'none' | 'box2' | 'box2Banner2'>('none');
-
-    // // 로컬 이미지 배열 (슬라이드에 사용할 이미지들)
-    // const slideImages = [
-    //   require('../assets/images/Banner1.png'),
-    //   require('../assets/images/Banner2.png'),
-    //   // require('../assets/images/Banner3.png'),
-    // ];
-  
-    // // 단일 이미지 URL (box2 클릭 시 보여줄 이미지)
-    // const singleImageUrl = require('../assets/images/Banner.png');
-  
-    // // 슬라이드 이미지 렌더링 함수
-    // const renderItem = ({ item }: any) => (
-    //   <View style={commonStyles.slide}>
-    //     <Image source={item} style={commonStyles.image} />
-    //   </View>
-    // );
-
-  
+    
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.headerContainer}>
