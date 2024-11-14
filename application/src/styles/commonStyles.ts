@@ -263,7 +263,6 @@ const commonStyles = StyleSheet.create({
   box2: {
     width: '100%',
     height: '20%',
-    backgroundColor: '#486ec5', 
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 25,
@@ -279,7 +278,6 @@ const commonStyles = StyleSheet.create({
   box2Banner2: {
     width: '100%',
     height: '20%',
-    backgroundColor: '#2c61ad', 
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 25,
