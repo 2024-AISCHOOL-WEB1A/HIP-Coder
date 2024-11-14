@@ -19,16 +19,26 @@ const History = () => {
   const [hasMoreData, setHasMoreData] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
   const checkIsLogin = async () => {
     const accessToken = await AsyncStorage.getItem('accessToken');
     setIsLoggedIn(!!accessToken);
   };
 
+  // 로그아웃 처리 함수
+  const handleLogout = async () => {
+    setIsLoggedIn(false);
+    await AsyncStorage.removeItem('accessToken');
+    Alert.alert('알림', '로그아웃 되었습니다.');
+    navigation.navigate('Login');
+  };
+
+
+
+  // 컴포넌트 마운트 시 로그인 상태 확인
   useEffect(() => {
     checkIsLogin();
-    scanlist(1); // 페이지 로드 시 데이터 불러오기
   }, []);
 
 
@@ -98,7 +108,7 @@ const History = () => {
   };
 
   useEffect(() => {
-    scanlist(1);
+    checkIsLogin();
   }, []);
 
   const handleLoadMore = () => {
@@ -210,7 +220,7 @@ const History = () => {
 
   return (
     <View style={styles.container}>
-      <Header title="검사 이력 보기" onBackPress={() => navigation.goBack()} />
+      <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} title="검사 이력 보기" onBackPress={() => navigation.goBack()} />
       <View style={styles.scrollContainer}>
         <View style={styles.headerContainer}>
           <Text style={styles.subtitle}>검사 이력</Text>

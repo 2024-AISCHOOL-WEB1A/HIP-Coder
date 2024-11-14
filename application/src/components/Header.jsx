@@ -130,7 +130,7 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: 90,
+    height: 130,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
