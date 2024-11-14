@@ -142,21 +142,6 @@ const Report: React.FC<Props> = () => {
             />
           </TouchableOpacity>
 
-          
-           {/* <View style={commonStyles.box2}>
-             <Image
-              source={require('../assets/images/Banner1.png')}
-              style={commonStyles.boxImage}
-            />
-          </View>
-
-          <View style={commonStyles.box2Banner2}>
-            <Image
-              source={require('../assets/images/Banner2.png')}
-              style={commonStyles.boxImageBanner2}
-            />
-          </View> */}
-
         </View>
       </View>
     </View>
