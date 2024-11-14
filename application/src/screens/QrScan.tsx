@@ -75,7 +75,7 @@ const QRScannerScreen = () => {
 
     try {
       console.log("startScan: 카메라 초기화 시도");
-      //await CameraModule.resetCamera();
+      await CameraModule.resetCamera();
       console.log("startScan: 카메라 초기화 완료");
 
       console.log("startScan: 카메라 시작 시도");
