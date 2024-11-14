@@ -14,6 +14,7 @@ const QRScannerScreen = () => {
 
   useEffect(() => {
     console.log("useEffect: 이벤트 리스너 설정 중...");
+    console.log("CameraModule 확인:", CameraModule);
 
     const handleQRScanSuccess = (data) => {
       const url = data.result;
@@ -74,7 +75,7 @@ const QRScannerScreen = () => {
 
     try {
       console.log("startScan: 카메라 초기화 시도");
-      await CameraModule.resetCamera();
+      //await CameraModule.resetCamera();
       console.log("startScan: 카메라 초기화 완료");
 
       console.log("startScan: 카메라 시작 시도");
