@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import Header from '../components/Header';
 import AnimateNumber from 'react-native-animate-number';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,12 +9,12 @@ import api from '../../axios';
 import { useCsrf } from '../../context/CsrfContext';
 import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
 
-const Home = () => {
+const Home: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [urlCount, setUrlCount] = useState(0);
-  const [qrCount, setQrCount] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [urlCount, setUrlCount] = useState<number>(0);
+  const [qrCount, setQrCount] = useState<number>(0);
   const { csrfToken } = useCsrf();
 
   const checkIsLogin = async () => {
@@ -27,6 +27,13 @@ const Home = () => {
     getCounts();
   }, []);
 
+    // Home 화면이 다시 포커스될 때 로그인 상태 및 카운트 데이터를 다시 확인
+    useFocusEffect(
+      React.useCallback(() => {
+        checkIsLogin();
+        getCounts(); // 페이지 포커스 시 카운트 값을 다시 가져오기
+      }, [])
+    );
   const getCounts = async () => {
     try {
       const accessToken = await AsyncStorage.getItem('accessToken');
@@ -38,17 +45,27 @@ const Home = () => {
         withCredentials: true
       });
       if (response.data) {
-        setUrlCount(response.data.total_url_count || 0);
-        setQrCount(response.data.total_qr_count || 0);
+        setUrlCount(null);
+        setQrCount(null);
+        setTimeout(() => {
+          setUrlCount(response.data.total_url_count || 0);
+          setQrCount(response.data.total_qr_count || 0);
+        }, 0)
+
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('카운트 데이터를 가져오는 중 오류 발생:', error);
-      Alert.alert('오류', '카운트 데이터를 가져오는 데 실패했습니다.');
+      if (error.response && error.response.status === 403) {
+        Alert.alert('오류', '권한이 없습니다. 로그인이 필요합니다.');
+        navigation.navigate('Login' as never); // 'Login'을 'never'로 캐스팅하여 TypeScript 오류 방지
+      } else {
+        Alert.alert('오류', '카운트 데이터를 가져오는 데 실패했습니다.');
+      }    
     }
   };
 
   const handleLogin = () => {
-    navigation.navigate('Login');
+    navigation.navigate('Login' as never);
   };
 
   const handleLogout = async () => {
@@ -63,11 +80,17 @@ const Home = () => {
     launchImageLibrary(options, (response: ImagePickerResponse) => {
       if (response.didCancel) {
         console.log('이미지 선택이 취소되었습니다.');
+        // 이미지 선택이 취소되었을 때 페이지 이동 없이 함수 종료
         return;
       } else if (response.errorMessage) {
         console.log('에러: ', response.errorMessage);
-      } else if (response.assets && response.assets[0]?.uri) {
-        navigation.navigate('GalleryQrScan', { imageUri: response.assets[0].uri });
+      } else if (response.assets && response.assets.length > 0) {
+        const uri = response.assets[0].uri;
+        if (uri) {
+          console.log('선택한 이미지 URI:', uri);
+          // 이미지를 성공적으로 선택했을 때 GalleryQrScan 페이지로 이동, 선택한 이미지 URI를 함께 전달
+          navigation.navigate('GalleryQrScan' as never, { imageUri: uri } as never);
+        }
       }
     });
   };

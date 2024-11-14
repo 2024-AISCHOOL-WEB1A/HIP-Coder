@@ -6,7 +6,6 @@ import Header from '../components/Header';
 import api from '../../axios';
 import { useCsrf } from '../../context/CsrfContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import LinearGradient from 'react-native-linear-gradient';
 
 const Login: React.FC<Props> = () => {
   const [id, setId] = useState<string>(''); // email을 id로 변경
@@ -58,12 +57,7 @@ const Login: React.FC<Props> = () => {
   };
 
   return (
-    <LinearGradient
-      colors={['#E1F5FE', '#BBDEFB', '#90CAF9']}  
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-      style={styles.container}
-    >
+    <View style={styles.container}>
       <Header onBackPress={() => navigation.goBack()} title="" />
       <View style={styles.innerContainer}>
         <View style={styles.textContainer}>
@@ -102,7 +96,7 @@ const Login: React.FC<Props> = () => {
           </Text>
         </View>
       </View>
-    </LinearGradient>
+    </View>
   );
 };
 
@@ -111,6 +105,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
   },
   innerContainer: {
     flex: 1,

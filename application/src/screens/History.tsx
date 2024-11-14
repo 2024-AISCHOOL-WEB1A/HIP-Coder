@@ -19,6 +19,18 @@ const History = () => {
   const [hasMoreData, setHasMoreData] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const checkIsLogin = async () => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    setIsLoggedIn(!!accessToken);
+  };
+
+  useEffect(() => {
+    checkIsLogin();
+    scanlist(1); // 페이지 로드 시 데이터 불러오기
+  }, []);
+
 
   const scanlist = async (page) => {
     if ((isLoading && page === 1) || isFetchingMore || !hasMoreData) return;
