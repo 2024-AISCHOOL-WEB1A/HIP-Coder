@@ -12,7 +12,7 @@ const TermsScreen: React.FC = () => {
   const { termType } = route.params;
 
   // 약관 유형에 따라 헤더 타이틀 설정
-  const headerTitle = termType === 'personalInfo' 
+  const termsHeaderTitle = termType === 'personalInfo' 
     ? '개인정보 수집·이용에 대한 약관' 
     : '만 14세 이상에 대한 약관';
 
@@ -302,7 +302,7 @@ const termsTextAge= `
     <View style={commonStyles.containerWhite}>
       <View style={commonStyles.headerContainer}>
         <Header onBackPress={() => navigation.goBack()} />
-        <Text style={commonStyles.termsHeaderTitle}>{headerTitle}</Text>
+        <Text style={commonStyles.termsHeaderTitle}>{termsHeaderTitle}</Text>
       </View>
       <ScrollView>
         {termType === 'personalInfo' && (
@@ -321,8 +321,11 @@ const termsTextAge= `
         )}
       </ScrollView>
       
-      <TouchableOpacity onPress={() => navigation.goBack()}>
+      {/* <TouchableOpacity onPress={() => navigation.goBack()}>
         <Text style={{ color: 'blue', textAlign: 'right', marginTop: 20 }}>닫기</Text>
+      </TouchableOpacity> */}
+      <TouchableOpacity style={commonStyles.fixedFooter} onPress={() => navigation.goBack()}>
+        <Text style={commonStyles.footerText}>다음</Text>
       </TouchableOpacity>
     </View>
   );

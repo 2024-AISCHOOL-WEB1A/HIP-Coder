@@ -6,16 +6,12 @@ const commonStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 0,
-    // paddingLeft: 40,
-    // paddingRight: 40,
   },
   containerWhite: {
     backgroundColor: '#ffffff',
     flex: 1,
     justifyContent: 'center',
     padding: 0,
-    // paddingLeft: 40,
-    // paddingRight: 40,
   },
   innerContainer:{
     // flex: 1,
@@ -32,8 +28,6 @@ const commonStyles = StyleSheet.create({
     paddingRight: 40,
   },
   innerContainer1:{
-    // flex: 1,
-    // justifyContent: 'center',
     paddingTop: 20,
     paddingBottom: 20,
     paddingLeft: 40,
@@ -45,8 +39,6 @@ const commonStyles = StyleSheet.create({
     borderRadius: 30,
   },
   innerContainer2:{
-    // flex: 1,
-    // justifyContent: 'center',
     paddingTop: 20,
     margin: 0,
     backgroundColor: '#ffffff',
@@ -72,9 +64,9 @@ const commonStyles = StyleSheet.create({
   },
 
   termsHeaderTitle:{
+    fontFamily: 'Pretendard-Bold',
     fontSize: 20,
     color: 'black',
-    fontWeight: 'bold',
     textAlign: 'center',
   },
   fixedFooter: {
@@ -87,13 +79,12 @@ const commonStyles = StyleSheet.create({
     backgroundColor: '#3182f6',
     justifyContent: 'center', // 수직 정렬 추가
     alignItems: 'center', // 수평 정렬 추가
-    // borderTopWidth: 1,
-    // borderColor: '#ddd',
+
   },
   footerText:{
+    fontFamily: 'Pretendard-Medium',
     fontSize: 20,
     color: '#ffffff',
-    fontWeight: 'bold',
     textAlign: 'center',
 
   },
@@ -119,6 +110,7 @@ const commonStyles = StyleSheet.create({
   },
 
   input: {
+    fontFamily: 'Pretendard-Regular',
     height: 50,
     borderColor: '#E0E0E0',
     borderWidth: 1,
@@ -127,6 +119,7 @@ const commonStyles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   input1: {
+    fontFamily: 'Pretendard-Regular',
     width: '70%',
     height: 50,
     borderColor: '#E0E0E0',
@@ -137,10 +130,14 @@ const commonStyles = StyleSheet.create({
   smallButton: {
     width: '25%',
     height: 50,
-    borderColor: '#3182f6',
-    borderWidth: 1,
+    // borderColor: '#3182f6',
+    // borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 10,
+  },
+  buttonContainer: {
+    marginTop: 10,
+    // marginBottom: 20,
   },
   checkBox:{
     width: '25%',
@@ -150,11 +147,11 @@ const commonStyles = StyleSheet.create({
   },
 
   fullWidthButton: {
-    width: '100%',
-    height: 50,
-    borderColor: '#3182f6',
-    borderWidth: 1,
-    borderRadius: 20,
+    // width: '100%',
+    // height: 50,
+    // borderColor: '#3182f6',
+    // borderWidth: 1,
+    // borderRadius: 20,
     marginBottom: 20,
   },
   radioButton: {
@@ -172,6 +169,7 @@ const commonStyles = StyleSheet.create({
   activeButton: {
     backgroundColor: '#3182f6',
   },
+
   // modalView: {
   //   borderColor: '#3182f6',
   // },
@@ -185,12 +183,6 @@ const commonStyles = StyleSheet.create({
     width: '80%',
     height: '80%',
     resizeMode: 'contain',
-  },
-  textCenter: {
-    textAlign: 'center',
-    color: '#000',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   box1: {
     width: '100%',
@@ -221,21 +213,13 @@ const commonStyles = StyleSheet.create({
     height: 30,
     overflow: 'hidden',
   },
-  reportFullImage: {
-    width: '100%',
-    height: '60%',
-    // width: '100%',
-    // height: '80%',
-    alignItems: 'center', // 수평 중앙 정렬
-    justifyContent: 'center', // 수직 중앙 정렬
-  },
 
   // 텍스트와 버튼 세로 정렬을 위한 컨테이너
   textContainer: {
     flexDirection: 'column', // 텍스트는 세로로 정렬
     justifyContent: 'center', // 텍스트들을 세로로 정렬
     alignItems: 'flex-start', // 텍스트 왼쪽 정렬
-    // marginLeft: 10, // 텍스트와 이미지 간 간격
+    // marginLeft: 10, // 텍스트와 이미지 간 간격,
   },
 
   // 신고하기 버튼을 세로 정렬로 배치
@@ -247,18 +231,18 @@ const commonStyles = StyleSheet.create({
   },
 
   textNextToImageTitle: {
+    fontFamily: 'Pretendard-Bold',
     textAlign: 'left',
     color: '#1c1c1c',
     fontSize: 16,
-    fontWeight: 'bold',
   },
 
   textNextToImage: {
+    fontFamily: 'Pretendard-Regular',
     textAlign: 'left',
     color: '#8e8e8e',
     fontSize: 12,
   },
- 
 
   box2: {
     width: '100%',
@@ -311,37 +295,45 @@ const commonStyles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  text1: {
+  textMarginBottom: {
+    fontFamily: 'Pretendard-Bold',
     fontSize: 16,
-    fontWeight: '800',
     color: '#2c2b2b',
     marginBottom: 10,
   },
+  text1: {
+    fontFamily: 'Pretendard-Bold',
+    fontSize: 16,
+    color: '#2c2b2b',
+    // marginBottom: 10,
+  },
   text2: {
+    fontFamily: 'Pretendard-Regular',
     textAlign: 'center',
     fontSize: 16,
-    fontWeight: '600',
     color: '#3182f6',
     marginBottom: 10,
   },
   text3: {
+    fontFamily: 'Pretendard-Regular',
     fontSize: 12,
-    fontWeight: '400',
     // color: '#2c2b2b',cd android && ./gradlew clean && cd ..
     color: 'black',
     paddingLeft: 20,
     paddingRight: 20,
   },
   text: {
+    fontFamily: 'Pretendard-Regular',
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
   },
   textGraySmall:{
+    fontFamily: 'Pretendard-Regular',
     color: 'gray',
     fontSize: 12,
   },
   textGrayMedium:{
+    fontFamily: 'Pretendard-Regular',
     color: 'gray',
     fontSize: 16,
   },

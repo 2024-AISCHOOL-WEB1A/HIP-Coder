@@ -123,7 +123,7 @@ const FindId: React.FC = () => {
                 <View style={commonStyles.innerContainer}>
                     {!isEmailSent ? (
                         <>
-                            <Text style={commonStyles.text1}>이름과 이메일을 입력하세요.</Text>
+                            <Text style={commonStyles.textMarginBottom}>이름과 이메일을 입력하세요.</Text>
                             <TextInput
                                 value={name}
                                 onChangeText={(text) => {                                 
@@ -149,7 +149,7 @@ const FindId: React.FC = () => {
                     ) : (
                         <>
                             <Text style={commonStyles.text2}>이메일을 확인하고, 인증 링크를 클릭하세요.</Text>
-                            <View style={styles.buttonContainer}>
+                            <View style={commonStyles.buttonContainer}>
                                 <HEButton
                                     style={commonStyles.fullWidthButton}
                                     title="로그인 페이지로 돌아가기"
@@ -169,17 +169,5 @@ const FindId: React.FC = () => {
     );
 };
 
-const styles = StyleSheet.create({  
-    userIdText: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#333',
-        textAlign: 'center',
-        marginTop: 20,
-    },
-    buttonContainer: {
-        marginTop: 20,
-    },
-});
 
 export default FindId;

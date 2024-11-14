@@ -31,6 +31,7 @@ const Home: React.FC = () => {
     useFocusEffect(
       React.useCallback(() => {
         checkIsLogin();
+        
         getCounts(); // 페이지 포커스 시 카운트 값을 다시 가져오기
       }, [])
     );
