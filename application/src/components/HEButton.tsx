@@ -45,12 +45,6 @@ const HEButton: React.FC<HEButtonProps> = ({
           fontSize,
           paddingVertical,
           paddingHorizontal,
-
-          // backgroundColor,
-          // borderRadius,
-          // paddingVertical,
-          // paddingHorizontal,
-          // // marginBottom
         },
         style,
       ]}

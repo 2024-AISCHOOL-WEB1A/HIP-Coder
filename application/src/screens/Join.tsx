@@ -181,7 +181,6 @@ const Join: React.FC<Props> = () => {
     <View style={commonStyles.container}>
       <View style={commonStyles.headerContainer}>
       <Header title="회원가입" onBackPress={handleBackPress} />
-        {/* <Text style={commonStyles.headerTitle}>회원가입</Text> */}
       </View>
       <View style={commonStyles.formContainer}>
         <View style={commonStyles.innerContainer}>
