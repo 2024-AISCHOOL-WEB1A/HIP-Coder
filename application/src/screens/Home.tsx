@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import Header from '../components/Header';
 import AnimateNumber from 'react-native-animate-number';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,12 +9,12 @@ import api from '../../axios';
 import { useCsrf } from '../../context/CsrfContext';
 import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
 
-const Home = () => {
+const Home: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [urlCount, setUrlCount] = useState(0);
-  const [qrCount, setQrCount] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [urlCount, setUrlCount] = useState<number>(0);
+  const [qrCount, setQrCount] = useState<number>(0);
   const { csrfToken } = useCsrf();
 
   const checkIsLogin = async () => {
@@ -27,6 +27,13 @@ const Home = () => {
     getCounts();
   }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      checkIsLogin();
+      getCounts(); // 페이지 포커스 시 카운트 값을 다시 가져오기
+    }, [])
+  );
+
   const getCounts = async () => {
     try {
       const accessToken = await AsyncStorage.getItem('accessToken');
@@ -38,12 +45,21 @@ const Home = () => {
         withCredentials: true
       });
       if (response.data) {
-        setUrlCount(response.data.total_url_count || 0);
-        setQrCount(response.data.total_qr_count || 0);
+        setUrlCount(null);
+        setQrCount(null);
+        setTimeout(() => {
+          setUrlCount(response.data.total_url_count || 0);
+          setQrCount(response.data.total_qr_count || 0);
+        }, 0)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('카운트 데이터를 가져오는 중 오류 발생:', error);
-      Alert.alert('오류', '카운트 데이터를 가져오는 데 실패했습니다.');
+      if (error.response && error.response.status === 403) {
+        Alert.alert('오류', '권한이 없습니다. 로그인이 필요합니다.');
+        navigation.navigate('Login' as never); // 'Login'을 'never'로 캐스팅하여 TypeScript 오류 방지
+      } else {
+        Alert.alert('오류', '카운트 데이터를 가져오는 데 실패했습니다.');
+      }
     }
   };
 

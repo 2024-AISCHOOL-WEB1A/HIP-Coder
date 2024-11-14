@@ -147,6 +147,7 @@ const MyPage = () => {
 
   useEffect(() => {
     mypagelist();
+    
   }, []);
 
   const handleProfileUpdate = async () => {
