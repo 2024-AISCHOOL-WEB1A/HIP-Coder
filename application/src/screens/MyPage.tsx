@@ -24,6 +24,26 @@ const MyPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const navigation = useNavigation();
   const { csrfToken } = useCsrf();
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+  // 로그인 상태 확인
+  const checkIsLoggedIn = async () => {
+    const token = await AsyncStorage.getItem('accessToken');
+    setIsLoggedIn(!!token);
+  };
+
+  // 로그아웃 처리 함수
+  const handleLogout = async () => {
+    setIsLoggedIn(false);
+    await AsyncStorage.removeItem('accessToken');
+    Alert.alert('알림', '로그아웃 되었습니다.');
+    navigation.navigate('Login');
+  };
+
+  // 컴포넌트 마운트 시 로그인 상태 확인
+  useEffect(() => {
+    checkIsLoggedIn();
+  }, []);
 
   // 사용자 데이터를 가져오는 함수
   const mypagelist = async () => {
@@ -215,7 +235,7 @@ const MyPage = () => {
 
   return (
     <View style={styles.container}>
-      <Header title="내정보"  onBackPress={() => navigation.goBack()} />
+      <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} title="내정보" onBackPress={() => navigation.goBack()} />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>프로필 정보</Text>

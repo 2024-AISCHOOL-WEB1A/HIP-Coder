@@ -159,7 +159,7 @@ const FindId: React.FC = () => {
                                 <HEButton
                                     style={commonStyles.fullWidthButton}
                                     title="비밀번호 찾기"
-                                    onPress={() => navigation.navigate('FindPassword')}
+                                    onPress={() => navigation.navigate('FindPw')}
                                 />
                             </View>
                         </>
