@@ -1,9 +1,13 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- 기본 앱 테마 설정 -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- 앱의 배경색을 설정할 수도 있습니다 -->
         <item name="android:background">#FFFFFF</item>
         <item name="android:textColor">#000000</item>
+
+        <!-- 상태바 투명 설정 -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowTranslucentStatus">true</item>
     </style>
 
     <!-- SplashScreen 테마 정의 -->

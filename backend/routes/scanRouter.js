@@ -86,21 +86,23 @@ router.get('/checkurl', async (req, res) => {
 /** 검사내역 불러오기 */
 router.post('/scanlist', authenticateToken, (req, res) => {
     const user_idx = req.userId;
-    log(user_idx)
-    const sql = 'SELECT * FROM SCAN_QR WHERE USER_IDX = ? ORDER BY SCAN_DATE DESC'
+    log(user_idx);
+    const sql = 'SELECT * FROM SCAN_QR WHERE USER_IDX = ? ORDER BY SCAN_DATE DESC';
 
     conn.query(sql, [user_idx], (err, r) => {
         if (err) {
-            console.error('DB Count Error', err)
-            return res.status(500).json({ error: 'DB Count Error' })
+            console.error('DB Count Error', err);
+            return res.status(500).json({ error: 'DB Count Error' });
         } else if (r.length === 0) {
-            return res.status(404).json({ error: '사용자 정보를 찾을 수 없습니다.' })
+            // 사용자 정보가 없을 때, 빈 배열로 응답을 보냄
+            return res.json({ message: [] });
         } else {
-            log(r)
-            res.json({ message: r })
+            log(r);
+            res.json({ message: r });
         }
-    })
-})
+    });
+});
+
 
 /** 검사 내역 카운팅 */
 router.get('/counting', (req, res) => {

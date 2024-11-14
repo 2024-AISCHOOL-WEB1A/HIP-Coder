@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Alert, BackHandler, ToastAndroid, NativeModules, Linking } from 'react-native';
+import { Alert, BackHandler, ToastAndroid, NativeModules, Linking, View, StatusBar } from 'react-native'; // View, StatusBar 추가
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import api from './axios';
 import { useCsrf } from './context/CsrfContext';
@@ -176,23 +176,30 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <Stack.Navigator initialRouteName="Intro" screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Intro" component={IntroScreen} />
-      <Stack.Screen name="Home" component={Home} />
-      <Stack.Screen name="Join" component={Join} />
-      <Stack.Screen name="Login" component={Login} />
-      <Stack.Screen name="MyPage" component={MyPage} />
-      <Stack.Screen name="QrScan" component={QrScan} />
-      <Stack.Screen name="UrlCheck" component={UrlCheck} />
-      <Stack.Screen name="FindId" component={FindId} />
-      <Stack.Screen name="FindPw" component={FindPw} />
-      <Stack.Screen name="GalleryQrScan" component={GalleryQrScan} />
-      <Stack.Screen name="Test" component={Test} />
-      <Stack.Screen name="History" component={History} />
-      <Stack.Screen name="TermsScreen" component={TermsScreen} />
-      <Stack.Screen name="Report" component={Report} />
-      <Stack.Screen name="ReportImage" component={ReportImage} />
-    </Stack.Navigator>
+    <View style={{ flex: 1 }}>
+      <StatusBar
+        barStyle="dark-content"  // 상태바의 아이콘 및 텍스트 색상 설정
+        backgroundColor="transparent"  // 상태바 배경색을 투명하게 설정
+        translucent={true}  // 상태바를 투명하게 만들어서 컨텐츠 위로 오도록 설정
+      />
+      <Stack.Navigator initialRouteName="Intro" screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Intro" component={IntroScreen} />
+        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="Join" component={Join} />
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="MyPage" component={MyPage} />
+        <Stack.Screen name="QrScan" component={QrScan} />
+        <Stack.Screen name="UrlCheck" component={UrlCheck} />
+        <Stack.Screen name="FindId" component={FindId} />
+        <Stack.Screen name="FindPw" component={FindPw} />
+        <Stack.Screen name="GalleryQrScan" component={GalleryQrScan} />
+        <Stack.Screen name="Test" component={Test} />
+        <Stack.Screen name="History" component={History} />
+        <Stack.Screen name="TermsScreen" component={TermsScreen} />
+        <Stack.Screen name="Report" component={Report} />
+        <Stack.Screen name="ReportImage" component={ReportImage} />
+      </Stack.Navigator>
+    </View>
   );
 };
 

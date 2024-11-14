@@ -22,6 +22,7 @@ class MainApplication : Application(), ReactApplication {
             PackageList(this).packages.apply {
               // 수동으로 추가할 패키지들 등록
               add(ExitAppPackage()) // ExitAppPackage 추가
+              add(CameraModulePackage())
             }
 
         override fun getJSMainModuleName(): String = "index"
