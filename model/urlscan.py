@@ -205,7 +205,6 @@ def update_count_logs(scan_result):
 
 @urlscan_bp.route('/scan', methods=['POST'])
 def scanurl():
-
     print("Headers:", request.headers)
     auth_header = request.headers.get("Authorization")
     print("Received Authorization header:", auth_header)
@@ -219,6 +218,7 @@ def scanurl():
 
     logging.info(f"요청받은 URL: {url_data} | 카테고리: {cat}")
 
+    # URL 안전성 검사 - good or bad 예측
     prediction = predict_url(url_data)
     scan_result = 'G' if prediction == 'good' else 'B'
 
@@ -238,7 +238,7 @@ def scanurl():
 
     if auth_header:
         try:
-            token = auth_header.split(" ")[1]
+            token = auth_header.split(" ")[1]  # 'Bearer <토큰>'에서 <토큰>만 추출
             logging.info(f"JWT 토큰 추출: {token}")
             decoded_token = decode_jwt_token(token)
             if decoded_token:
@@ -251,8 +251,8 @@ def scanurl():
 
     # 검사 결과 저장 시 QR_CAT도 함께 저장
     save_scan_result(user_id, url_data, scan_result, cat)  # QR_CAT으로 받은 category 값도 저장
-    return response
 
+    return response
 
 @urlscan_bp.route('/tt', methods=['POST'])
 def test_token():

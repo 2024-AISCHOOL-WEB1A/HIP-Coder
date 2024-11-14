@@ -110,38 +110,39 @@ const Home: React.FC = () => {
         </View>
 
         <View style={styles.counterContainer}>
-          <View style={styles.counterBox}>
-            <Text style={styles.counterTitle}>악성 URL 탐지</Text>
-            <View style={styles.counterValueContainer}>
-              <AnimateNumber
-                key={urlCount}
-                value={urlCount}
-                formatter={(val) => Math.floor(val).toString()}
-                timing="easeOut"
-                steps={30}
-                interval={16}
-                style={styles.counterValue}
-              />
-              <Text style={styles.counterUnit}>건</Text>
-            </View>
-          </View>
-
-          <View style={styles.counterBox}>
-            <Text style={styles.counterTitle}>QR 코드 검사</Text>
-            <View style={styles.counterValueContainer}>
-              <AnimateNumber
-                key={qrCount}
-                value={qrCount}
-                formatter={(val) => Math.floor(val).toString()}
-                timing="easeOut"
-                steps={30}
-                interval={16}
-                style={styles.counterValue}
-              />
-              <Text style={styles.counterUnit}>건</Text>
-            </View>
+        <View style={styles.counterBox}>
+          <Text style={styles.counterTitle}>악성 URL 탐지</Text>
+          <View style={styles.counterValueContainer}>
+            <AnimateNumber
+              key={urlCount}
+              value={urlCount}
+              formatter={(val) => new Intl.NumberFormat('ko-KR').format(Math.floor(val))}
+              timing="easeOut"
+              steps={30}
+              interval={16}
+              style={styles.counterValue}
+            />
+            <Text style={styles.counterUnit}>건</Text>
           </View>
         </View>
+
+        <View style={styles.counterBox}>
+          <Text style={styles.counterTitle}>QR 코드 검사</Text>
+          <View style={styles.counterValueContainer}>
+            <AnimateNumber
+              key={qrCount}
+              value={qrCount}
+              formatter={(val) => new Intl.NumberFormat('ko-KR').format(Math.floor(val))}
+              timing="easeOut"
+              steps={30}
+              interval={16}
+              style={styles.counterValue}
+            />
+            <Text style={styles.counterUnit}>건</Text>
+          </View>
+        </View>
+      </View>
+
 
         <View style={styles.categoryContainer}>
           <TouchableOpacity style={styles.categoryButton} onPress={() => navigation.navigate('Report')}>
@@ -200,9 +201,9 @@ const Home: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.testButton} onPress={() => navigation.navigate('Test')}>
+        {/* <TouchableOpacity style={styles.testButton} onPress={() => navigation.navigate('Test')}>
           <Text style={styles.testButtonText}>테스트 지우지마세요!</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </ScrollView>
 
       <View style={styles.navBar}>

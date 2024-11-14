@@ -8,24 +8,53 @@ import { useCsrf } from '../../context/CsrfContext';
 import api from '../../axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const MyPage = () => {
-  const [profileData, setProfileData] = useState({
+interface ProfileData {
+  name: string;
+  phone: string;
+  email: string;
+  emergencyContact1: string;
+  emergencyContact2: string;
+}
+
+interface Passwords {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+const MyPage: React.FC = () => {
+  const [profileData, setProfileData] = useState<ProfileData>({
     name: '',
     phone: '',
     email: '',
     emergencyContact1: '',
     emergencyContact2: '',
   });
-  const [passwords, setPasswords] = useState({
+  const [passwords, setPasswords] = useState<Passwords>({
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
   });
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
   const navigation = useNavigation();
   const route = useRoute();
   const { csrfToken } = useCsrf();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+  // 전화번호 포맷 함수
+  const formatPhoneNumber = (number: string): string => {
+    if (number.length === 11) {
+      return `${number.slice(0, 3)}-${number.slice(3, 7)}-${number.slice(7)}`;
+    } else if (number.length === 10) {
+      return `${number.slice(0, 3)}-${number.slice(3, 6)}-${number.slice(6)}`;
+    }
+    return number;
+  };
+
+  // 전화번호 형식 제거 함수 (서버 전송용)
+  const unformatPhoneNumber = (formattedNumber: string): string => {
+    return formattedNumber.replace(/-/g, '');
+  };
 
   // 로그인 상태 확인
   const checkIsLoggedIn = async () => {
@@ -72,10 +101,10 @@ const MyPage = () => {
         const userData = res.data.message[0];
         setProfileData({
           name: userData.USER_NAME,
-          phone: userData.PHONE,
+          phone: formatPhoneNumber(userData.PHONE),
           email: userData.EMAIL,
-          emergencyContact1: userData.CONTACT_INFO1 || '',
-          emergencyContact2: userData.CONTACT_INFO2 || '',
+          emergencyContact1: formatPhoneNumber(userData.CONTACT_INFO1 || ''),
+          emergencyContact2: formatPhoneNumber(userData.CONTACT_INFO2 || ''),
         });
       } else {
         console.error('잘못된 데이터 형식:', res.data);
@@ -84,6 +113,55 @@ const MyPage = () => {
     } catch (error) {
       console.error('API 오류 발생:', error);
       Alert.alert('오류', '사용자 데이터를 가져오는 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleProfileUpdate = async () => {
+    if (isEditing) {
+      try {
+        const token = await AsyncStorage.getItem('accessToken');
+        if (!token) {
+          Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
+            { text: '확인', onPress: () => navigation.navigate('Login') },
+          ]);
+          return;
+        }
+
+        // 서버로 전송할 때 포맷된 전화번호를 원래 형태로 변환
+        const formattedProfileData = {
+          ...profileData,
+          phone: unformatPhoneNumber(profileData.phone),
+          emergencyContact1: unformatPhoneNumber(profileData.emergencyContact1),
+          emergencyContact2: unformatPhoneNumber(profileData.emergencyContact2),
+        };
+
+        const response = await api.post(
+          '/user/update',
+          {
+            emergencyContact1: formattedProfileData.emergencyContact1,
+            emergencyContact2: formattedProfileData.emergencyContact2,
+          },
+          { headers: { 'X-CSRF-Token': csrfToken, 'Authorization': `Bearer ${token}` }, withCredentials: true }
+        );
+
+        if (response.status === 200) {
+          Alert.alert('알림', '프로필이 성공적으로 수정되었습니다.');
+          // 수정 완료 후 전화번호 형식을 다시 포맷
+          setProfileData({
+            ...profileData,
+            phone: formatPhoneNumber(formattedProfileData.phone),
+            emergencyContact1: formatPhoneNumber(formattedProfileData.emergencyContact1),
+            emergencyContact2: formatPhoneNumber(formattedProfileData.emergencyContact2),
+          });
+        } else {
+          Alert.alert('오류', response.data.error || '프로필 수정에 실패했습니다.');
+        }
+      } catch (error) {
+        Alert.alert('오류', '서버와의 통신 중 문제가 발생했습니다.');
+      }
+      setIsEditing(false);
+    } else {
+      setIsEditing(true);
     }
   };
 
@@ -167,49 +245,11 @@ const MyPage = () => {
 
   useEffect(() => {
     mypagelist();
-    
   }, []);
 
-  const handleProfileUpdate = async () => {
-    if (isEditing) {
-      Alert.alert('알림', '프로필이 성공적으로 수정되었습니다.');
-      setIsEditing(false);
-      try {
-        const token = await AsyncStorage.getItem('accessToken');
-        if (!token) {
-          Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
-            { text: '확인', onPress: () => navigation.navigate('Login') },
-          ]);
-          return;
-        }
-
-        const response = await api.post(
-          '/user/update',
-          {
-            emergencyContact1: profileData.emergencyContact1,
-            emergencyContact2: profileData.emergencyContact2,
-          },
-          { headers: { 'X-CSRF-Token': csrfToken, 'Authorization': `Bearer ${token}` }, withCredentials: true }
-        );
-
-        if (response.status === 200) {
-          Alert.alert('알림', '프로필이 성공적으로 수정되었습니다.');
-        } else {
-          Alert.alert('오류', response.data.error || '프로필 수정에 실패했습니다.');
-        }
-      } catch (error) {
-        Alert.alert('오류', '서버와의 통신 중 문제가 발생했습니다.');
-      }
-      setIsEditing(false);
-    } else {
-      setIsEditing(true);
-    }
-  };
-
-  const getIconColor = (screen) => {
+  const getIconColor = (screen: string) => {
     return route.name === screen ? '#3182f6' : '#9DA3B4';
   };
-
   return (
     <View style={styles.container}>
       <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} title="내정보" onBackPress={() => navigation.goBack()} />
@@ -218,12 +258,39 @@ const MyPage = () => {
           <Text style={styles.sectionTitle}>프로필 정보</Text>
           <View style={styles.card}>
             <TextInput style={[styles.input, styles.fullInput, { backgroundColor: '#F0F0F0' }]} placeholder="이름" value={profileData.name} editable={false} />
-            <TextInput style={[styles.input, styles.fullInput, { backgroundColor: '#F0F0F0' }]} placeholder="핸드폰번호" value={profileData.phone} editable={false} />
+            <TextInput
+              style={[styles.input, styles.fullInput, { backgroundColor: '#F0F0F0' }]}
+              placeholder="핸드폰번호"
+              value={profileData.phone}
+              editable={false} // 수정 모드에서도 수정되지 않도록 설정
+            />
             <TextInput style={[styles.input, { backgroundColor: '#F0F0F0' }]} placeholder="이메일" value={profileData.email} editable={false} />
             <Text style={styles.emergencyContactTitle}>비상연락망(1)</Text>
-            <TextInput style={[styles.input, { backgroundColor: isEditing ? '#FFFFFF' : '#F0F0F0' }]} placeholder="비상연락망(1)" value={profileData.emergencyContact1} onChangeText={(text) => setProfileData({ ...profileData, emergencyContact1: text })} editable={isEditing} />
+            <TextInput
+              style={[styles.input, { backgroundColor: isEditing ? '#FFFFFF' : '#F0F0F0' }]}
+              placeholder="비상연락망(1)"
+              value={isEditing ? unformatPhoneNumber(profileData.emergencyContact1) : profileData.emergencyContact1}
+              onChangeText={(text) => {
+                if (text.length <= 11) {
+                  setProfileData({ ...profileData, emergencyContact1: text });
+                }
+              }}
+              editable={isEditing}
+              keyboardType="numeric"
+            />
             <Text style={styles.emergencyContactTitle}>비상연락망(2)</Text>
-            <TextInput style={[styles.input, { backgroundColor: isEditing ? '#FFFFFF' : '#F0F0F0' }]} placeholder="비상연락망(2)" value={profileData.emergencyContact2} onChangeText={(text) => setProfileData({ ...profileData, emergencyContact2: text })} editable={isEditing} />
+            <TextInput
+              style={[styles.input, { backgroundColor: isEditing ? '#FFFFFF' : '#F0F0F0' }]}
+              placeholder="비상연락망(2)"
+              value={isEditing ? unformatPhoneNumber(profileData.emergencyContact2) : profileData.emergencyContact2}
+              onChangeText={(text) => {
+                if (text.length <= 11) {
+                  setProfileData({ ...profileData, emergencyContact2: text });
+                }
+              }}
+              editable={isEditing}
+              keyboardType="numeric"
+            />
             <CustomButton title={isEditing ? "완료" : "프로필 수정"} onPress={handleProfileUpdate} style={styles.actionButton} />
           </View>
         </View>
@@ -317,14 +384,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     color: '#333333',
     fontFamily: 'Pretendard-Regular',
-  },
-  inputRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 14, 
-  },
-  fullInput: {
-    width: '100%',
   },
   emergencyContactTitle: {
     fontSize: 14,
