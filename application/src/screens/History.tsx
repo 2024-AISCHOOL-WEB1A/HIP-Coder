@@ -1,7 +1,6 @@
-// History.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ActivityIndicator, Alert, Linking } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../components/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,25 +11,30 @@ const ITEMS_PER_PAGE = 5;
 
 const History = () => {
   const navigation = useNavigation();
+  const route = useRoute();
   const [isLoading, setIsLoading] = useState(false);
   const [historyData, setHistoryData] = useState([]);
   const { csrfToken } = useCsrf();
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMoreData, setHasMoreData] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
 
-  const scanlist = async (page = 1) => {
+  const scanlist = async (page) => {
+    if ((isLoading && page === 1) || isFetchingMore || !hasMoreData) return;
+
     try {
+      if (page === 1) setIsLoading(true);
+      else setIsFetchingMore(true);
+
       const accessToken = await AsyncStorage.getItem('accessToken');
       if (!accessToken) {
         Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
-          {
-            text: '확인',
-            onPress: () => navigation.navigate('Login'),
-          },
+          { text: '확인', onPress: () => navigation.navigate('Login') },
         ]);
         return;
       }
-      setIsLoading(true);
+
       const res = await api.post(
         '/scan/scanlist',
         { page, limit: ITEMS_PER_PAGE },
@@ -50,38 +54,52 @@ const History = () => {
           type: item.QR_CAT === 'QR' ? 'QR 코드' : item.QR_CAT === 'IMG' ? 'QR 이미지' : 'URL',
           status: item.SCAN_RESULT === 'G' ? '클린 URL' : '악성 URL',
           content: item.SCAN_URL,
-          imageUrl: item.QR_CAT === 'IMG' ? 'path/to/your/image' : undefined
+          imageUrl: item.IMAGE_URL ? item.IMAGE_URL : 'https://via.placeholder.com/150'
         }));
 
-        setHistoryData(prevData => [...prevData, ...scanItems]);
-        setHasMoreData(scanItems.length >= ITEMS_PER_PAGE); 
+        if (page === 1) {
+          setHistoryData(scanItems);
+        } else {
+          setHistoryData(prevData => {
+            const newData = [...prevData, ...scanItems];
+            const uniqueData = Array.from(new Map(newData.map(item => [item.id, item])).values());
+            return uniqueData;
+          });
+        }
+
+        setHasMoreData(scanItems.length === ITEMS_PER_PAGE);
+
+        if (res.data.totalCount) {
+          setTotalCount(res.data.totalCount);
+        }
+      } else {
+        setHasMoreData(false);
       }
     } catch (error) {
       console.error('API 오류 발생:', error);
-      if (error.response && error.response.status === 403) {
-        Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
-          {
-            text: '확인',
-            onPress: () => navigation.navigate('Login'),
-          },
-        ]);
-      } else {
-        Alert.alert('오류', '사용자 데이터를 가져오는 중 오류가 발생했습니다.');
-      }
+      Alert.alert('오류', '데이터를 불러오는 중 문제가 발생했습니다.');
+      setHasMoreData(false);
     } finally {
       setIsLoading(false);
+      setIsFetchingMore(false);
     }
   };
 
   useEffect(() => {
-    scanlist();
+    scanlist(1);
   }, []);
 
   const handleLoadMore = () => {
-    if (!isLoading && hasMoreData) {
-      const nextPage = currentPage + 1;
-      setCurrentPage(nextPage);
-      scanlist(nextPage);
+    if (!hasMoreData || isFetchingMore || isLoading) return;
+
+    if (totalCount === 0 || historyData.length < totalCount) {
+      setCurrentPage(prevPage => {
+        const nextPage = prevPage + 1;
+        scanlist(nextPage);
+        return nextPage;
+      });
+    } else {
+      setHasMoreData(false);
     }
   };
 
@@ -115,18 +133,6 @@ const History = () => {
   };
 
   const renderContentPreview = (item) => {
-    if (item.type === 'QR 이미지' && item.imageUrl) {
-      return (
-        <View style={styles.previewContainer}>
-          <Image 
-            source={{ 
-              uri: item.imageUrl || 'https://via.placeholder.com/150'
-            }} 
-            style={styles.previewImage}
-          />
-        </View>
-      );
-    }
     if (item.content) {
       return (
         <Text style={styles.contentPreview} numberOfLines={1}>
@@ -186,6 +192,10 @@ const History = () => {
     </TouchableOpacity>
   );
 
+  const getIconColor = (screen) => {
+    return route.name === screen ? '#3182f6' : '#9DA3B4';
+  };
+
   return (
     <View style={styles.container}>
       <Header title="검사 이력 보기" onBackPress={() => navigation.goBack()} />
@@ -195,29 +205,36 @@ const History = () => {
           <Text style={styles.description}>QR코드 / URL / 이미지 검사 결과를 확인하세요.</Text>
         </View>
         <View style={styles.separator} />
-        <FlatList
-          data={historyData}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContainer}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={<Text style={styles.emptyText}>검사 이력이 없습니다.</Text>}
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
-          ListFooterComponent={isLoading && <ActivityIndicator size="large" color="#5A9FFF" />}
-        />
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#5A9FFF" />
+        ) : (
+          <FlatList
+            data={historyData}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => `${item.id}-${index}`}
+            contentContainerStyle={styles.listContainer}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={<Text style={styles.emptyText}>검사 이력이 없습니다.</Text>}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={
+              isFetchingMore && hasMoreData ? 
+                <ActivityIndicator size="large" color="#5A9FFF" /> 
+                : null
+            }
+          />
+        )}
       </View>
 
-      {/* 하단 네비게이션 바 */}
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
-          <Icon name="home" size={24} color="#9DA3B4" />
+          <Icon name="home" size={24} color={getIconColor('Home')} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('History')}>
-          <Icon name="time-outline" size={24} color="#3182f6" />
+          <Icon name="time-outline" size={24} color={getIconColor('History')} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('MyPage')}>
-          <Icon name="person-outline" size={24} color="#9DA3B4" />
+          <Icon name="person-outline" size={24} color={getIconColor('MyPage')} />
         </TouchableOpacity>
       </View>
     </View>
@@ -302,12 +319,6 @@ const styles = StyleSheet.create({
   previewContainer: {
     marginTop: 4,
     marginBottom: 4,
-  },
-  previewImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
-    backgroundColor: '#F5F5F5', 
   },
   contentPreview: {
     fontSize: 12,

@@ -61,8 +61,7 @@ const FindPw: React.FC = () => {
     return (
         <View style={commonStyles.container}>
             <View style={commonStyles.headerContainer}>
-                <Header onBackPress={() => navigation.goBack()} />
-                <Text style={commonStyles.headerTitle}>비밀번호 찾기</Text>
+                <Header title="비밀번호 찾기" onBackPress={() => navigation.goBack()} />
             </View>
             <View style={commonStyles.formContainer}>
                 <View style={commonStyles.innerContainer}>
@@ -87,9 +86,6 @@ const FindPw: React.FC = () => {
                         keyboardType="email-address"
                     />
                     <HEButton style={commonStyles.fullWidthButton} title="비밀번호 찾기" onPress={handleFindPw} />
-                    <Text style={commonStyles.text2}>
-                        {'\n'}{'  '}비밀번호 찾기를 통해 필요한 정보를 얻으세요.
-                    </Text>
                 </View>
             </View>
         </View>
