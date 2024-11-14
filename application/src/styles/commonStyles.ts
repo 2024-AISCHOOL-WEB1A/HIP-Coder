@@ -13,15 +13,29 @@ const commonStyles = StyleSheet.create({
     justifyContent: 'center',
     padding: 0,
   },
+  containerGray: {
+    backgroundColor: '#f3f5f7',
+    flex: 1,
+    justifyContent: 'center',
+    padding: 0,
+  },
   innerContainer:{
-    // flex: 1,
-    // justifyContent: 'center',
     paddingTop: 30,
     margin: 0,
     backgroundColor: '#ffffff',
     width: '100%',
     height: '100%',
-    // borderRadius: 30,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    paddingLeft: 40,
+    paddingRight: 40,
+  },
+  innerContainerGray:{
+    paddingTop: 30,
+    margin: 0,
+    backgroundColor: '#f3f5f7',
+    width: '100%',
+    height: '100%',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingLeft: 40,
@@ -193,6 +207,15 @@ const commonStyles = StyleSheet.create({
     // marginBottom: 20,
     flexDirection: 'row', // 이미지와 텍스트를 가로로 배치
     alignItems: 'center', // 세로로 정렬을 맞추기 위해 추가
+  },
+
+  logoImage: {
+    width: 120,   // 크기 조정
+    height: 120,  // 크기 조정
+    resizeMode: 'contain', // 이미지 비율 유지하면서 크기 조정
+    alignSelf: 'center',   // 중앙 정렬
+    marginTop: 40,
+    marginBottom: 10,      // 버튼과 텍스트 사이의 여백
   },
 
   // circleContainer: 이미지 좌측에 배치

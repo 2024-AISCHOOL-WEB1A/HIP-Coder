@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert, Text } from 'react-native';
+import { View, TextInput, Button, Alert, Text,Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
@@ -61,7 +61,6 @@ const UrlCheck: React.FC<Props> = () => {
       <View style={commonStyles.formContainer}>
         <View style={commonStyles.innerContainer}>
           <Text style={commonStyles.textMarginBottom}>검사할 URL을 입력하세요.</Text>
-
           <TextInput
             style={commonStyles.input}
             placeholder="URL을 입력하세요."
@@ -70,8 +69,14 @@ const UrlCheck: React.FC<Props> = () => {
           />
           <HEButton title="URL 검사" onPress={() => checkUrlSafety(url)} />
 
+          {/* <View> */}
+            <Image 
+              source={require('../assets/images/ThingQFulllogo.png')}
+              style={commonStyles.logoImage}
+            />
+          {/* </View> */}
+          
           <Text style={commonStyles.text2}>
-            {'\n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}
             Thing Q는 URL 링크의 위험도와{'\n'} 정보를 제공합니다.
           </Text>
         </View>
