@@ -34,7 +34,7 @@ const Login: React.FC<Props> = () => {
 
         if (temporaryPassword) {
           Alert.alert('알림', '임시 비밀번호로 로그인되었습니다. 비밀번호를 변경해 주세요.');
-          navigation.navigate('ChangePassword');
+          navigation.navigate('Home');
         } else {
           navigation.navigate('Home');
         }

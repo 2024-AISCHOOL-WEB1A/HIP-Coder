@@ -208,12 +208,50 @@ const Home: React.FC = () => {
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
           <Icon name="home" size={24} color={getIconColor('Home')} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('History')}>
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => {
+            if (isLoggedIn) {
+              navigation.navigate('History');
+            } else {
+              Alert.alert(
+                '로그인이 필요합니다',
+                '계속하려면 로그인해주세요.',
+                [
+                  {
+                    text: '확인',
+                    onPress: () => navigation.navigate('Login'),
+                  },
+                ]
+              );
+            }
+          }}
+        >
           <Icon name="time-outline" size={24} color={getIconColor('History')} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('MyPage')}>
+
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => {
+            if (isLoggedIn) {
+              navigation.navigate('MyPage');
+            } else {
+              Alert.alert(
+                '로그인이 필요합니다',
+                '계속하려면 로그인해주세요.',
+                [
+                  {
+                    text: '확인',
+                    onPress: () => navigation.navigate('Login'),
+                  },
+                ]
+              );
+            }
+          }}
+        >
           <Icon name="person-outline" size={24} color={getIconColor('MyPage')} />
         </TouchableOpacity>
+
       </View>
     </View>
   );
