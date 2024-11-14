@@ -40,7 +40,7 @@ const Report: React.FC<Props> = () => {
     navigation.navigate('ReportImage', { imageType: 'image2' });
   };
 
-  
+    
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.headerContainer}>
