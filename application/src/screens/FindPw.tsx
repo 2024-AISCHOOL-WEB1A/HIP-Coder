@@ -65,7 +65,7 @@ const FindPw: React.FC = () => {
             </View>
             <View style={commonStyles.formContainer}>
                 <View style={commonStyles.innerContainer}>
-                    <Text style={commonStyles.text1}>비밀번호를 찾으려면 아래 정보를 입력하세요.</Text>
+                    <Text style={commonStyles.textMarginBottom}>비밀번호를 찾으려면 아래 정보를 입력하세요.</Text>
                     <TextInput
                         style={commonStyles.input}
                         placeholder="아이디"

@@ -8,6 +8,7 @@ interface HEButtonProps {
   textColor?: string;
   borderRadius?: number;
   borderColor?: number;
+  fontFamily?: string;
   fontSize?: number;
   paddingVertical?: number;
   paddingHorizontal?: number;
@@ -22,6 +23,7 @@ const HEButton: React.FC<HEButtonProps> = ({
   textColor = 'white',
   borderRadius = 25,
   borderColor = '#3182f6',
+  fontFamily = 'Pretendard-Medium',
   fontSize = 16,
   paddingVertical = 5,
   paddingHorizontal = 20,
@@ -36,16 +38,25 @@ const HEButton: React.FC<HEButtonProps> = ({
           width: '100%',
           height: 55,
           backgroundColor,
+          textColor,
           borderRadius,
+          borderColor,
+          fontFamily,
+          fontSize,
           paddingVertical,
           paddingHorizontal,
-          // marginBottom
+
+          // backgroundColor,
+          // borderRadius,
+          // paddingVertical,
+          // paddingHorizontal,
+          // // marginBottom
         },
         style,
       ]}
       onPress={onPress}
     >
-      <Text style={[styles.buttonText, { color: textColor, fontSize }]}>
+      <Text style={[styles.buttonText, { fontFamily, color: textColor, fontSize }]}>
         {title}
       </Text>
     </TouchableOpacity>

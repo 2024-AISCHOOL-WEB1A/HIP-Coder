@@ -60,7 +60,7 @@ const UrlCheck: React.FC<Props> = () => {
       </View>
       <View style={commonStyles.formContainer}>
         <View style={commonStyles.innerContainer}>
-          <Text style={commonStyles.text1}>검사할 URL을 입력하세요.</Text>
+          <Text style={commonStyles.textMarginBottom}>검사할 URL을 입력하세요.</Text>
 
           <TextInput
             style={commonStyles.input}
@@ -71,7 +71,7 @@ const UrlCheck: React.FC<Props> = () => {
           <HEButton title="URL 검사" onPress={() => checkUrlSafety(url)} />
 
           <Text style={commonStyles.text2}>
-            {'\n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}
+            {'\n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}{' \n'}
             Thing Q는 URL 링크의 위험도와{'\n'} 정보를 제공합니다.
           </Text>
         </View>

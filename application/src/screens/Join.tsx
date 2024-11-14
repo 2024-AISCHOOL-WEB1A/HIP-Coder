@@ -229,7 +229,7 @@ const Join: React.FC<Props> = () => {
                   setAllTermsAccepted(newValue && terms1Accepted);
                 }}
               />
-               <Text onPress={() => navigation.navigate('TermsScreen', { termType: 'ageRestriction' })}>
+               <Text onPress={() => navigation.navigate('TermsScreen', { termType: 'ageRestriction' })} style={commonStyles.textGrayMedium}>
                 (필수) 만 14세 이상 약관
                 </Text>
                </View>
