@@ -1,5 +1,4 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
     <!-- 앱에서 사용하는 권한들 -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -18,15 +17,17 @@
         android:allowBackup="false"
         android:theme="@style/AppTheme"
         android:supportsRtl="true">
-        
+
+        <!-- MainActivity에 SplashTheme 적용 -->
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize"
+            android:theme="@style/SplashTheme" 
             android:exported="true">
-            
+
             <!-- 메인 액티비티 실행 인텐트 필터 -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,5 +35,4 @@
             </intent-filter>
         </activity>
     </application>
-
 </manifest>
