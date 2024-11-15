@@ -235,7 +235,6 @@ const Join: React.FC<Props> = () => {
               <Text> > </Text>
               </View>
               
-              
             </>
           )}
           {step === 2 && (

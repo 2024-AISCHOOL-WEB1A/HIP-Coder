@@ -22,7 +22,6 @@ const ReportImage: React.FC = () => {
     <View style={commonStyles.containerWhite}>
      <View>
         <Image source={imageSource} style={commonStyles.reportFullImage} />
-      <Text style={commonStyles.text}>선택된 이미지: {imageType === 'image1' ? 'Police1' : 'Kisa5'}</Text>
     </View>
 
     <TouchableOpacity style={commonStyles.fixedFooter} onPress={handleImagePress}>

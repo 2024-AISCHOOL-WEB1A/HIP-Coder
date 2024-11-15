@@ -21,7 +21,6 @@ const commonStyles = StyleSheet.create({
   },
   innerContainer:{
     paddingTop: 30,
-    margin: 0,
     backgroundColor: '#ffffff',
     width: '100%',
     height: '100%',
@@ -31,9 +30,6 @@ const commonStyles = StyleSheet.create({
     paddingRight: 40,
   },
   innerContainerGray:{
-    paddingTop: 30,
-    margin: 0,
-    backgroundColor: '#f3f5f7',
     width: '100%',
     height: '100%',
     borderTopLeftRadius: 30,
@@ -222,10 +218,8 @@ const commonStyles = StyleSheet.create({
   circleContainer: {
     justifyContent: 'center',
     marginRight: 10, // 텍스트와 이미지 간의 간격
-    // backgroundColor: 'blue',
   },
 
-  // 이미지 스타일
   circleImage: {
     width: 40,
     height: 40,
@@ -236,16 +230,12 @@ const commonStyles = StyleSheet.create({
     height: 30,
     overflow: 'hidden',
   },
-
-  // 텍스트와 버튼 세로 정렬을 위한 컨테이너
   textContainer: {
     flexDirection: 'column', // 텍스트는 세로로 정렬
     justifyContent: 'center', // 텍스트들을 세로로 정렬
     alignItems: 'flex-start', // 텍스트 왼쪽 정렬
     // marginLeft: 10, // 텍스트와 이미지 간 간격,
   },
-
-  // 신고하기 버튼을 세로 정렬로 배치
   reportButtonContainer: {
     flexDirection: 'column', // 버튼과 이미지 세로 배치
     justifyContent: 'center',
