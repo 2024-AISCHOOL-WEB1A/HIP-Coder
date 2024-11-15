@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, Linking, Dimensions, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../types';
 import Header from '../components/BGHeader';
 import commonStyles from '../styles/commonStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import api from '../../axios';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -19,7 +16,7 @@ const Report: React.FC<Props> = () => {
     const token = await AsyncStorage.getItem('accessToken');
     setIsLoggedIn(!!token);
   };
-  
+
    // 로그아웃 처리 함수
   const handleLogout = async () => {
     setIsLoggedIn(false);
@@ -60,7 +57,7 @@ const Report: React.FC<Props> = () => {
       </View>
 
       <View style={commonStyles.formContainer}>
-        <View style={commonStyles.innerContainer2}>
+        <View style={commonStyles.innerContainer1}>
 
           {/* 경찰청 신고 */}
           <View style={commonStyles.box1}>
@@ -79,7 +76,7 @@ const Report: React.FC<Props> = () => {
                 <View style={commonStyles.reportButtonContainer}>
                   <Image
                     source={require('../assets/images/Report.png')}
-                    style={commonStyles.reportImage}
+                    style={commonStyles.reportIcon}
                   />
                   <Text style={commonStyles.textNextToImage}>신고하기</Text>
                 </View>
@@ -104,7 +101,7 @@ const Report: React.FC<Props> = () => {
                 <View style={commonStyles.reportButtonContainer}>
                   <Image
                     source={require('../assets/images/Report.png')}
-                    style={commonStyles.reportImage}
+                    style={commonStyles.reportIcon}
                   />
                   <Text style={commonStyles.textNextToImage}>신고하기</Text>
                 </View>
@@ -129,7 +126,7 @@ const Report: React.FC<Props> = () => {
                 <View style={commonStyles.reportButtonContainer}>
                   <Image
                     source={require('../assets/images/Report.png')}
-                    style={commonStyles.reportImage}
+                    style={commonStyles.reportIcon}
                   />
                   <Text style={commonStyles.textNextToImage}>신고하기</Text>
                 </View>

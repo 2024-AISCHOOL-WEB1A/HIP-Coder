@@ -166,11 +166,11 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     textAlign: 'left',
     fontFamily: 'Pretendard-Bold',
-    marginTop : 25,
+    marginTop : 16.25,
   },
   iconContainer: {
     padding: 10,
-    marginTop : 30,
+    marginTop : 16.25,
   },
   overlay: {
     flex: 1,

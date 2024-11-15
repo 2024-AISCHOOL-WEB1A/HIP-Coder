@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
 
 const commonStyles = StyleSheet.create({
+
   container: {
     backgroundColor: '#3182f6',
     flex: 1,
@@ -16,6 +17,7 @@ const commonStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
+
   innerContainer:{
     paddingTop: 30,
     backgroundColor: '#ffffff',
@@ -29,6 +31,7 @@ const commonStyles = StyleSheet.create({
   innerContainerGray:{
     width: '100%',
     height: '100%',
+    paddingTop: 10,
     paddingLeft: 40,
     paddingRight: 40,
   },
@@ -42,15 +45,18 @@ const commonStyles = StyleSheet.create({
     paddingLeft: 30,
     paddingRight: 30,
   },
+
   headerContainer: {
     width: '100%',
     justifyContent: 'center',
     color: '#ffffff',
   },
+
   formContainer: {
     flex: 1,
     justifyContent: 'flex-start',
   },
+
   termsHeaderTitle:{
     fontFamily: 'Pretendard-Bold',
     fontSize: 20,
@@ -58,9 +64,13 @@ const commonStyles = StyleSheet.create({
     textAlign: 'center',
     paddingTop: 50,
   },
+
   fixedFooter: {
     height: 60,
     position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     padding: 10,
     backgroundColor: '#3182f6',
     justifyContent: 'center',
@@ -72,6 +82,7 @@ const commonStyles = StyleSheet.create({
     color: '#ffffff',
     textAlign: 'center',
   },
+
   view1: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -112,6 +123,11 @@ const commonStyles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 10,
   },
+
+  fullWidthButton: {
+    marginBottom: 20,
+  },
+
   smallButton: {
     width: '25%',
     height: 50,
@@ -121,6 +137,7 @@ const commonStyles = StyleSheet.create({
   buttonContainer: {
     marginTop: 10,
   },
+
   checkBox:{
     width: '25%',
     height: 50,
@@ -140,20 +157,24 @@ const commonStyles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 50,
   },
+
   activeButton: {
     backgroundColor: '#3182f6',
   },
+  
   linkContainer:{
     paddingLeft: 5,
   },
   link: {
     color: '#838383',
   },
+
   image: {
     width: '80%',
     height: '80%',
     resizeMode: 'contain',
   },
+
   box1: {
     width: '100%',
     height: '14%',
@@ -163,6 +184,7 @@ const commonStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+
   logoBox:{
     justifyContent: 'center',
     paddingTop:'30%',
@@ -174,6 +196,7 @@ const commonStyles = StyleSheet.create({
     resizeMode: 'contain',
     alignSelf: 'center',
   },
+
   logoImage: {
     width: 120,
     height: 120,
@@ -182,6 +205,7 @@ const commonStyles = StyleSheet.create({
     marginTop: 40,
     marginBottom: 10,
   },
+
   circleContainer: {
     justifyContent: 'center',
     marginRight: 10,
@@ -191,16 +215,19 @@ const commonStyles = StyleSheet.create({
     height: 40,
     overflow: 'hidden',
   },
-  reportImage:{
+  
+  reportIcon:{
     width: 30,
     height: 30,
     overflow: 'hidden',
   },
+
   textContainer: {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'flex-start',
   },
+
   reportButtonContainer: {
     flexDirection: 'column',
     justifyContent: 'center',
@@ -261,6 +288,7 @@ const commonStyles = StyleSheet.create({
     borderRadius: 25,
     resizeMode: 'cover',
   },
+
   reportFullImage : {
     width: '100%',
     height: '60%',
@@ -275,12 +303,12 @@ const commonStyles = StyleSheet.create({
     color: '#2c2b2b',
     marginBottom: 10,
   },
-  text1: {
+  textGrayM: {
     fontFamily: 'Pretendard-Bold',
     fontSize: 16,
     color: '#2c2b2b',
   },
-  text2: {
+  textBlue: {
     fontFamily: 'Pretendard-Regular',
     textAlign: 'center',
     fontSize: 16,

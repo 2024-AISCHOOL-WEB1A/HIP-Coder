@@ -12,7 +12,6 @@ interface HEButtonProps {
   fontSize?: number;
   paddingVertical?: number;
   paddingHorizontal?: number;
-  // marginBottom?: number;
   style?: object;
 }
 

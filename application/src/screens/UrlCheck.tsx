@@ -128,8 +128,8 @@ const UrlCheck: React.FC<Props> = () => {
               source={require('../assets/images/ThingQFulllogo.png')}
               style={commonStyles.logoImage}
             />
-          
-          <Text style={commonStyles.text2}>
+
+          <Text style={commonStyles.textBlue}>
             Thing Q는 URL 링크의 위험도와{'\n'} 정보를 제공합니다.
           </Text>
         </View>

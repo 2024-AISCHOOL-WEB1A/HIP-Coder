@@ -225,7 +225,7 @@ const Join: React.FC<Props> = () => {
                   setTerms2Accepted(newValue);
                 }}
               />
-              <Text style={commonStyles.text1}>모두 동의</Text>
+              <Text style={commonStyles.textGrayM}>모두 동의</Text>
               </View>
               <View style={commonStyles.view2}>
               <View style={commonStyles.view3}>
@@ -292,7 +292,7 @@ const Join: React.FC<Props> = () => {
               </Text>
               <TextInput
                 style={commonStyles.input}
-                placeholder="영어, 숫자, 특수문자를 포함 8자 이상 입력해주세요."
+                placeholder="소문자, 특수문자를 포함해 8자 이상 입력해주세요."
                 secureTextEntry
                 value={password}
                 onChangeText={setPassword}
@@ -302,7 +302,7 @@ const Join: React.FC<Props> = () => {
               </Text>
               <TextInput
                 style={commonStyles.input}
-                placeholder="비밀번호를 한번 더 입력해주세요."
+                placeholder="비밀번호를 확인해주세요."
                 secureTextEntry
                 value={passwordCheck}
                 onChangeText={setPasswordCheck}
