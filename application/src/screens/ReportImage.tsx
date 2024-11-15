@@ -20,7 +20,6 @@ const ReportImage: React.FC = () => {
 
   return (
     <View style={commonStyles.containerWhite}>
-     <View>
         <Image source={imageSource} style={commonStyles.reportFullImage} />
     </View>
 

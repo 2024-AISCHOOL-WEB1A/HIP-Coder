@@ -7,12 +7,6 @@ const commonStyles = StyleSheet.create({
     justifyContent: 'center',
     padding: 0,
   },
-  containerB: {
-    backgroundColor: '#3182f6',
-    flex: 1,
-    justifyContent: 'center',
-    padding: 0,
-  },
   containerWhite: {
     backgroundColor: '#ffffff',
     flex: 1,
@@ -47,7 +41,6 @@ const commonStyles = StyleSheet.create({
     paddingBottom: 20,
     paddingLeft: 40,
     paddingRight: 40,
-    // marginBottom: 30,
     backgroundColor: '#ffffff',
     width: '90%',
     height: '20%',
@@ -57,10 +50,8 @@ const commonStyles = StyleSheet.create({
     paddingTop: 20,
     margin: 0,
     backgroundColor: '#ffffff',
-    // backgroundColor: '#fbfbfb',
     width: '100%',
     height: '100%',
-    // borderRadius: 30,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingLeft: 30,
@@ -69,7 +60,6 @@ const commonStyles = StyleSheet.create({
 
   headerContainer: {
     width: '100%',
-    // alignItems: 'center',
     justifyContent: 'center',
     color: '#ffffff',
   },
@@ -101,7 +91,6 @@ const commonStyles = StyleSheet.create({
     fontSize: 20,
     color: '#ffffff',
     textAlign: 'center',
-
   },
   view1: {
     flexDirection: 'row',
@@ -121,7 +110,6 @@ const commonStyles = StyleSheet.create({
     width: '80%',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    // backgroundColor: 'red',
   },
 
   input: {
@@ -147,14 +135,11 @@ const commonStyles = StyleSheet.create({
   smallButton: {
     width: '25%',
     height: 50,
-    // borderColor: '#3182f6',
-    // borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 10,
   },
   buttonContainer: {
     marginTop: 10,
-    // marginBottom: 20,
   },
   checkBox:{
     width: '25%',
@@ -164,11 +149,6 @@ const commonStyles = StyleSheet.create({
   },
 
   fullWidthButton: {
-    // width: '100%',
-    // height: 50,
-    // borderColor: '#3182f6',
-    // borderWidth: 1,
-    // borderRadius: 20,
     marginBottom: 20,
   },
   radioButton: {
@@ -186,10 +166,6 @@ const commonStyles = StyleSheet.create({
   activeButton: {
     backgroundColor: '#3182f6',
   },
-
-  // modalView: {
-  //   borderColor: '#3182f6',
-  // },
   linkContainer:{
     paddingLeft: 5,
   },
@@ -229,13 +205,10 @@ const commonStyles = StyleSheet.create({
     marginTop: 40,
     marginBottom: 10,
   },
-
-  // circleContainer: 이미지 좌측에 배치
   circleContainer: {
     justifyContent: 'center',
     marginRight: 10, // 텍스트와 이미지 간의 간격
   },
-
   circleImage: {
     width: 40,
     height: 40,
@@ -250,13 +223,11 @@ const commonStyles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'flex-start',
-    // marginLeft: 10, // 텍스트와 이미지 간 간격,
   },
   reportButtonContainer: {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    // marginLeft: 130,
   },
 
   textNextToImageTitle: {
@@ -310,7 +281,6 @@ const commonStyles = StyleSheet.create({
     resizeMode: 'cover',
   },
   boxImageBanner2: {
-    // paddingTop: '10%',
     width: '100%',
     height: '100%',
     borderRadius: 25,
@@ -334,7 +304,6 @@ const commonStyles = StyleSheet.create({
     fontFamily: 'Pretendard-Bold',
     fontSize: 16,
     color: '#2c2b2b',
-    // marginBottom: 10,
   },
   text2: {
     fontFamily: 'Pretendard-Regular',

@@ -110,7 +110,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   title: {
-    padding: 10,
     fontSize: 22,
     color: '#ffffff',
     textAlign: 'center',

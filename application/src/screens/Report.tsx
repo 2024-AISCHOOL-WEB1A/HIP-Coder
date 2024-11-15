@@ -5,17 +5,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
 import Header from '../components/BGHeader';
 import commonStyles from '../styles/commonStyles';
-// import Carousel from 'react-native-snap-carousel';
-// import { ViewStyle } from 'react-native';
 
 import axios from 'axios';
-
-// type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
-
-// interface Props {
-//   navigation: HomeScreenNavigationProp;
-//   // csrfToken: string | null;
-// }
 
 const { width: screenWidth } = Dimensions.get('window');
 
