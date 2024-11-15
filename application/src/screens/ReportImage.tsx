@@ -13,7 +13,6 @@ const ReportImage: React.FC = () => {
     ? require('../assets/images/Police1.png')  // 첫 번째 이미지
     : require('../assets/images/Kisa5.png'); // 두 번째 이미지
 
-  // 이미지 클릭 시 Report.tsx로 돌아가는 함수
   const handleImagePress = () => {
     navigation.goBack();  // Report.tsx로 돌아가기
   };

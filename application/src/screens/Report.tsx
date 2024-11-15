@@ -137,7 +137,6 @@ const Report: React.FC<Props> = () => {
             </View>
           </View>
 
-
           {/* box2 클릭 시 이미지 1을 보여주는 ReportImage 화면으로 이동 */}
           <TouchableOpacity onPress={handleBox2Click} style={commonStyles.box2Banner1}>
             <Image

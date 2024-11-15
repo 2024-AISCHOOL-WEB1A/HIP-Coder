@@ -124,12 +124,10 @@ const UrlCheck: React.FC<Props> = () => {
           />
           <HEButton title="URL 검사" onPress={() => checkUrlSafety(url)} />
 
-          {/* <View> */}
             <Image 
               source={require('../assets/images/ThingQFulllogo.png')}
               style={commonStyles.logoImage}
             />
-          {/* </View> */}
           
           <Text style={commonStyles.text2}>
             Thing Q는 URL 링크의 위험도와{'\n'} 정보를 제공합니다.

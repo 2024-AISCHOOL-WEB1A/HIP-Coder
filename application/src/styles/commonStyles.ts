@@ -5,23 +5,19 @@ const commonStyles = StyleSheet.create({
     backgroundColor: '#3182f6',
     flex: 1,
     justifyContent: 'center',
-    padding: 0,
   },
   containerWhite: {
     backgroundColor: '#ffffff',
     flex: 1,
     justifyContent: 'center',
-    padding: 0,
   },
   containerGray: {
     backgroundColor: '#f5f5f5',
     flex: 1,
     justifyContent: 'center',
-    padding: 0,
   },
   innerContainer:{
     paddingTop: 30,
-    marginTop: 0,
     backgroundColor: '#ffffff',
     width: '100%',
     height: '100%',
@@ -38,17 +34,6 @@ const commonStyles = StyleSheet.create({
   },
   innerContainer1:{
     paddingTop: 20,
-    paddingBottom: 20,
-    paddingLeft: 40,
-    paddingRight: 40,
-    backgroundColor: '#ffffff',
-    width: '90%',
-    height: '20%',
-    borderRadius: 30,
-  },
-  innerContainer2:{
-    paddingTop: 20,
-    margin: 0,
     backgroundColor: '#ffffff',
     width: '100%',
     height: '100%',
@@ -56,10 +41,6 @@ const commonStyles = StyleSheet.create({
     borderTopRightRadius: 30,
     paddingLeft: 30,
     paddingRight: 30,
-  },
-  innerContainer3:{
-    paddingTop: 20,
-    paddingBottom: 20,
   },
   headerContainer: {
     width: '100%',
@@ -70,7 +51,6 @@ const commonStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
   },
-
   termsHeaderTitle:{
     fontFamily: 'Pretendard-Bold',
     fontSize: 20,
@@ -81,14 +61,10 @@ const commonStyles = StyleSheet.create({
   fixedFooter: {
     height: 60,
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
     padding: 10,
     backgroundColor: '#3182f6',
     justifyContent: 'center',
     alignItems: 'center',
-
   },
   footerText:{
     fontFamily: 'Pretendard-Medium',
@@ -152,9 +128,6 @@ const commonStyles = StyleSheet.create({
     borderWidth: 1,
   },
 
-  fullWidthButton: {
-    marginBottom: 20,
-  },
   radioButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -233,14 +206,12 @@ const commonStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
   textNextToImageTitle: {
     fontFamily: 'Pretendard-Bold',
     textAlign: 'left',
     color: '#1c1c1c',
     fontSize: 16,
   },
-
   textNextToImage: {
     fontFamily: 'Pretendard-Regular',
     textAlign: 'left',
@@ -330,11 +301,6 @@ const commonStyles = StyleSheet.create({
     color: 'black',
     fontSize: 16,
     paddingLeft: '2%',
-  },
-  text: {
-    fontFamily: 'Pretendard-Regular',
-    color: '#fff',
-    fontSize: 16,
   },
   textGraySmall:{
     fontFamily: 'Pretendard-Regular',
