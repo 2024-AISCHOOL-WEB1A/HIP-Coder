@@ -148,7 +148,7 @@ const selectImageFromGallery = () => {
       {selectedImageUri && (
         <View style={styles.buttonContainer}>
           <CustomButton title="이미지 변경하기" onPress={selectImageFromGallery} />
-          <CustomButton title="선택한 이미지 업로드" onPress={uploadImageToBackend} />
+          <CustomButton title="선택한 이미지 검사하기" onPress={uploadImageToBackend} />
         </View>
       )}
     </ScrollView>
