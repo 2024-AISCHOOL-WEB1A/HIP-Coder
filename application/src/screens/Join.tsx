@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, TextInput, Text, Alert, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, TextInput, Text, Alert, TouchableOpacity, Image, BackHandler } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import commonStyles from '../styles/commonStyles';
 import HEButton from '../components/HEButton';
@@ -33,6 +33,27 @@ const Join: React.FC<Props> = () => {
   const { csrfToken } = useCsrf();
 
   const navigation = useNavigation();
+
+  // 뒤로가기 버튼 처리
+  useEffect(() => {
+    const backAction = () => {
+      if (step > 1) {
+        setStep(step - 1); // 단계가 1 이상일 경우 이전 단계로 이동
+        return true; // 뒤로 가는 기본 동작을 막음
+      } else {
+        navigation.goBack(); // 첫 번째 단계에서는 뒤로 가기
+        return false; // 기본 뒤로가기 동작을 허용
+      }
+    };
+
+    // 뒤로가기 버튼 이벤트 리스너 추가
+    BackHandler.addEventListener('hardwareBackPress', backAction);
+
+    // 컴포넌트 언마운트 시 이벤트 리스너 제거
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', backAction);
+    };
+  }, [step, navigation]);
 
   const handleBackPress = () => {
     if (step > 1) {
@@ -216,11 +237,11 @@ const Join: React.FC<Props> = () => {
                   setAllTermsAccepted(newValue && terms2Accepted);
                 }}
               />
-                <Text onPress={() => navigation.navigate('TermsScreen', { termType: 'personalInfo' })} style={commonStyles.textGrayMedium}>
-                (필수) 개인정보 수집·이용 약관
+                <Text onPress={() => navigation.navigate('TermsScreen', { termType: 'agreement' })} style={commonStyles.textGrayMedium}>
+                (필수) 서비스 이용 약관
                 </Text>
                 </View>
-                <TouchableOpacity onPress={() => navigation.navigate('TermsScreen', { termType: 'ageRestriction' })}>
+                <TouchableOpacity onPress={() => navigation.navigate('TermsScreen', { termType: 'agreement' })}>
                   <Text> > </Text>
                 </TouchableOpacity>
               </View>
@@ -235,11 +256,14 @@ const Join: React.FC<Props> = () => {
                   setAllTermsAccepted(newValue && terms1Accepted);
                 }}
               />
-               <Text onPress={() => navigation.navigate('TermsScreen', { termType: 'ageRestriction' })} style={commonStyles.textGrayMedium}>
-                (필수) 만 14세 이상 약관
+              
+               <Text onPress={() => navigation.navigate('TermsScreen', { termType: 'privacy' })} style={commonStyles.textGrayMedium}>
+                (필수) 개인정보 수집·이용 약관
                 </Text>
                </View>
-              <Text> > </Text>
+               <TouchableOpacity onPress={() => navigation.navigate('TermsScreen', { termType: 'privacy' })}>
+                  <Text> > </Text>
+                </TouchableOpacity>
               </View>          
            </View>
             </>
