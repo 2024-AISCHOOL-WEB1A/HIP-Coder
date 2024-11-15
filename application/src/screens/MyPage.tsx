@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, TextInput, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, CommonActions } from '@react-navigation/native';
 import CustomButton from '../components/IJButton';
 import Header from '../components/Header';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -66,21 +66,32 @@ const MyPage: React.FC = () => {
   const handleLogout = async () => {
     setIsLoggedIn(false);
     await AsyncStorage.removeItem('accessToken');
-    Alert.alert('알림', '로그아웃 되었습니다.');
-    navigation.navigate('Login');
+    // 네비게이션 스택 초기화 후 홈 화면으로 이동
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      })
+    );
   };
 
   // 컴포넌트 마운트 시 로그인 상태 확인
   useEffect(() => {
     checkIsLoggedIn();
+    mypagelist();
   }, []);
 
   const mypagelist = async () => {
     try {
       const accessToken = await AsyncStorage.getItem('accessToken');
       if (!accessToken) {
-        Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
-          { text: '확인', onPress: () => navigation.navigate('Login') },
+        Alert.alert('오류', '로그인이 필요합니다. 홈 화면으로 이동합니다.', [
+          {
+            text: '확인',
+            onPress: () => {
+              handleLogout(); // 로그아웃 처리 후 홈으로 이동
+            },
+          },
         ]);
         return;
       }
@@ -111,8 +122,21 @@ const MyPage: React.FC = () => {
         Alert.alert('오류', '서버로부터 잘못된 형식의 데이터가 반환되었습니다.');
       }
     } catch (error) {
-      console.error('API 오류 발생:', error);
-      Alert.alert('오류', '사용자 데이터를 가져오는 중 오류가 발생했습니다.');
+      Alert.alert('세션 만료', '세션이 만료되었습니다. 홈 화면으로 이동합니다.', [
+        { 
+          text: '확인', 
+          onPress: async () => {
+            await handleLogout(); // 로그아웃 처리
+            // 홈 화면으로 이동하고 네비게이션 스택을 초기화
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0, // 초기 인덱스를 설정
+                routes: [{ name: 'Home' }], // 홈 화면을 네비게이션 스택에 추가
+              })
+            );
+          } 
+        },
+      ]);
     }
   };
 
@@ -243,9 +267,6 @@ const MyPage: React.FC = () => {
     );
   };
 
-  useEffect(() => {
-    mypagelist();
-  }, []);
 
   const getIconColor = (screen: string) => {
     return route.name === screen ? '#3182f6' : '#9DA3B4';

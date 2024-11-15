@@ -35,13 +35,6 @@ const History = () => {
   };
 
 
-
-  // 컴포넌트 마운트 시 로그인 상태 확인
-  useEffect(() => {
-    checkIsLogin();
-  }, []);
-
-
   const scanlist = async (page) => {
     if ((isLoading && page === 1) || isFetchingMore || !hasMoreData) return;
   
@@ -51,14 +44,16 @@ const History = () => {
   
       const accessToken = await AsyncStorage.getItem('accessToken');
       if (!accessToken) {
-        Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
+        Alert.alert('오류', '로그인이 필요합니다. 홈 화면으로 이동합니다.', [
           { 
             text: '확인', 
-            onPress: () => {
+            onPress: async () => {
+              await handleLogout(); // 로그아웃 처리
+              // 홈 화면으로 이동하고 네비게이션 스택을 초기화
               navigation.dispatch(
                 CommonActions.reset({
-                  index: 0,
-                  routes: [{ name: 'Login' }],
+                  index: 0, // 초기 인덱스를 설정
+                  routes: [{ name: 'Home' }], // 홈 화면을 네비게이션 스택에 추가
                 })
               );
             },
@@ -108,15 +103,17 @@ const History = () => {
         setHasMoreData(false);
       }
     } catch (error) {
-      Alert.alert('세션 만료', '세션이 만료되었습니다. 다시 로그인 해주세요.', [
+      // 세션 만료 처리 부분
+      Alert.alert('세션 만료', '세션이 만료되었습니다. 홈 화면으로 이동합니다.', [
         { 
           text: '확인', 
           onPress: async () => {
             await handleLogout(); // 로그아웃 처리
+            // 홈 화면으로 이동하고 네비게이션 스택을 초기화
             navigation.dispatch(
               CommonActions.reset({
-                index: 0,
-                routes: [{ name: 'Login' }],
+                index: 0, // 초기 인덱스를 설정
+                routes: [{ name: 'Home' }], // 홈 화면을 네비게이션 스택에 추가
               })
             );
           } 
@@ -128,6 +125,7 @@ const History = () => {
       setIsFetchingMore(false);
     }
   };
+
   useEffect(() => {
     checkIsLogin();
   }, []);
@@ -169,7 +167,7 @@ const History = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', { 
+    return date.toLocaleDateString('ko-KR', {
       month: 'long',
       day: 'numeric',
     });
@@ -191,8 +189,8 @@ const History = () => {
   };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity 
-      style={styles.historyItem} 
+    <TouchableOpacity
+      style={styles.historyItem}
       onPress={() => {
         if (item.status === '클린 URL') {
           openURL(item.content);
@@ -213,9 +211,9 @@ const History = () => {
       <View style={styles.contentContainer}>
         <View style={styles.mainInfo}>
           <View style={styles.iconContainer}>
-            <Icon 
-              name={getTypeIcon(item.type)} 
-              size={24} 
+            <Icon
+              name={getTypeIcon(item.type)}
+              size={24}
               color="#5A9FFF"
             />
           </View>
@@ -230,7 +228,7 @@ const History = () => {
             <Text style={styles.dateText}>{formatDate(item.date)}</Text>
           </View>
         </View>
-        <Icon name="chevron-forward-outline" size={20} color="#5A9FFF" /> 
+        <Icon name="chevron-forward-outline" size={20} color="#5A9FFF" />
       </View>
     </TouchableOpacity>
   );
@@ -261,13 +259,16 @@ const History = () => {
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}
             ListFooterComponent={
-              isFetchingMore && hasMoreData ? 
-                <ActivityIndicator size="large" color="#5A9FFF" /> 
+              isFetchingMore && hasMoreData ?
+                <ActivityIndicator size="large" color="#5A9FFF" />
                 : null
             }
           />
         )}
       </View>
+
+
+      {/* 하단 네비게이션 바 */}
 
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
@@ -305,12 +306,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666666',
     marginTop: 4,
-    fontFamily: 'Pretendard-Regular', 
+    fontFamily: 'Pretendard-Regular',
   },
   separator: {
     height: 1,
     width: '100%',
-    backgroundColor: '#E0E0E0', 
+    backgroundColor: '#E0E0E0',
     marginVertical: 20,
   },
   listContainer: {
@@ -368,14 +369,14 @@ const styles = StyleSheet.create({
     color: '#666666',
     marginTop: 4,
     marginBottom: 4,
-    fontFamily: 'Pretendard-Medium', 
+    fontFamily: 'Pretendard-Medium',
   },
   emptyText: {
     fontSize: 16,
     color: '#666666',
     textAlign: 'center',
     marginVertical: 20,
-    fontFamily: 'Pretendard-Regular', 
+    fontFamily: 'Pretendard-Regular',
   },
   dangerBadge: {
     backgroundColor: '#FFE6E8',
@@ -389,7 +390,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-SemiBold',
   },
   safeBadge: {
-    backgroundColor: '#E6F2FF', 
+    backgroundColor: '#E6F2FF',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
