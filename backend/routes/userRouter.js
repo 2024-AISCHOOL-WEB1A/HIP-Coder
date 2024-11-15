@@ -253,7 +253,7 @@ router.post('/handleLogin', async (req, res) => {
         const [rows] = await conn.promise().query(sql, [id]);
 
         if (rows.length === 0) {
-            return res.status(400).json({ error: '존재하지 않는 사용자입니다.' });
+            return res.status(400).json({ error: '아이디 또는 비밀번호가 일치하지 않습니다.' });
         }
 
         const user = rows[0];

@@ -292,7 +292,7 @@ const Join: React.FC<Props> = () => {
               </Text>
               <TextInput
                 style={commonStyles.input}
-                placeholder="소문자, 특수문자를 포함해 8자 이상 입력해주세요."
+                placeholder="영어, 숫자, 특수문자를 포함 8자 이상 입력해주세요."
                 secureTextEntry
                 value={password}
                 onChangeText={setPassword}
@@ -302,7 +302,7 @@ const Join: React.FC<Props> = () => {
               </Text>
               <TextInput
                 style={commonStyles.input}
-                placeholder="비밀번호를 확인해주세요."
+                placeholder="비밀번호를 한번 더 입력해주세요."
                 secureTextEntry
                 value={passwordCheck}
                 onChangeText={setPasswordCheck}
