@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Alert, TouchableOpacity, StyleSheet, Linking } from 'react-native';
+import { View, Text, TextInput, Alert, TouchableOpacity, StyleSheet, Linking, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
-import Header from '../components/BGHeader';
+import Header from '../components/Header';
 import commonStyles from '../styles/commonStyles';
 import HEButton from '../components/HEButton';
 import api from '../../axios';
@@ -112,7 +112,7 @@ const FindId: React.FC = () => {
     }, []);
 
     return (
-        <View style={commonStyles.container}>
+        <View style={commonStyles.containerGray}>
             <View style={commonStyles.headerContainer}>
                 <Header title="ID 찾기" onBackPress={() => {
                     // console.log('Back button pressed');
@@ -120,7 +120,7 @@ const FindId: React.FC = () => {
                 }} />
             </View>
             <View style={commonStyles.formContainer}>
-                <View style={commonStyles.innerContainer}>
+                <View style={commonStyles.innerContainerGray}>
                     {!isEmailSent ? (
                         <>
                             <Text style={commonStyles.textMarginBottom}>이름과 이메일을 입력하세요.</Text>
@@ -145,6 +145,11 @@ const FindId: React.FC = () => {
                                 // console.log('Find ID button pressed');
                                 handleFindId();
                             }} />
+                            
+                            <Image 
+                                source={require('../assets/images/ThingQFulllogo.png')}
+                                style={commonStyles.logoImage1}
+                                />
                         </>
                     ) : (
                         <>

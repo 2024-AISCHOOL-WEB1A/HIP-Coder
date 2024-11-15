@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, TextInput, Alert, Text, StyleSheet } from 'react-native';
+import { View, TextInput, Alert, Text, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
-import Header from '../components/BGHeader';
+import Header from '../components/Header';
 import commonStyles from '../styles/commonStyles';
 import HEButton from '../components/HEButton';
 import api from '../../axios';
@@ -59,12 +59,12 @@ const FindPw: React.FC = () => {
     };
 
     return (
-        <View style={commonStyles.container}>
+        <View style={commonStyles.containerGray}>
             <View style={commonStyles.headerContainer}>
                 <Header title="비밀번호 찾기" onBackPress={() => navigation.goBack()} />
             </View>
             <View style={commonStyles.formContainer}>
-                <View style={commonStyles.innerContainer}>
+                <View style={commonStyles.innerContainerGray}>
                     <Text style={commonStyles.textMarginBottom}>비밀번호를 찾으려면 아래 정보를 입력하세요.</Text>
                     <TextInput
                         style={commonStyles.input}
@@ -86,6 +86,10 @@ const FindPw: React.FC = () => {
                         keyboardType="email-address"
                     />
                     <HEButton style={commonStyles.fullWidthButton} title="비밀번호 찾기" onPress={handleFindPw} />
+                    <Image
+                        source={require('../assets/images/ThingQFulllogo.png')}
+                        style={commonStyles.logoImage1}
+                         />
                 </View>
             </View>
         </View>

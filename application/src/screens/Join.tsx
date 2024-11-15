@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, Alert, TouchableOpacity } from 'react-native';
+import { View, TextInput, Text, Alert, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import commonStyles from '../styles/commonStyles';
 import HEButton from '../components/HEButton';
@@ -123,41 +123,41 @@ const Join: React.FC<Props> = () => {
       }
       setStep(2);
     } else if (step === 2) {
-      if (!idck) { // 여기부터 <==============================
-        Alert.alert('경고', '아이디 중복 확인을 해주세요.');
-        return;
-      } if (!id) {
-        Alert.alert('경고', '아이디를 입력해주세요.');
-        return;
-      } if (!password) {
-        Alert.alert('경고', '비밀번호를 입력해주세요.');
-        return;
-      } if (password !== passwordCheck) {
-        Alert.alert('경고', '비밀번호가 일치하지 않습니다.');
-        return;
-      } if (!name) {
-        Alert.alert('경고', '이름을 입력해주세요.')
-      }
-      const nameRegex = /^[^0-9]*$/;
-      if (!nameRegex.test(name)) {
-        Alert.alert('경고', '이름에 숫자가 포함될 수 없습니다.');
-        return;
-      }
-      if (!email) {
-        Alert.alert('경고', '이메일을 입력해주세요.');
-        return;
-      }
-      const emailRegex = /^[\w-.]+@([\w-]+\.)+[a-zA-Z]{2,4}$/;
-      if (!emailRegex.test(email) || /@[\w-]*\d/.test(email)) {
-        Alert.alert('경고', '유효한 이메일 주소를 입력해주세요.');
-        return;
-      } if (!phone) {
-        Alert.alert('경고', '핸드폰 번호를 입력해주세요.');
-        return;
-      } if (phone.length !== 11) {
-        Alert.alert('경고', '유효한 핸드폰 번호를 입력해주세요.')
-        return;
-      } // 여기까지 <===========================
+      // if (!idck) { // 여기부터 <==============================
+      //   Alert.alert('경고', '아이디 중복 확인을 해주세요.');
+      //   return;
+      // } if (!id) {
+      //   Alert.alert('경고', '아이디를 입력해주세요.');
+      //   return;
+      // } if (!password) {
+      //   Alert.alert('경고', '비밀번호를 입력해주세요.');
+      //   return;
+      // } if (password !== passwordCheck) {
+      //   Alert.alert('경고', '비밀번호가 일치하지 않습니다.');
+      //   return;
+      // } if (!name) {
+      //   Alert.alert('경고', '이름을 입력해주세요.')
+      // }
+      // const nameRegex = /^[^0-9]*$/;
+      // if (!nameRegex.test(name)) {
+      //   Alert.alert('경고', '이름에 숫자가 포함될 수 없습니다.');
+      //   return;
+      // }
+      // if (!email) {
+      //   Alert.alert('경고', '이메일을 입력해주세요.');
+      //   return;
+      // }
+      // const emailRegex = /^[\w-.]+@([\w-]+\.)+[a-zA-Z]{2,4}$/;
+      // if (!emailRegex.test(email) || /@[\w-]*\d/.test(email)) {
+      //   Alert.alert('경고', '유효한 이메일 주소를 입력해주세요.');
+      //   return;
+      // } if (!phone) {
+      //   Alert.alert('경고', '핸드폰 번호를 입력해주세요.');
+      //   return;
+      // } if (phone.length !== 11) {
+      //   Alert.alert('경고', '유효한 핸드폰 번호를 입력해주세요.')
+      //   return;
+      // } // 여기까지 <===========================
       setStep(3);
     } else if (step === 3) {
       if (!emergencyContact1) { // 여기부터 <==========================
@@ -184,9 +184,16 @@ const Join: React.FC<Props> = () => {
       </View>
       <View style={commonStyles.formContainer}>
         <View style={commonStyles.innerContainerGray}>
+    
           {step === 1 && (
-            <> 
-              <Text style={commonStyles.textGraySmall}>이용약관에 동의하시겠습니까?{'\n'}</Text>
+            <>
+            <View style={commonStyles.logoBox}>
+            <Image 
+              source={require('../assets/images/ThingQFulllogo.png')}
+              style={commonStyles.logoImage1}
+            />
+             
+              <Text style={commonStyles.textGrayMediumCenter}>이용약관에 동의하시겠습니까?{'\n'}</Text>
               <View style={commonStyles.view3}>
               <BouncyCheckbox
                 isChecked={allTermsAccepted}
@@ -233,12 +240,13 @@ const Join: React.FC<Props> = () => {
                 </Text>
                </View>
               <Text> > </Text>
-              </View>
-              
+              </View>          
+           </View>
             </>
           )}
           {step === 2 && (
             <>
+            <Text style={commonStyles.textInputTop}>ID*</Text>
               <View style={commonStyles.view1}>
                 <TextInput
                   style={commonStyles.input1}
@@ -253,13 +261,15 @@ const Join: React.FC<Props> = () => {
                   style={commonStyles.smallButton}
                 />
               </View>
+              <Text style={commonStyles.textInputTop}>비밀번호*</Text>
               <TextInput
                 style={commonStyles.input}
-                placeholder="비밀번호를 입력해주세요."
+                placeholder="대, 소, 특수문자를 포함해 8자 이상 입력해주세요."
                 secureTextEntry
                 value={password}
                 onChangeText={setPassword}
               />
+              <Text style={commonStyles.textInputTop}>비밀번호 확인*</Text>
               <TextInput
                 style={commonStyles.input}
                 placeholder="비밀번호를 확인해주세요."
@@ -267,20 +277,23 @@ const Join: React.FC<Props> = () => {
                 value={passwordCheck}
                 onChangeText={setPasswordCheck}
               />
+              <Text style={commonStyles.textInputTop}>이름*</Text>
               <TextInput
                 style={commonStyles.input}
                 placeholder="이름을 입력해주세요."
                 value={name}
                 onChangeText={setName}
               />
+              <Text style={commonStyles.textInputTop}>E-mail*</Text>
               <TextInput
                 style={commonStyles.input}
-                placeholder="Email을 입력해주세요."
+                placeholder="E-mail을 입력해주세요."
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
+              <Text style={commonStyles.textInputTop}>핸드폰 번호*</Text>
               <TextInput
                 style={commonStyles.input}
                 placeholder="핸드폰 번호를 입력해주세요."
@@ -293,13 +306,15 @@ const Join: React.FC<Props> = () => {
           )}
           {step === 3 && (
             <>
+              <Text style={commonStyles.textInputTop}>비상연락망1</Text>
               <TextInput
                 style={commonStyles.input}
                 placeholder="비상연락망1 을 입력해주세요."
                 value={emergencyContact1}
                 onChangeText={setEmergencyContact1}
                 autoCapitalize="none"
-              />
+              />              
+              <Text style={commonStyles.textInputTop}>비상연락망2</Text>
               <TextInput
                 style={commonStyles.input}
                 placeholder="비상연락망2 를 입력해주세요."
@@ -307,6 +322,10 @@ const Join: React.FC<Props> = () => {
                 onChangeText={setEmergencyContact2}
                 autoCapitalize="none"
               />
+               <Image 
+                source={require('../assets/images/ThingQFulllogo.png')}
+                style={commonStyles.logoImage1}
+            />
             </>
           )}
           <TouchableOpacity style={commonStyles.fixedFooter} onPress={nextStep}>

@@ -7,6 +7,12 @@ const commonStyles = StyleSheet.create({
     justifyContent: 'center',
     padding: 0,
   },
+  containerB: {
+    backgroundColor: '#3182f6',
+    flex: 1,
+    justifyContent: 'center',
+    padding: 0,
+  },
   containerWhite: {
     backgroundColor: '#ffffff',
     flex: 1,
@@ -14,13 +20,14 @@ const commonStyles = StyleSheet.create({
     padding: 0,
   },
   containerGray: {
-    backgroundColor: '#f3f5f7',
+    backgroundColor: '#f5f5f5',
     flex: 1,
     justifyContent: 'center',
     padding: 0,
   },
   innerContainer:{
     paddingTop: 30,
+    marginTop: 0,
     backgroundColor: '#ffffff',
     width: '100%',
     height: '100%',
@@ -32,8 +39,6 @@ const commonStyles = StyleSheet.create({
   innerContainerGray:{
     width: '100%',
     height: '100%',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
     paddingLeft: 40,
     paddingRight: 40,
   },
@@ -123,6 +128,7 @@ const commonStyles = StyleSheet.create({
     fontFamily: 'Pretendard-Regular',
     height: 50,
     borderColor: '#E0E0E0',
+    backgroundColor: '#ffffff',
     borderWidth: 1,
     borderRadius: 12,
     marginBottom: 20,
@@ -133,6 +139,7 @@ const commonStyles = StyleSheet.create({
     width: '70%',
     height: 50,
     borderColor: '#E0E0E0',
+    backgroundColor: '#ffffff',
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 10,
@@ -196,22 +203,31 @@ const commonStyles = StyleSheet.create({
   },
   box1: {
     width: '100%',
-    height: '12%',
+    height: '14%',
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
     justifyContent: 'space-between',
-    // marginBottom: 20,
-    flexDirection: 'row', // 이미지와 텍스트를 가로로 배치
-    alignItems: 'center', // 세로로 정렬을 맞추기 위해 추가
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-
+  logoBox:{
+    justifyContent: 'center',
+    paddingTop:'30%',
+  },
+  logoImage1: {
+    width: 150,
+    height: 150,
+    justifyContent: 'center',
+    resizeMode: 'contain',
+    alignSelf: 'center',
+  },
   logoImage: {
-    width: 120,   // 크기 조정
-    height: 120,  // 크기 조정
-    resizeMode: 'contain', // 이미지 비율 유지하면서 크기 조정
-    alignSelf: 'center',   // 중앙 정렬
+    width: 120,
+    height: 120,
+    resizeMode: 'contain',
+    alignSelf: 'center',
     marginTop: 40,
-    marginBottom: 10,      // 버튼과 텍스트 사이의 여백
+    marginBottom: 10,
   },
 
   // circleContainer: 이미지 좌측에 배치
@@ -231,13 +247,13 @@ const commonStyles = StyleSheet.create({
     overflow: 'hidden',
   },
   textContainer: {
-    flexDirection: 'column', // 텍스트는 세로로 정렬
-    justifyContent: 'center', // 텍스트들을 세로로 정렬
-    alignItems: 'flex-start', // 텍스트 왼쪽 정렬
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
     // marginLeft: 10, // 텍스트와 이미지 간 간격,
   },
   reportButtonContainer: {
-    flexDirection: 'column', // 버튼과 이미지 세로 배치
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     // marginLeft: 130,
@@ -257,7 +273,7 @@ const commonStyles = StyleSheet.create({
     fontSize: 12,
   },
 
-  box2: {
+  box2Banner1: {
     width: '100%',
     height: '20%',
     justifyContent: 'center',
@@ -270,7 +286,7 @@ const commonStyles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 10,
-    marginTop: 20,
+    marginTop: '8%',
   },
   box2Banner2: {
     width: '100%',
@@ -285,9 +301,9 @@ const commonStyles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 10,
-    marginTop: 20,
+    marginTop: '8%',
   },
-  boxImage: {
+  boxImageBanner1: {
     width: '100%',
     height: '100%',
     borderRadius: 25,
@@ -335,6 +351,12 @@ const commonStyles = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 20,
   },
+  textInputTop:{
+    fontFamily: 'Pretendard-Regular',
+    color: 'black',
+    fontSize: 16,
+    paddingLeft: '2%',
+  },
   text: {
     fontFamily: 'Pretendard-Regular',
     color: '#fff',
@@ -349,6 +371,13 @@ const commonStyles = StyleSheet.create({
     fontFamily: 'Pretendard-Regular',
     color: 'gray',
     fontSize: 16,
+  },
+  textGrayMediumCenter:{
+    fontFamily: 'Pretendard-Regular',
+    color: 'gray',
+    fontSize: 16,
+    alignItems: 'center',
+    marginBottom: 10,
   },
 });
 
