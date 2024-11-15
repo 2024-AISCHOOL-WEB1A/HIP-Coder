@@ -147,7 +147,7 @@ const History = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', { 
+    return date.toLocaleDateString('ko-KR', {
       month: 'long',
       day: 'numeric',
     });
@@ -169,8 +169,8 @@ const History = () => {
   };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity 
-      style={styles.historyItem} 
+    <TouchableOpacity
+      style={styles.historyItem}
       onPress={() => {
         if (item.status === '클린 URL') {
           openURL(item.content);
@@ -191,9 +191,9 @@ const History = () => {
       <View style={styles.contentContainer}>
         <View style={styles.mainInfo}>
           <View style={styles.iconContainer}>
-            <Icon 
-              name={getTypeIcon(item.type)} 
-              size={24} 
+            <Icon
+              name={getTypeIcon(item.type)}
+              size={24}
               color="#5A9FFF"
             />
           </View>
@@ -208,7 +208,7 @@ const History = () => {
             <Text style={styles.dateText}>{formatDate(item.date)}</Text>
           </View>
         </View>
-        <Icon name="chevron-forward-outline" size={20} color="#5A9FFF" /> 
+        <Icon name="chevron-forward-outline" size={20} color="#5A9FFF" />
       </View>
     </TouchableOpacity>
   );
@@ -243,24 +243,24 @@ const History = () => {
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}
             ListFooterComponent={
-              isFetchingMore && hasMoreData ? 
-                <ActivityIndicator size="large" color="#5A9FFF" /> 
+              isFetchingMore && hasMoreData ?
+                <ActivityIndicator size="large" color="#5A9FFF" />
                 : null
             }
           />
         )}
       </View>
 
-      {/* 하단 네비게이션 바 추가 */}
+      {/* 하단 네비게이션 바 */}
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
-          <Icon name="home" size={24} color="#3182f6" />
+          <Icon name="home" size={24} color={getIconColor('Home')} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('History')}>
-          <Icon name="time-outline" size={24} color="#9DA3B4" />
+          <Icon name="time-outline" size={24} color={getIconColor('History')} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('MyPage')}>
-          <Icon name="person-outline" size={24} color="#9DA3B4" />
+          <Icon name="person-outline" size={24} color={getIconColor('MyPage')} />
         </TouchableOpacity>
       </View>
     </View>
@@ -288,12 +288,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666666',
     marginTop: 4,
-    fontFamily: 'Pretendard-Regular', 
+    fontFamily: 'Pretendard-Regular',
   },
   separator: {
     height: 1,
     width: '100%',
-    backgroundColor: '#E0E0E0', 
+    backgroundColor: '#E0E0E0',
     marginVertical: 20,
   },
   listContainer: {
@@ -351,14 +351,14 @@ const styles = StyleSheet.create({
     color: '#666666',
     marginTop: 4,
     marginBottom: 4,
-    fontFamily: 'Pretendard-Medium', 
+    fontFamily: 'Pretendard-Medium',
   },
   emptyText: {
     fontSize: 16,
     color: '#666666',
     textAlign: 'center',
     marginVertical: 20,
-    fontFamily: 'Pretendard-Regular', 
+    fontFamily: 'Pretendard-Regular',
   },
   dangerBadge: {
     backgroundColor: '#FFE6E8',
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-SemiBold',
   },
   safeBadge: {
-    backgroundColor: '#E6F2FF', 
+    backgroundColor: '#E6F2FF',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
