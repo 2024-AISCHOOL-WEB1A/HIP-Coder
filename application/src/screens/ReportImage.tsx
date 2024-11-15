@@ -20,8 +20,8 @@ const ReportImage: React.FC = () => {
 
   return (
     <View style={commonStyles.containerWhite}>
-        <Image source={imageSource} style={commonStyles.reportFullImage} />
-    </View>
+      <Image source={imageSource} style={commonStyles.reportFullImage} />
+
 
     <TouchableOpacity style={commonStyles.fixedFooter} onPress={handleImagePress}>
     <Text style={commonStyles.footerText}>닫기</Text>

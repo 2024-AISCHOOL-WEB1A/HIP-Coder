@@ -57,7 +57,10 @@ const commonStyles = StyleSheet.create({
     paddingLeft: 30,
     paddingRight: 30,
   },
-
+  innerContainer3:{
+    paddingTop: 20,
+    paddingBottom: 20,
+  },
   headerContainer: {
     width: '100%',
     justifyContent: 'center',
@@ -73,6 +76,7 @@ const commonStyles = StyleSheet.create({
     fontSize: 20,
     color: 'black',
     textAlign: 'center',
+    paddingTop: 50,
   },
   fixedFooter: {
     height: 60,
@@ -82,8 +86,8 @@ const commonStyles = StyleSheet.create({
     right: 0,
     padding: 10,
     backgroundColor: '#3182f6',
-    justifyContent: 'center', // 수직 정렬 추가
-    alignItems: 'center', // 수평 정렬 추가
+    justifyContent: 'center',
+    alignItems: 'center',
 
   },
   footerText:{
@@ -207,7 +211,7 @@ const commonStyles = StyleSheet.create({
   },
   circleContainer: {
     justifyContent: 'center',
-    marginRight: 10, // 텍스트와 이미지 간의 간격
+    marginRight: 10,
   },
   circleImage: {
     width: 40,
@@ -288,10 +292,10 @@ const commonStyles = StyleSheet.create({
   },
   reportFullImage : {
     width: '100%',
-    height: '80%',
-    // flex: 1,
+    height: '60%',
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 60,
   },
 
   textMarginBottom: {
@@ -312,13 +316,14 @@ const commonStyles = StyleSheet.create({
     color: '#3182f6',
     marginBottom: 10,
   },
-  text3: {
+  textBlackMedium: {
     fontFamily: 'Pretendard-Regular',
-    fontSize: 12,
-    // color: '#2c2b2b',cd android && ./gradlew clean && cd ..
+    fontSize: 16,
     color: 'black',
     paddingLeft: 20,
     paddingRight: 20,
+    marginTop: 20,
+    marginBottom: 20,
   },
   textInputTop:{
     fontFamily: 'Pretendard-Regular',
