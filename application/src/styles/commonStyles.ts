@@ -379,6 +379,9 @@ const commonStyles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
   },
+  redAsterisk: {
+    color: 'red',
+  },
 });
 
 
