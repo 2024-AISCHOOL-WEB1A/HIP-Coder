@@ -19,7 +19,6 @@ const QRScannerScreen = () => {
     const handleQRScanSuccess = (data) => {
       const url = data.result;
       console.log("handleQRScanSuccess: QR 코드 스캔 성공 - URL:", url);
-      Alert.alert('QR 코드 스캔', `URL: ${url}`);
       sendUrlToBackend(url);
     };
 
@@ -45,25 +44,74 @@ const QRScannerScreen = () => {
     };
   }, []); // 한 번만 실행
 
-  const sendUrlToBackend = async (url) => {
-    console.log("sendUrlToBackend: 서버로 URL 전송 시도 - URL:", url);
+  const sendUrlToBackend = async (inputUrl) => {
+    console.log("sendUrlToBackend: 서버로 URL 전송 시도 - URL:", inputUrl);
     try {
-      const token = await AsyncStorage.getItem('token');
-      console.log("sendUrlToBackend: AsyncStorage에서 토큰 가져오기 성공 - 토큰:", token);
+      const token = await AsyncStorage.getItem('accessToken');
+
+      let formattedURL = inputUrl.trim().replace(/,/g, '');
+
+      // URL이 http:// 또는 https://로 시작하지 않으면 기본으로 https://www.를 추가
+      if (!/^https?:\/\//i.test(formattedURL)) {
+        formattedURL = `https://www.${formattedURL}`;
+      }
+
       const response = await axios.post(`${FLASK_URL}/scan`, {
-        url: url,
+        url: formattedURL,
         category: 'QR',
       }, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          'Authorization': `Bearer ${token}`,
+        },
       });
-      const { message } = response.data;
-      console.log("sendUrlToBackend: 서버 응답 메시지:", message);
-      Alert.alert('URL 분류 결과', message);
+
+      console.log('서버 응답 데이터:', response.data);
+      const status = response.data.status;
+
+      if (status === 'good') {
+        Alert.alert('알림', '안전한 사이트입니다! 링크로 이동합니다.', [
+          { text: 'OK', onPress: () => openURL(formattedURL) }
+        ]);
+      } else if (status === 'bad') {
+        Alert.alert(
+          '경고', '이 URL은 위험할 수 있습니다. 그래도 접속하시겠습니까?',
+          [
+            { text: '취소', style: 'cancel' },
+            { text: '접속', onPress: () => openURL(formattedURL) }
+          ]
+        );
+      } else {
+        Alert.alert('오류', '예측 결과를 확인할 수 없습니다.');
+      }
     } catch (error) {
       console.error('sendUrlToBackend: 서버 전송 오류:', error);
       Alert.alert('오류', 'QR 코드 URL을 분류하는 중 오류가 발생했습니다.');
+    }
+  };
+
+  // URL 열기 함수
+  const openURL = async (inputUrl) => {
+    let formattedURL = inputUrl.trim().replace(/,/g, '');
+
+    const isValidURL = (url) => {
+      const urlRegex = /^(https?:\/\/)?([\w\-]+\.)+[a-zA-Z]{2,}(\/\S*)?$/;
+      return urlRegex.test(url);
+    };
+
+    if (!isValidURL(formattedURL)) {
+      Alert.alert('잘못된 URL 형식입니다.');
+      return;
+    }
+
+    if (!/^https?:\/\//i.test(formattedURL)) {
+      formattedURL = `https://www.${formattedURL}`;
+    }
+
+    try {
+      await Linking.openURL(formattedURL);
+    } catch (error) {
+      Alert.alert(`URL을 열 수 없습니다: ${formattedURL}`);
+      console.error('URL 열기 오류:', error);
     }
   };
 
@@ -75,7 +123,7 @@ const QRScannerScreen = () => {
 
     try {
       console.log("startScan: 카메라 초기화 시도");
-      //await CameraModule.resetCamera();
+      await CameraModule.resetCamera();
       console.log("startScan: 카메라 초기화 완료");
 
       console.log("startScan: 카메라 시작 시도");

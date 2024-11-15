@@ -156,7 +156,7 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: 130,
+    height: 100,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -167,9 +167,12 @@ const styles = StyleSheet.create({
     color: '#0D47A1',
     textAlign: 'left',
     fontFamily: 'Pretendard-Bold',
+    marginTop : 35,
   },
   iconContainer: {
     padding: 10,
+    marginTop : 35,
+
   },
   overlay: {
     flex: 1,
