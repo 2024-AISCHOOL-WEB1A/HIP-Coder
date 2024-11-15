@@ -347,9 +347,9 @@ router.post('/FindId', (req, res) => {
                     padding: 10px 20px;
                     font-size: 16px;
                     color: white;
-                    background-color: #4CAF50;
+                    background-color: #3182f6;
                     text-decoration: none;
-                    border-radius: 5px;
+                    border-radius: 10px;
                 ">아이디 찾기</a>
                 <p>이 링크는 1시간 동안 유효합니다.</p>
             `
@@ -394,11 +394,49 @@ router.get('/verify-id/:token', (req, res) => {
 
             // 인증 완료 후 사용자 ID를 HTML로 반환
             res.send(`
-                <div style="width: 100%; display: flex; justify-content: center; align-items: center; height: 100vh;">
-                    <div style="border: 1px solid #000; padding: 20px;">
-                        <p>회원님의 아이디는 <strong>${user_id}</strong> 입니다.</p>
-                    </div>
-                </div>
+                <html>
+                    <head>
+                        <style>
+                            body {
+                                font-family: Arial, sans-serif;
+                                background-color: #f8f9fa;
+                                margin: 0;
+                                padding: 0;
+                            }
+
+                            .container {
+                                max-width: 800px;
+                                margin: 0 auto;
+                                padding: 20px;
+                                background-color: white;
+                                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                                border-radius: 8px;
+                                text-align: center;
+                            }
+
+                            h2 {
+                                color: #333;
+                                text-align: center;
+                            }
+
+                            p {
+                                color: #555;
+                                font-size: 16px;
+                            }
+                            .logo {
+                                    width: 150px; /* 로고 크기 조정 */
+                                    margin-bottom: 20px;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <img src= "https://jsh-1.s3.ap-northeast-2.amazonaws.com/KakaoTalk_20241115_153601709.png" alt="Thing Q" class="logo">
+                            <h2>아이디 찾기 인증 완료</h2>
+                            <p>회원님의 아이디는 <strong>${user_id}</strong> 입니다.</p>
+                        </div>
+                    </body>
+                </html>
             `);
         }
     });

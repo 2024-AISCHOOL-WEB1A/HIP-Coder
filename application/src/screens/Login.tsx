@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, TextInput, Text, StyleSheet, Alert, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, CommonActions } from '@react-navigation/native';
 import CustomButton from '../components/IJButton';
 import Header from '../components/Header';
 import api from '../../axios';
@@ -29,15 +29,21 @@ const Login: React.FC<Props> = () => {
         await AsyncStorage.setItem('accessToken', token);
         await AsyncStorage.setItem('username', userName); // 사용자 이름을 AsyncStorage에 저장
         console.log('AsyncStorage에 저장된 token', await AsyncStorage.getItem('accessToken'));
-
+  
         setIsLoggedIn(true);
-
+  
         if (temporaryPassword) {
           Alert.alert('알림', '임시 비밀번호로 로그인되었습니다. 비밀번호를 변경해 주세요.');
-          navigation.navigate('Home');
-        } else {
-          navigation.navigate('Home');
         }
+        
+        // 로그인 후 네비게이션 스택을 초기화하여 홈 화면으로 이동
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: 'Home' }], // 홈 화면으로 이동
+          })
+        );
+  
       } else if (res.status === 400) {
         Alert.alert('비밀번호가 일치하지 않습니다.');
       }
@@ -55,7 +61,7 @@ const Login: React.FC<Props> = () => {
       }
     }
   };
-
+  
   return (
     <View style={styles.container}>
       <Header onBackPress={() => navigation.goBack()} title="" />
