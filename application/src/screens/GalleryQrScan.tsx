@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FLASK_URL } from '@env';
 import Header from '../components/Header';
 import CustomButton from '../components/IJButton';
+import { useNavigation } from '@react-navigation/native';
 
 interface GalleryQrScanProps {
   navigation: any;
@@ -14,11 +15,26 @@ interface GalleryQrScanProps {
 
 const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation, route }) => {
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const nav = useNavigation();
+
+  const checkIsLogin = async () => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    setIsLoggedIn(!!accessToken);
+  };
+
+  // 로그아웃 처리 함수
+  const handleLogout = async () => {
+    setIsLoggedIn(false);
+    await AsyncStorage.removeItem('accessToken');
+    navigation.navigate('Login');
+  };
 
   useEffect(() => {
     if (route.params && route.params.imageUri) {
       setSelectedImageUri(route.params.imageUri);
     }
+    checkIsLogin()
   }, [route.params]);
 
 // 갤러리에서 이미지 선택
@@ -120,7 +136,7 @@ const selectImageFromGallery = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Header title="QR 이미지 검사" onBackPress={() => navigation.goBack()} />
+      <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} title="QR 이미지 검사" onBackPress={() => navigation.goBack()} />
       <View style={styles.mainContent}>
         {selectedImageUri ? (
           <Image source={{ uri: selectedImageUri }} style={styles.previewImage} />
