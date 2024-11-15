@@ -6,6 +6,7 @@ import Header from '../components/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../../axios';
 import { useCsrf } from '../../context/CsrfContext';
+import { CommonActions } from '@react-navigation/native';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -30,30 +31,42 @@ const History = () => {
   const handleLogout = async () => {
     setIsLoggedIn(false);
     await AsyncStorage.removeItem('accessToken');
-    Alert.alert('알림', '로그아웃 되었습니다.');
     navigation.navigate('Login');
   };
+
+
 
   // 컴포넌트 마운트 시 로그인 상태 확인
   useEffect(() => {
     checkIsLogin();
   }, []);
 
+
   const scanlist = async (page) => {
     if ((isLoading && page === 1) || isFetchingMore || !hasMoreData) return;
-
+  
     try {
       if (page === 1) setIsLoading(true);
       else setIsFetchingMore(true);
-
+  
       const accessToken = await AsyncStorage.getItem('accessToken');
       if (!accessToken) {
         Alert.alert('오류', '로그인이 필요합니다. 로그인 페이지로 이동합니다.', [
-          { text: '확인', onPress: () => navigation.navigate('Login') },
+          { 
+            text: '확인', 
+            onPress: () => {
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: 0,
+                  routes: [{ name: 'Login' }],
+                })
+              );
+            },
+          },
         ]);
         return;
       }
-
+  
       const res = await api.post(
         '/scan/scanlist',
         { page, limit: ITEMS_PER_PAGE },
@@ -65,7 +78,7 @@ const History = () => {
           withCredentials: true
         }
       );
-
+  
       if (res.data && Array.isArray(res.data.message)) {
         const scanItems = res.data.message.map(item => ({
           id: item.SCAN_ID.toString(),
@@ -75,7 +88,7 @@ const History = () => {
           content: item.SCAN_URL,
           imageUrl: item.IMAGE_URL ? item.IMAGE_URL : 'https://via.placeholder.com/150'
         }));
-
+  
         if (page === 1) {
           setHistoryData(scanItems);
         } else {
@@ -85,9 +98,9 @@ const History = () => {
             return uniqueData;
           });
         }
-
+  
         setHasMoreData(scanItems.length === ITEMS_PER_PAGE);
-
+  
         if (res.data.totalCount) {
           setTotalCount(res.data.totalCount);
         }
@@ -95,19 +108,28 @@ const History = () => {
         setHasMoreData(false);
       }
     } catch (error) {
-      console.error('API 오류 발생:', error);
-      if (page === 1) {
-        setHistoryData([]); // Clear history data on error when loading the first page
-      }
+      Alert.alert('세션 만료', '세션이 만료되었습니다. 다시 로그인 해주세요.', [
+        { 
+          text: '확인', 
+          onPress: async () => {
+            await handleLogout(); // 로그아웃 처리
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Login' }],
+              })
+            );
+          } 
+        },
+      ]);
+      setHasMoreData(false);
     } finally {
       setIsLoading(false);
       setIsFetchingMore(false);
     }
   };
-
   useEffect(() => {
     checkIsLogin();
-    scanlist(1);
   }, []);
 
   const handleLoadMore = () => {
@@ -219,7 +241,7 @@ const History = () => {
 
   return (
     <View style={styles.container}>
-      <Header title="검사 이력 보기" onBackPress={() => navigation.goBack()} />
+      <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} title="검사 이력 보기" onBackPress={() => navigation.goBack()} />
       <View style={styles.scrollContainer}>
         <View style={styles.headerContainer}>
           <Text style={styles.subtitle}>검사 이력</Text>
@@ -235,11 +257,7 @@ const History = () => {
             keyExtractor={(item, index) => `${item.id}-${index}`}
             contentContainerStyle={styles.listContainer}
             showsVerticalScrollIndicator={false}
-            ListEmptyComponent={
-              historyData.length === 0 && !isLoading ? (
-                <Text style={styles.emptyText}>검사 이력이 없습니다.</Text>
-              ) : null
-            }
+            ListEmptyComponent={<Text style={styles.emptyText}>검사 이력이 없습니다.</Text>}
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}
             ListFooterComponent={
@@ -251,16 +269,15 @@ const History = () => {
         )}
       </View>
 
-      {/* 하단 네비게이션 바 추가 */}
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
-          <Icon name="home" size={24} color="#3182f6" />
+          <Icon name="home" size={24} color={getIconColor('Home')} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('History')}>
-          <Icon name="time-outline" size={24} color="#9DA3B4" />
+          <Icon name="time-outline" size={24} color={getIconColor('History')} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('MyPage')}>
-          <Icon name="person-outline" size={24} color="#9DA3B4" />
+          <Icon name="person-outline" size={24} color={getIconColor('MyPage')} />
         </TouchableOpacity>
       </View>
     </View>
