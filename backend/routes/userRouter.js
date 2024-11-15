@@ -180,7 +180,13 @@ router.post('/FindPw', async (req, res) => {
                             to: userEmail,
                             from: process.env.EMAIL,
                             subject: '임시 비밀번호 발급',
-                            text: `임시 비밀번호가 발급되었습니다. 다음 임시 비밀번호로 로그인하세요:\n ${temporaryPassword}\n\n임시 비밀번호는 1시간 동안 유효합니다. 로그인 후 반드시 비밀번호를 변경해 주세요.`
+                            html: `
+                            <div>임시 비밀번호가 발급되었습니다.</div> 
+                                <div>다음 임시 비밀번호로 로그인하세요:</div>
+                             <div style="font-weight: bold; color: #000000; font-size: 18px;">${temporaryPassword}</div>
+                            임시 비밀번호는 1시간 동안 유효합니다.
+                             로그인 후 반드시 비밀번호를 변경해 주세요.
+                            `
                         };
 
                         // 이메일 보내기
