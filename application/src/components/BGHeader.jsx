@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     textAlign: 'left',
     fontFamily: 'Pretendard-Bold',
-    marginTop : 30,
+    marginTop : 25,
   },
   iconContainer: {
     padding: 10,

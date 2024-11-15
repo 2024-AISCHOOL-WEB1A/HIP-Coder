@@ -1,17 +1,38 @@
-import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, Linking, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, TouchableOpacity, Linking, Dimensions, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
 import Header from '../components/BGHeader';
 import commonStyles from '../styles/commonStyles';
-
-import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from '../../axios';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 const Report: React.FC<Props> = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const navigation = useNavigation();
+
+  // 로그인 상태 확인
+  const checkIsLoggedIn = async () => {
+    const token = await AsyncStorage.getItem('accessToken');
+    setIsLoggedIn(!!token);
+  };
+  
+   // 로그아웃 처리 함수
+  const handleLogout = async () => {
+    setIsLoggedIn(false);
+    await AsyncStorage.removeItem('accessToken');
+    Alert.alert('알림', '로그아웃 되었습니다.');
+    navigation.navigate('Login');
+  };
+
+   // 컴포넌트 마운트 시 로그인 상태 확인
+   useEffect(() => {
+    checkIsLoggedIn();
+  }, []);
+
 
   // 신고하기 클릭 시 외부 링크로 이동
   const handleLinkPress = (url: string) => {
@@ -31,11 +52,11 @@ const Report: React.FC<Props> = () => {
     navigation.navigate('ReportImage', { imageType: 'image2' });
   };
 
-    
+
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.headerContainer}>
-        <Header title="신고하기" onBackPress={() => navigation.goBack()} />
+      <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} title="신고하기" onBackPress={() => navigation.goBack()} />
       </View>
 
       <View style={commonStyles.formContainer}>
@@ -115,7 +136,7 @@ const Report: React.FC<Props> = () => {
               </TouchableOpacity>
             </View>
           </View>
-          
+
 
           {/* box2 클릭 시 이미지 1을 보여주는 ReportImage 화면으로 이동 */}
           <TouchableOpacity onPress={handleBox2Click} style={commonStyles.box2Banner1}>

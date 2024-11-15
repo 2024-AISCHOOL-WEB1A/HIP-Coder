@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, TextInput, Alert, Text, Linking, Image, Button } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, TextInput, Alert, Text, Linking, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
@@ -13,8 +13,29 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
 const UrlCheck: React.FC<Props> = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [url, setUrl] = useState('');
   const navigation = useNavigation<HomeScreenNavigationProp>();
+
+  // 로그인 상태 확인
+  const checkIsLoggedIn = async () => {
+    const token = await AsyncStorage.getItem('accessToken');
+    setIsLoggedIn(!!token);
+  };
+
+  // 로그아웃 처리 함수
+  const handleLogout = async () => {
+    setIsLoggedIn(false);
+    await AsyncStorage.removeItem('accessToken');
+    Alert.alert('알림', '로그아웃 되었습니다.');
+    navigation.navigate('Login');
+  };
+
+  // 컴포넌트 마운트 시 로그인 상태 확인
+  useEffect(() => {
+    checkIsLoggedIn();
+  }, []);
+
 
   const checkUrlSafety = async (inputUrl: string) => {
     try {
@@ -90,7 +111,7 @@ const UrlCheck: React.FC<Props> = () => {
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.headerContainer}>
-        <Header title="URL 검사" onBackPress={() => navigation.goBack()} />
+      <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} title="URL 검사" onBackPress={() => navigation.goBack()} />
       </View>
       <View style={commonStyles.formContainer}>
         <View style={commonStyles.innerContainer}>
