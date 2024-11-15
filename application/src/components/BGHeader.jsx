@@ -4,7 +4,6 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
 interface HeaderProps {
   title?: string;
   onBackPress?: () => void;
