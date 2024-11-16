@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NativeModules, NativeEventEmitter, View, Text, Alert, Linking, StyleSheet } from 'react-native';
+import { NativeModules, NativeEventEmitter, View, Text, Alert, StyleSheet, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { FLASK_URL } from '@env';
@@ -11,54 +11,70 @@ const eventEmitter = new NativeEventEmitter(CameraModule);
 const QRScannerScreen = () => {
   const navigation = useNavigation();
   const [isCameraActive, setCameraActive] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
 
   useEffect(() => {
     console.log("useEffect: 이벤트 리스너 설정 중...");
     console.log("CameraModule 확인:", CameraModule);
 
-    // QR 코드 스캔 성공 처리
-    const handleQRScanSuccess = (data) => {
-      const url = data.result;
-      console.log("handleQRScanSuccess: QR 코드 스캔 성공 - URL:", url);
-      sendUrlToBackend(url);
-    };
-
-    // 카메라 종료 이벤트 처리
-    const handleCameraClose = () => {
-      console.log("handleCameraClose: 카메라 종료 이벤트 수신");
-      setCameraActive(false);
-      navigation.navigate('Home');
-    };
-
-    // 이벤트 리스너 등록
     const qrScanListener = eventEmitter.addListener('QRScanSuccess', handleQRScanSuccess);
     const cameraCloseListener = eventEmitter.addListener('CameraCloseEvent', handleCameraClose);
 
-    // 카메라 자동 시작
     startScan();
 
     return () => {
-      // 컴포넌트 언마운트 시 이벤트 리스너 제거 및 카메라 종료
       console.log("useEffect Cleanup: 모든 이벤트 리스너 제거 중...");
       qrScanListener.remove();
       cameraCloseListener.remove();
-      stopScan();
+      if (isCameraActive) {
+        stopScan(); // 활성 상태일 때만 카메라 종료
+      }
     };
   }, []);
 
-  // 서버에 URL 전송
+  const handleQRScanSuccess = async (data) => {
+    if (isScanning) {
+      console.log("handleQRScanSuccess: 스캔 처리 중 - 추가 스캔 차단");
+      return;
+    }
+
+    setIsScanning(true);
+    const url = data.result;
+    console.log("handleQRScanSuccess: QR 코드 스캔 성공 - URL:", url);
+
+    await sendUrlToBackend(url);
+
+    console.log("handleQRScanSuccess: 카메라 종료 요청");
+    CameraModule.cancelScan(); // 카메라 종료 요청
+
+    console.log("handleQRScanSuccess: Home 화면으로 이동 시작");
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Home' }],
+    });
+    console.log("handleQRScanSuccess: Home 화면으로 이동 완료");
+  };
+
+  const handleCameraClose = () => {
+    console.log("handleCameraClose: 카메라 종료 이벤트 수신");
+    stopScan();
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Home' }],
+    });
+    console.log("handleCameraClose: Home 화면으로 이동 완료");
+  };
+
   const sendUrlToBackend = async (inputUrl) => {
     console.log("sendUrlToBackend: 서버로 URL 전송 시도 - URL:", inputUrl);
     try {
       const token = await AsyncStorage.getItem('accessToken');
       let formattedURL = inputUrl.trim();
 
-      // URL 포맷 검사 및 보정
       if (!/^https?:\/\//i.test(formattedURL)) {
         formattedURL = `https://www.${formattedURL}`;
       }
 
-      // 서버 요청
       const response = await axios.post(`${FLASK_URL}/scan`, {
         url: formattedURL,
         category: 'QR',
@@ -69,18 +85,17 @@ const QRScannerScreen = () => {
       });
 
       console.log('서버 응답 데이터:', response.data);
-      const { status, message, url } = response.data;
+      const { status, url } = response.data;
 
-      // 응답 상태에 따른 처리
       if (status === 'good') {
         Alert.alert('알림', '안전한 사이트입니다! 링크로 이동합니다.', [
-          { text: 'OK', onPress: () => openURL(url) }
+          { text: 'OK', onPress: () => Linking.openURL(url) }
         ]);
       } else if (status === 'bad') {
         Alert.alert(
           '경고', '이 URL은 위험할 수 있습니다. 그래도 접속하시겠습니까?',
           [
-            { text: 'URL 열기', onPress: () => openURL(url) },
+            { text: 'URL 열기', onPress: () => Linking.openURL(url) },
             { text: '취소', style: 'cancel' }
           ]
         );
@@ -93,33 +108,6 @@ const QRScannerScreen = () => {
     }
   };
 
-  // URL 열기 함수
-  const openURL = async (inputUrl) => {
-    let formattedURL = inputUrl.trim();
-
-    const isValidURL = (url) => {
-      const urlRegex = /^(https?:\/\/)?([\w\-]+\.)+[a-zA-Z]{2,}(\/[^\s]*)?$/;
-      return urlRegex.test(url);
-    };
-
-    if (!isValidURL(formattedURL)) {
-      Alert.alert('잘못된 URL 형식입니다.');
-      return;
-    }
-
-    if (!/^https?:\/\//i.test(formattedURL)) {
-      formattedURL = `https://${formattedURL}`;
-    }
-
-    try {
-      await Linking.openURL(formattedURL);
-    } catch (error) {
-      Alert.alert(`URL을 열 수 없습니다: ${formattedURL}`);
-      console.error('URL 열기 오류:', error);
-    }
-  };
-
-  // 카메라 시작 함수
   const startScan = async () => {
     if (isCameraActive) {
       console.log("startScan: 카메라가 이미 활성화 상태입니다.");
@@ -141,7 +129,6 @@ const QRScannerScreen = () => {
     }
   };
 
-  // 카메라 종료 함수
   const stopScan = async () => {
     if (!isCameraActive) {
       console.log("stopScan: 카메라가 이미 비활성화 상태입니다.");
@@ -158,8 +145,6 @@ const QRScannerScreen = () => {
       Alert.alert("오류", "카메라를 종료하는 중 오류가 발생했습니다.");
     }
   };
-
-  console.log("QRScannerScreen: 컴포넌트 렌더링 중");
 
   return (
     <View style={styles.container}>
