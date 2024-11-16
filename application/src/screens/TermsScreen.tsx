@@ -479,10 +479,7 @@ const TermsScreen: React.FC = () => {
 
   return (
     <View style={commonStyles.containerWhite}>
-      {/* <View style={commonStyles.headerContainer}>
-        <Header onBackPress={() => navigation.goBack()} /> */}
         <Text style={commonStyles.termsHeaderTitle}>{termsHeaderTitle}</Text>
-      {/* </View> */}
       <ScrollView>
         {termType === 'agreement' && (
           <>
@@ -500,9 +497,6 @@ const TermsScreen: React.FC = () => {
         )}
       </ScrollView>
       
-      {/* <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Text style={{ color: 'blue', textAlign: 'right', marginTop: 20 }}>닫기</Text>
-      </TouchableOpacity> */}
       <TouchableOpacity style={commonStyles.fixedFooter} onPress={() => navigation.goBack()}>
         <Text style={commonStyles.footerText}>닫기</Text>
       </TouchableOpacity>

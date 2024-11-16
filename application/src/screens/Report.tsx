@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+<<<<<<< HEAD
 import { View, Text, Image, TouchableOpacity, Linking, Dimensions, Alert, StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -8,6 +9,13 @@ import commonStyles from '../styles/commonStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../../axios';
 import Icon from 'react-native-vector-icons/Ionicons';
+=======
+import { View, Text, Image, TouchableOpacity, Linking, Dimensions, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import Header from '../components/BGHeader';
+import commonStyles from '../styles/commonStyles';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+>>>>>>> 409ccd7a2fc8aa671c8eaaa23a92a74a90b1fcf8
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -21,10 +29,13 @@ const Report: React.FC<Props> = () => {
     setIsLoggedIn(!!token);
   };
 
+<<<<<<< HEAD
   const getIconColor = (screen: string) => {
     return route.name === screen ? '#3182f6' : '#9DA3B4';
   };
   
+=======
+>>>>>>> 409ccd7a2fc8aa671c8eaaa23a92a74a90b1fcf8
    // 로그아웃 처리 함수
   const handleLogout = async () => {
     setIsLoggedIn(false);
@@ -65,7 +76,7 @@ const Report: React.FC<Props> = () => {
       </View>
 
       <View style={commonStyles.formContainer}>
-        <View style={commonStyles.innerContainer2}>
+        <View style={commonStyles.innerContainer1}>
 
           {/* 경찰청 신고 */}
           <View style={commonStyles.box1}>
@@ -84,7 +95,7 @@ const Report: React.FC<Props> = () => {
                 <View style={commonStyles.reportButtonContainer}>
                   <Image
                     source={require('../assets/images/Report.png')}
-                    style={commonStyles.reportImage}
+                    style={commonStyles.reportIcon}
                   />
                   <Text style={commonStyles.textNextToImage}>신고하기</Text>
                 </View>
@@ -109,7 +120,7 @@ const Report: React.FC<Props> = () => {
                 <View style={commonStyles.reportButtonContainer}>
                   <Image
                     source={require('../assets/images/Report.png')}
-                    style={commonStyles.reportImage}
+                    style={commonStyles.reportIcon}
                   />
                   <Text style={commonStyles.textNextToImage}>신고하기</Text>
                 </View>
@@ -134,14 +145,13 @@ const Report: React.FC<Props> = () => {
                 <View style={commonStyles.reportButtonContainer}>
                   <Image
                     source={require('../assets/images/Report.png')}
-                    style={commonStyles.reportImage}
+                    style={commonStyles.reportIcon}
                   />
                   <Text style={commonStyles.textNextToImage}>신고하기</Text>
                 </View>
               </TouchableOpacity>
             </View>
           </View>
-
 
           {/* box2 클릭 시 이미지 1을 보여주는 ReportImage 화면으로 이동 */}
           <TouchableOpacity onPress={handleBox2Click} style={commonStyles.box2Banner1}>

@@ -367,6 +367,7 @@ const Join: React.FC<Props> = () => {
                   autoCapitalize="none"
                   autoCorrect={false}
                 />
+
                 <Text style={commonStyles.textInputTop}>
                   핸드폰 번호 <Text style={commonStyles.redAsterisk}>*</Text>
                 </Text>
@@ -413,6 +414,7 @@ const Join: React.FC<Props> = () => {
               </>
             )}
           </View>
+
         </View>
       </KeyboardAwareScrollView>
       <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 60, backgroundColor: '#3182f6', justifyContent: 'center', alignItems: 'center', zIndex: 10 }}>

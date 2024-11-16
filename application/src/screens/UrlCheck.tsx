@@ -151,6 +151,7 @@ const UrlCheck: React.FC<Props> = () => {
             keyboardType="url"
             autoCapitalize="none"
           />
+
           <HEButton title="URL 검사" onPress={() => checkUrlSafety(url)} style={styles.inputtype} />
           <Text style={commonStyles.text2}>
             Thing Q는 URL 링크의 위험도를{'\n'} 검사할 수 있습니다.

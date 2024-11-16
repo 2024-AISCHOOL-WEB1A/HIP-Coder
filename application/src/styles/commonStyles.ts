@@ -1,27 +1,25 @@
 import { StyleSheet } from 'react-native';
 
 const commonStyles = StyleSheet.create({
+
   container: {
     backgroundColor: '#3182f6',
     flex: 1,
     justifyContent: 'center',
-    padding: 0,
   },
   containerWhite: {
     backgroundColor: '#ffffff',
     flex: 1,
     justifyContent: 'center',
-    padding: 0,
   },
   containerGray: {
     backgroundColor: '#f5f5f5',
     flex: 1,
     justifyContent: 'center',
-    padding: 0,
   },
+
   innerContainer:{
     paddingTop: 30,
-    marginTop: 0,
     backgroundColor: '#ffffff',
     width: '100%',
     height: '100%',
@@ -33,22 +31,12 @@ const commonStyles = StyleSheet.create({
   innerContainerGray:{
     width: '100%',
     height: '100%',
+    paddingTop: 10,
     paddingLeft: 40,
     paddingRight: 40,
   },
   innerContainer1:{
     paddingTop: 20,
-    paddingBottom: 20,
-    paddingLeft: 40,
-    paddingRight: 40,
-    backgroundColor: '#ffffff',
-    width: '90%',
-    height: '20%',
-    borderRadius: 30,
-  },
-  innerContainer2:{
-    paddingTop: 20,
-    margin: 0,
     backgroundColor: '#ffffff',
     width: '100%',
     height: '100%',
@@ -57,15 +45,13 @@ const commonStyles = StyleSheet.create({
     paddingLeft: 30,
     paddingRight: 30,
   },
-  innerContainer3:{
-    paddingTop: 20,
-    paddingBottom: 20,
-  },
+
   headerContainer: {
     width: '100%',
     justifyContent: 'center',
     color: '#ffffff',
   },
+
   formContainer: {
     flex: 1,
     justifyContent: 'flex-start',
@@ -78,6 +64,7 @@ const commonStyles = StyleSheet.create({
     textAlign: 'center',
     paddingTop: 50,
   },
+
   fixedFooter: {
     height: 60,
     position: 'absolute',
@@ -88,7 +75,6 @@ const commonStyles = StyleSheet.create({
     backgroundColor: '#3182f6',
     justifyContent: 'center',
     alignItems: 'center',
-
   },
   footerText:{
     fontFamily: 'Pretendard-Medium',
@@ -96,6 +82,7 @@ const commonStyles = StyleSheet.create({
     color: '#ffffff',
     textAlign: 'center',
   },
+
   view1: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -136,6 +123,11 @@ const commonStyles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 10,
   },
+
+  fullWidthButton: {
+    marginBottom: 20,
+  },
+
   smallButton: {
     width: '25%',
     height: 50,
@@ -145,6 +137,7 @@ const commonStyles = StyleSheet.create({
   buttonContainer: {
     marginTop: 10,
   },
+
   checkBox:{
     width: '25%',
     height: 50,
@@ -152,9 +145,6 @@ const commonStyles = StyleSheet.create({
     borderWidth: 1,
   },
 
-  fullWidthButton: {
-    marginBottom: 20,
-  },
   radioButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -167,20 +157,24 @@ const commonStyles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 50,
   },
+
   activeButton: {
     backgroundColor: '#3182f6',
   },
+  
   linkContainer:{
     paddingLeft: 5,
   },
   link: {
     color: '#838383',
   },
+
   image: {
     width: '80%',
     height: '80%',
     resizeMode: 'contain',
   },
+
   box1: {
     width: '100%',
     height: '14%',
@@ -190,6 +184,7 @@ const commonStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+
   logoBox:{
     justifyContent: 'center',
     paddingTop:'30%',
@@ -201,6 +196,7 @@ const commonStyles = StyleSheet.create({
     resizeMode: 'contain',
     alignSelf: 'center',
   },
+
   logoImage: {
     width: 120,
     height: 120,
@@ -209,6 +205,7 @@ const commonStyles = StyleSheet.create({
     marginTop: 40,
     marginBottom: 10,
   },
+
   circleContainer: {
     justifyContent: 'center',
     marginRight: 10,
@@ -218,29 +215,30 @@ const commonStyles = StyleSheet.create({
     height: 40,
     overflow: 'hidden',
   },
-  reportImage:{
+  
+  reportIcon:{
     width: 30,
     height: 30,
     overflow: 'hidden',
   },
+
   textContainer: {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'flex-start',
   },
+
   reportButtonContainer: {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
   },
-
   textNextToImageTitle: {
     fontFamily: 'Pretendard-Bold',
     textAlign: 'left',
     color: '#1c1c1c',
     fontSize: 16,
   },
-
   textNextToImage: {
     fontFamily: 'Pretendard-Regular',
     textAlign: 'left',
@@ -290,6 +288,7 @@ const commonStyles = StyleSheet.create({
     borderRadius: 25,
     resizeMode: 'cover',
   },
+
   reportFullImage : {
     width: '100%',
     height: '60%',
@@ -304,12 +303,12 @@ const commonStyles = StyleSheet.create({
     color: '#2c2b2b',
     marginBottom: 10,
   },
-  text1: {
+  textGrayM: {
     fontFamily: 'Pretendard-Bold',
     fontSize: 16,
     color: '#2c2b2b',
   },
-  text2: {
+  textBlue: {
     fontFamily: 'Pretendard-Regular',
     textAlign: 'center',
     fontSize: 16,
@@ -330,11 +329,6 @@ const commonStyles = StyleSheet.create({
     color: 'black',
     fontSize: 16,
     paddingLeft: '2%',
-  },
-  text: {
-    fontFamily: 'Pretendard-Regular',
-    color: '#fff',
-    fontSize: 16,
   },
   textGraySmall:{
     fontFamily: 'Pretendard-Regular',
