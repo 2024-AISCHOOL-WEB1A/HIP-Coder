@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 
+
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
 const UrlCheck: React.FC<Props> = () => {
@@ -20,15 +21,14 @@ const UrlCheck: React.FC<Props> = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const route = useRoute();
-
-  const getIconColor = (screen: string) => {
-    return route.name === screen ? '#3182f6' : '#9DA3B4';
-  }
-
   // 로그인 상태 확인
   const checkIsLoggedIn = async () => {
     const token = await AsyncStorage.getItem('accessToken');
     setIsLoggedIn(!!token);
+  };
+
+  const getIconColor = (screen: string) => {
+    return route.name === screen ? '#3182f6' : '#9DA3B4';
   };
 
   // 로그아웃 처리 함수
@@ -151,7 +151,6 @@ const UrlCheck: React.FC<Props> = () => {
             keyboardType="url"
             autoCapitalize="none"
           />
-
           <HEButton title="URL 검사" onPress={() => checkUrlSafety(url)} style={styles.inputtype} />
           <Text style={commonStyles.text2}>
             Thing Q는 URL 링크의 위험도를{'\n'} 검사할 수 있습니다.

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-<<<<<<< HEAD
 import { View, Text, Image, TouchableOpacity, Linking, Dimensions, Alert, StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -9,13 +8,7 @@ import commonStyles from '../styles/commonStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../../axios';
 import Icon from 'react-native-vector-icons/Ionicons';
-=======
-import { View, Text, Image, TouchableOpacity, Linking, Dimensions, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import Header from '../components/BGHeader';
-import commonStyles from '../styles/commonStyles';
-import AsyncStorage from '@react-native-async-storage/async-storage';
->>>>>>> 409ccd7a2fc8aa671c8eaaa23a92a74a90b1fcf8
+
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -29,13 +22,11 @@ const Report: React.FC<Props> = () => {
     setIsLoggedIn(!!token);
   };
 
-<<<<<<< HEAD
+
   const getIconColor = (screen: string) => {
     return route.name === screen ? '#3182f6' : '#9DA3B4';
   };
-  
-=======
->>>>>>> 409ccd7a2fc8aa671c8eaaa23a92a74a90b1fcf8
+
    // 로그아웃 처리 함수
   const handleLogout = async () => {
     setIsLoggedIn(false);
