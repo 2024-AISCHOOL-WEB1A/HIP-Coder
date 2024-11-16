@@ -207,11 +207,11 @@ const Home: React.FC = () => {
       </ScrollView>
 
       <View style={styles.navBar}>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
+        <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('Home')}>
           <Icon name="home" size={24} color={getIconColor('Home')} />
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.navButton}
+          style={[styles.navButton, styles.touchableAreaHorizontal]}
           onPress={() => {
             if (isLoggedIn) {
               navigation.navigate('History');
@@ -233,7 +233,7 @@ const Home: React.FC = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.navButton}
+          style={[styles.navButton, styles.touchableAreaHorizontal]}
           onPress={() => {
             if (isLoggedIn) {
               navigation.navigate('MyPage');
@@ -255,6 +255,7 @@ const Home: React.FC = () => {
         </TouchableOpacity>
 
       </View>
+
     </View>
   );
 };
@@ -402,14 +403,20 @@ const styles = StyleSheet.create({
   navBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
     borderColor: '#E0E0E0',
+    height: 60,
   },
   navButton: {
-    alignItems: 'center',
+    padding: 10,
   },
+  touchableAreaHorizontal: {
+    paddingHorizontal: 50, // 좌우로 터치 가능한 영역을 확장하여 버튼 클릭이 더 쉽게 됩니다.
+    paddingVertical: 10,  // 상하 패딩은 줄여서, 좌우로만 영역을 확장.
+  },
+
 });
 
 export default Home;

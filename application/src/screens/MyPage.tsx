@@ -22,6 +22,8 @@ interface Passwords {
   confirmPassword: string;
 }
 
+const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&`~!@#$%^&*()_\-+=\\|{}\[\]:;"'<>,.\/\?])[A-Za-z\d@$!%*?&`~!@#$%^&*()_\-+=\\|{}\[\]:;"'<>,.\/\?]{8,}$/;
+
 const MyPage: React.FC = () => {
   const [profileData, setProfileData] = useState<ProfileData>({
     name: '',
@@ -123,8 +125,8 @@ const MyPage: React.FC = () => {
       }
     } catch (error) {
       Alert.alert('세션 만료', '세션이 만료되었습니다. 홈 화면으로 이동합니다.', [
-        { 
-          text: '확인', 
+        {
+          text: '확인',
           onPress: async () => {
             await handleLogout(); // 로그아웃 처리
             // 홈 화면으로 이동하고 네비게이션 스택을 초기화
@@ -134,7 +136,7 @@ const MyPage: React.FC = () => {
                 routes: [{ name: 'Home' }], // 홈 화면을 네비게이션 스택에 추가
               })
             );
-          } 
+          }
         },
       ]);
     }
@@ -190,6 +192,11 @@ const MyPage: React.FC = () => {
   };
 
   const handlePasswordChange = async () => {
+    if (!passwordRegex.test(passwords.newPassword)) {
+      Alert.alert('오류', '새 비밀번호는 8자 이상이어야 하며, 문자, 숫자, 특수문자를 포함해야 합니다.');
+      return;
+    }
+
     if (passwords.newPassword !== passwords.confirmPassword) {
       Alert.alert('오류', '새 비밀번호가 일치하지 않습니다.');
       return;
@@ -320,10 +327,31 @@ const MyPage: React.FC = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>비밀번호 변경</Text>
           <View style={styles.card}>
-            <TextInput style={styles.input} placeholder="현재 비밀번호" secureTextEntry value={passwords.currentPassword} onChangeText={(text) => setPasswords({ ...passwords, currentPassword: text })} />
-            <TextInput style={styles.input} placeholder="새 비밀번호" secureTextEntry value={passwords.newPassword} onChangeText={(text) => setPasswords({ ...passwords, newPassword: text })} />
-            <TextInput style={styles.input} placeholder="새 비밀번호 확인" secureTextEntry value={passwords.confirmPassword} onChangeText={(text) => setPasswords({ ...passwords, confirmPassword: text })} />
-            <CustomButton title="비밀번호 변경" onPress={handlePasswordChange} style={styles.actionButton} />
+            <TextInput style={styles.input}
+              placeholder="현재 비밀번호" 
+              secureTextEntry 
+              value={passwords.currentPassword}
+              onChangeText={(text) => setPasswords({ ...passwords, currentPassword: text })}
+              autoCapitalize="none"
+              autoCorrect={false} />
+            <TextInput 
+              style={styles.input} 
+              placeholder="새 비밀번호" 
+              secureTextEntry
+              value={passwords.newPassword} 
+              onChangeText={(text) => setPasswords({ ...passwords, newPassword: text })} 
+              autoCapitalize="none"
+              autoCorrect={false} />
+            <TextInput style={styles.input} 
+              placeholder="새 비밀번호 확인" 
+              secureTextEntry 
+              value={passwords.confirmPassword} 
+              onChangeText={(text) => setPasswords({ ...passwords, confirmPassword: text })} 
+              autoCapitalize="none"
+              autoCorrect={false} />
+            <CustomButton title="비밀번호 변경"
+              onPress={handlePasswordChange} 
+              style={styles.actionButton} />
           </View>
         </View>
 
@@ -352,13 +380,13 @@ const MyPage: React.FC = () => {
 
       {/* 하단 네비게이션 바 */}
       <View style={styles.navBar}>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
+        <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('Home')}>
           <Icon name="home" size={24} color={getIconColor('Home')} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('History')}>
+        <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('History')}>
           <Icon name="time-outline" size={24} color={getIconColor('History')} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('MyPage')}>
+        <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('MyPage')}>
           <Icon name="person-outline" size={24} color={getIconColor('MyPage')} />
         </TouchableOpacity>
       </View>
@@ -401,7 +429,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 16,
-    marginBottom: 14, 
+    marginBottom: 14,
     backgroundColor: '#FFFFFF',
     color: '#333333',
     fontFamily: 'Pretendard-Regular',
@@ -460,14 +488,19 @@ const styles = StyleSheet.create({
   navBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
     borderColor: '#E0E0E0',
+    height: 60,
   },
   navButton: {
-    alignItems: 'center',
-  }, 
+    padding: 10,
+  },
+  touchableAreaHorizontal: {
+    paddingHorizontal: 50, // 좌우로 터치 가능한 영역을 확장하여 버튼 클릭이 더 쉽게 됩니다.
+    paddingVertical: 10,  // 상하 패딩은 줄여서, 좌우로만 영역을 확장.
+  },
 });
 
 export default MyPage;

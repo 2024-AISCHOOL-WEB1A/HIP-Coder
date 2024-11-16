@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, TextInput, Alert, Text, StyleSheet, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, TextInput, Alert, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
 import Header from '../components/Header';
@@ -8,6 +8,7 @@ import commonStyles from '../styles/commonStyles';
 import HEButton from '../components/HEButton';
 import api from '../../axios';
 import { useCsrf } from '../../context/CsrfContext';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const FindPw: React.FC = () => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'Home'>>();
@@ -16,6 +17,7 @@ const FindPw: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [isEmailSent, setIsEmailSent] = useState<boolean>(false);
     const { csrfToken } = useCsrf();
+    const route = useRoute();
 
     const handleFindPw = async () => {
         if (!userId || !userName || !email) {
@@ -35,6 +37,10 @@ const FindPw: React.FC = () => {
         ]);
         setIsEmailSent(true);
     };
+
+    const getIconColor = (screen: string) => {
+        return route.name === screen ? '#3182f6' : '#9DA3B4';
+      };
 
     const sendEmail = async () => {
         try {
@@ -64,6 +70,10 @@ const FindPw: React.FC = () => {
                 <Header title="비밀번호 찾기" onBackPress={() => navigation.goBack()} />
             </View>
             <View style={commonStyles.formContainer}>
+                    <Image
+                        source={require('../assets/images/ThingQFulllogo.png')}
+                        style={commonStyles.logoImage1}
+                         />
                 <View style={commonStyles.innerContainerGray}>
                     <Text style={commonStyles.textMarginBottom}>비밀번호를 찾으려면 아래 정보를 입력하세요.</Text>
                     <TextInput
@@ -71,12 +81,20 @@ const FindPw: React.FC = () => {
                         placeholder="아이디"
                         value={userId}
                         onChangeText={setUserId}
+                        autoCapitalize="none"
+                        keyboardType="ascii-capable"
+                        textContentType="username"
+                        autoCorrect={false}
                     />
                     <TextInput
                         style={commonStyles.input}
                         placeholder="이름"
                         value={userName}
                         onChangeText={setUserName}
+                        keyboardType="default"
+                        textContentType="name"
+                        autoCorrect={false}
+                        autoCapitalize="none"
                     />
                     <TextInput
                         style={commonStyles.input}
@@ -84,16 +102,46 @@ const FindPw: React.FC = () => {
                         value={email}
                         onChangeText={setEmail}
                         keyboardType="email-address"
+                        autoCapitalize="none"
+                        autoCorrect={false}
                     />
                     <HEButton style={commonStyles.fullWidthButton} title="비밀번호 찾기" onPress={handleFindPw} />
-                    <Image
-                        source={require('../assets/images/ThingQFulllogo.png')}
-                        style={commonStyles.logoImage1}
-                         />
                 </View>
+            </View>
+            <View style={styles.navBar}>
+                <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('Home')}>
+                <Icon name="home" size={24} color={getIconColor('Home')} />
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('History')}>
+                <Icon name="time-outline" size={24} color={getIconColor('History')} />
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('MyPage')}>
+                <Icon name="person-outline" size={24} color={getIconColor('MyPage')} />
+                </TouchableOpacity>
             </View>
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+
+    navBar: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        borderTopWidth: 1,
+        alignItems: 'center',
+        backgroundColor: '#ffffff',
+        borderColor: '#E0E0E0',
+        height: 60,
+      },
+      navButton: {
+        padding: 10,
+      },
+      touchableAreaHorizontal: {
+        paddingHorizontal: 50, // 좌우로 터치 가능한 영역을 확장하여 버튼 클릭이 더 쉽게 됩니다.
+        paddingVertical: 10,  // 상하 패딩은 줄여서, 좌우로만 영역을 확장.
+      },
+})
+
 
 export default FindPw;

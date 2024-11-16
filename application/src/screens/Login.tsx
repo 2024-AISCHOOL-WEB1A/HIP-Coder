@@ -61,10 +61,20 @@ const Login: React.FC<Props> = () => {
       }
     }
   };
+
+  const handleBackPress = () => {
+    // 뒤로가기 버튼 누르면 홈 화면으로 이동하도록 스택 초기화
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      })
+    );
+  };
   
   return (
     <View style={styles.container}>
-      <Header onBackPress={() => navigation.goBack()} title="" />
+      <Header onBackPress={handleBackPress} title="" />
       <View style={styles.innerContainer}>
         <View style={styles.textContainer}>
           <Image
@@ -81,6 +91,10 @@ const Login: React.FC<Props> = () => {
           placeholderTextColor="#616161"
           value={id} 
           onChangeText={setId} 
+          keyboardType="ascii-capable"
+          textContentType="username"
+          autoCorrect={false}
+          autoCapitalize="none"
         />
         <TextInput
           style={styles.input}
@@ -89,6 +103,8 @@ const Login: React.FC<Props> = () => {
           placeholderTextColor="#616161"
           value={password}
           onChangeText={setPassword}
+          autoCapitalize="none"
+          autoCorrect={false}
         />
         <View style={styles.buttonContainer}>
           <CustomButton title="로그인" onPress={handleLogin} />

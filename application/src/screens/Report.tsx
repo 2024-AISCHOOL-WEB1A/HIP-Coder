@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, Linking, Dimensions, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, Image, TouchableOpacity, Linking, Dimensions, Alert, StyleSheet } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
 import Header from '../components/BGHeader';
 import commonStyles from '../styles/commonStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../../axios';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 const Report: React.FC<Props> = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const navigation = useNavigation();
-
+  const route = useRoute();
   // 로그인 상태 확인
   const checkIsLoggedIn = async () => {
     const token = await AsyncStorage.getItem('accessToken');
     setIsLoggedIn(!!token);
+  };
+
+  const getIconColor = (screen: string) => {
+    return route.name === screen ? '#3182f6' : '#9DA3B4';
   };
   
    // 로그아웃 처리 함수
@@ -156,9 +161,40 @@ const Report: React.FC<Props> = () => {
 
         </View>
       </View>
+      <View style={styles.navBar}>
+        <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('Home')}>
+        <Icon name="home" size={24} color={getIconColor('Home')} />
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('History')}>
+        <Icon name="time-outline" size={24} color={getIconColor('History')} />
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('MyPage')}>
+        <Icon name="person-outline" size={24} color={getIconColor('MyPage')} />
+        </TouchableOpacity>
+      </View>
+
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  navBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    borderTopWidth: 1,
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderColor: '#E0E0E0',
+    height: 60,
+  },
+  navButton: {
+    padding: 10,
+  },
+  touchableAreaHorizontal: {
+    paddingHorizontal: 50, // 좌우로 터치 가능한 영역을 확장하여 버튼 클릭이 더 쉽게 됩니다.
+    paddingVertical: 10,  // 상하 패딩은 줄여서, 좌우로만 영역을 확장.
+  },
+})
 
 export default Report;
 

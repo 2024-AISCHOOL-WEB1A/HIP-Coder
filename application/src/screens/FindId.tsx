@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Alert, StyleSheet, Linking, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, TextInput, Alert, StyleSheet, Linking, Image, TouchableOpacity } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
 import Header from '../components/Header';
@@ -8,6 +8,7 @@ import commonStyles from '../styles/commonStyles';
 import HEButton from '../components/HEButton';
 import api from '../../axios';
 import { useCsrf } from '../../context/CsrfContext';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -16,6 +17,7 @@ const FindId: React.FC = () => {
     const [name, setName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const { csrfToken } = useCsrf();
+    const route = useRoute();
 
     const handleFindId = async () => {
         console.log('handleFindId called with name:', name, 'email:', email);
@@ -88,6 +90,10 @@ const FindId: React.FC = () => {
         };
     }, []);
 
+    const getIconColor = (screen: string) => {
+        return route.name === screen ? '#3182f6' : '#9DA3B4';
+      };
+
     return (
         <View style={commonStyles.containerGray}>
             <View style={commonStyles.headerContainer}>
@@ -96,6 +102,10 @@ const FindId: React.FC = () => {
                     onBackPress={() => navigation.goBack()}
                 />
             </View>
+                    <Image 
+                        source={require('../assets/images/ThingQFulllogo.png')}
+                        style={commonStyles.logoImage1}
+                    />
             <View style={commonStyles.formContainer}>
                 <View style={commonStyles.innerContainerGray}>
                     <Text style={commonStyles.textMarginBottom}>이름과 이메일을 입력하세요.</Text>
@@ -117,14 +127,42 @@ const FindId: React.FC = () => {
                         title="아이디 찾기"
                         onPress={handleFindId}
                     />
-                    <Image 
-                        source={require('../assets/images/ThingQFulllogo.png')}
-                        style={commonStyles.logoImage1}
-                    />
                 </View>
             </View>
+        <View style={styles.navBar}>
+            <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('Home')}>
+            <Icon name="home" size={24} color={getIconColor('Home')} />
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('History')}>
+            <Icon name="time-outline" size={24} color={getIconColor('History')} />
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('MyPage')}>
+            <Icon name="person-outline" size={24} color={getIconColor('MyPage')} />
+            </TouchableOpacity>
         </View>
+    </View>
     );
 };
+
+const styles = StyleSheet.create({
+
+    navBar: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        borderTopWidth: 1,
+        alignItems: 'center',
+        backgroundColor: '#ffffff',
+        borderColor: '#E0E0E0',
+        height: 60,
+      },
+      navButton: {
+        padding: 10,
+      },
+      touchableAreaHorizontal: {
+        paddingHorizontal: 50, // 좌우로 터치 가능한 영역을 확장하여 버튼 클릭이 더 쉽게 됩니다.
+        paddingVertical: 10,  // 상하 패딩은 줄여서, 좌우로만 영역을 확장.
+      },
+
+})
 
 export default FindId;
