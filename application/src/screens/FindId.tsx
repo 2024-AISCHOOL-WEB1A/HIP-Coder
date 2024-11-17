@@ -44,11 +44,14 @@ const FindId: React.FC = () => {
             );
             console.log('Email sent successfully');
         } catch (error) {
-            console.error('아이디 찾기 오류:', error);
+            // console.error('아이디 찾기 오류:', error);
+            Alert.alert('경고', '아이디 찾기 오류 처리 중 오류가 발생했습니다.')
             if (error.response && error.response.status === 404) {
-                console.error('입력하신 이름과 이메일에 해당하는 사용자를 찾을 수 없습니다.');
+                // console.error('입력하신 이름과 이메일에 해당하는 사용자를 찾을 수 없습니다.');
+                Alert.alert('경고', '입력하신 이름과 이메일에 해당하는 사용자를 찾을 수 없습니다.')
             } else {
-                console.error('아이디 찾기 요청 중 오류가 발생했습니다.');
+                Alert.alert('경고', '아이디 찾기 요청 중 오류가 발생했습니다.')
+                // console.error('아이디 찾기 요청 중 오류가 발생했습니다.');
             }
         }
     };
@@ -61,7 +64,8 @@ const FindId: React.FC = () => {
                 await handleFindId();
             }
         } catch (error) {
-            console.error('URL 처리 중 오류:', error);
+            // console.error('URL 처리 중 오류:', error);
+            Alert.alert('경고', 'URL 처리 중 오류가 발생 했습니다.')
         }
     };
 
@@ -73,7 +77,8 @@ const FindId: React.FC = () => {
                     await processUrl(initialUrl);
                 }
             } catch (error) {
-                console.error('초기 URL 가져오기 오류:', error);
+                // console.error('초기 URL 가져오기 오류:', error);
+                Alert.alert('경고', '초기 URL 가져오기 오류')
             }
         };
 

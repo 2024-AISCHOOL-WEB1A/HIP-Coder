@@ -4,6 +4,7 @@ import { Alert, BackHandler, ToastAndroid, NativeModules, Linking, View, StatusB
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import api from './axios';
 import { useCsrf } from './context/CsrfContext';
+import { LogBox } from 'react-native';
 
 import IntroScreen from './src/screens/IntroScreen';
 import Home from './src/screens/Home';
@@ -23,6 +24,7 @@ import ReportImage from './src/screens/ReportImage';
 
 const Stack = createStackNavigator();
 const { ExitAppModule } = NativeModules; // 네이티브 모듈 가져오기
+LogBox.ignoreAllLogs(true);
 
 const App: React.FC = () => {
   const { csrfToken, setCsrfToken } = useCsrf();

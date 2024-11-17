@@ -12,7 +12,7 @@ const IntroScreen = ({ navigation }) => {
     // 타이머로 홈 화면으로 이동
     const timer = setTimeout(() => {
       navigation.replace('Home'); // 'Home' 화면으로 이동
-    }, 5000); // 5초 후에 메인 화면으로 이동
+    }, 3000); // 5초 후에 메인 화면으로 이동
 
     // 애니메이션 루프 시작
     const animateImage = () => {
