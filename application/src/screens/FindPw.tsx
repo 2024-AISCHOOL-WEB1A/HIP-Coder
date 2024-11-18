@@ -65,15 +65,15 @@ const FindPw: React.FC = () => {
     };
 
     return (
-        <View style={commonStyles.containerGray}>
+        <View style={commonStyles.containerWhite}>
             <View style={commonStyles.headerContainer}>
                 <Header title="비밀번호 찾기" onBackPress={() => navigation.goBack()} />
             </View>
             <View style={commonStyles.formContainer}>
-                    <Image
-                        source={require('../assets/images/ThingQFulllogo.png')}
-                        style={commonStyles.logoImage1}
-                         />
+                <Image
+                    source={require('../assets/images/ThingQFulllogo.png')}
+                    style={commonStyles.logoImage}
+                     />
                 <View style={commonStyles.innerContainerGray}>
                     <Text style={commonStyles.textMarginBottom}>비밀번호를 찾으려면 아래 정보를 입력하세요.</Text>
                     <TextInput
@@ -98,7 +98,7 @@ const FindPw: React.FC = () => {
                     />
                     <TextInput
                         style={commonStyles.input}
-                        placeholder="이메일"
+                        placeholder="E-mail"
                         value={email}
                         onChangeText={setEmail}
                         keyboardType="email-address"
@@ -108,17 +108,18 @@ const FindPw: React.FC = () => {
                     <HEButton style={commonStyles.fullWidthButton} title="비밀번호 찾기" onPress={handleFindPw} />
                 </View>
             </View>
-            <View style={styles.navBar}>
-                <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('Home')}>
-                <Icon name="home" size={24} color={getIconColor('Home')} />
+
+            <View style={commonStyles.navBar}>
+                <TouchableOpacity style={[commonStyles.navButton, commonStyles.touchableAreaHorizontal]} onPress={() => navigation.navigate('Home')}>
+                    <Icon name="home" size={24} color={getIconColor('Home')} />
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('History')}>
-                <Icon name="time-outline" size={24} color={getIconColor('History')} />
+                <TouchableOpacity style={[commonStyles.navButton, commonStyles.touchableAreaHorizontal]} onPress={() => navigation.navigate('History')}>
+                    <Icon name="time-outline" size={24} color={getIconColor('History')} />
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('MyPage')}>
-                <Icon name="person-outline" size={24} color={getIconColor('MyPage')} />
+                <TouchableOpacity style={[commonStyles.navButton, commonStyles.touchableAreaHorizontal]} onPress={() => navigation.navigate('MyPage')}>
+                    <Icon name="person-outline" size={24} color={getIconColor('MyPage')} />
                 </TouchableOpacity>
-            </View>
+        </View>
         </View>
     );
 };

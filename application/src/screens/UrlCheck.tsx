@@ -19,6 +19,7 @@ const UrlCheck: React.FC<Props> = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const route = useRoute();
+
   // 로그인 상태 확인
   const checkIsLoggedIn = async () => {
     const token = await AsyncStorage.getItem('accessToken');
@@ -124,23 +125,26 @@ const UrlCheck: React.FC<Props> = () => {
         transparent={true}
         animationType="fade"
       >
-        <View style={styles.modalBackground}>
-          <View style={styles.activityIndicatorWrapper}>
+        <View style={commonStyles.modalBackground}>
+          <View style={commonStyles.activityIndicatorWrapper}>
             <ActivityIndicator size="large" color="#3182f6" />
-            <Text style={styles.loadingText}>URL을 확인 중입니다...</Text>
+            <Text style={commonStyles.loadingText}>URL을 확인 중입니다.</Text>
           </View>
         </View>
+
       </Modal>
       <View style={commonStyles.headerContainer}>
         <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} title="URL 검사" onBackPress={() => navigation.navigate('Home')} />
       </View>
+      
       <View style={commonStyles.formContainer}>
         <View style={commonStyles.innerContainer}>
           <Image 
             source={require('../assets/images/ThingQFulllogo.png')}
-            style={commonStyles.logoImage}
+            style={commonStyles.logoImage1}
           />
           <Text style={commonStyles.textMarginBottom}>검사할 URL을 입력하세요.</Text>
+          
           <TextInput
             style={commonStyles.input}
             placeholder="URL을 입력하세요."
@@ -149,22 +153,26 @@ const UrlCheck: React.FC<Props> = () => {
             keyboardType="url"
             autoCapitalize="none"
           />
-          <HEButton title="URL 검사" onPress={() => checkUrlSafety(url)} style={styles.inputtype} />
-          <Text style={commonStyles.text2}>
+
+           <HEButton title="URL 검사" onPress={() => checkUrlSafety(url)} />
+          <Text style={commonStyles.textBlue}>{'\n'}
             Thing Q는 URL 링크의 위험도를{'\n'} 검사할 수 있습니다.
           </Text>
+          
         </View>
       </View>
-      <View style={styles.navBar}>
-                <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('Home')}>
-                <Icon name="home" size={24} color={getIconColor('Home')} />
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('History')}>
-                <Icon name="time-outline" size={24} color={getIconColor('History')} />
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('MyPage')}>
-                <Icon name="person-outline" size={24} color={getIconColor('MyPage')} />
-                </TouchableOpacity>
+
+
+      <View style={commonStyles.navBar}>
+        <TouchableOpacity style={[commonStyles.navButton, commonStyles.touchableAreaHorizontal]} onPress={() => navigation.navigate('Home')}>
+          <Icon name="home" size={24} color={getIconColor('Home')} />
+        </TouchableOpacity>
+        <TouchableOpacity style={[commonStyles.navButton, commonStyles.touchableAreaHorizontal]} onPress={() => navigation.navigate('History')}>
+          <Icon name="time-outline" size={24} color={getIconColor('History')} />
+        </TouchableOpacity>
+        <TouchableOpacity style={[commonStyles.navButton, commonStyles.touchableAreaHorizontal]} onPress={() => navigation.navigate('MyPage')}>
+          <Icon name="person-outline" size={24} color={getIconColor('MyPage')} />
+        </TouchableOpacity>
       </View>
     </View>
   );

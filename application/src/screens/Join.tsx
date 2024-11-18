@@ -53,11 +53,11 @@ const Join: React.FC<Props> = () => {
     React.useCallback(() => {
       const backAction = () => {
         if (step > 1) {
-          setStep(step - 1); // 단계가 1 이상일 경우 이전 단계로 이동
-          return true; // 뒤로 가는 기본 동작을 막음
+          setStep(step - 1);
+          return true;
         } else {
-          navigation.goBack(); // 첫 번째 단계에서는 뒤로 가기
-          return true; // 기본 동작 막기
+          navigation.goBack();
+          return true;
         }
       };
 
@@ -73,9 +73,9 @@ const Join: React.FC<Props> = () => {
 
   const handleBackPress = () => {
     if (step > 1) {
-      setStep(step - 1); // 이전 단계로 이동
+      setStep(step - 1);
     } else {
-      navigation.goBack(); // 첫 번째 단계에서 뒤로 가기
+      navigation.goBack();
     }
   };
   const handleJoin = async () => {
@@ -86,14 +86,14 @@ const Join: React.FC<Props> = () => {
 
     try {
       const res = await api.post('/user/handleJoin', {
-        id,
-        password,
-        passwordCheck,
-        name,
-        email,
-        phone,
-        emergencyContact1,
-        emergencyContact2
+        id, 
+        password, 
+        passwordCheck, 
+        name, 
+        email, 
+        phone, 
+        emergencyContact1, 
+        emergencyContact2 
       }, {
         headers: { 'X-CSRF-Token': csrfToken },
         withCredentials: true
@@ -121,7 +121,7 @@ const Join: React.FC<Props> = () => {
     if (id.length > 4 && idRegex.test(id)) {
       try {
         const res = await api.post('/user/idcheck', { idck: id }, {
-          headers: { 'X-CSRF-Token': csrfToken },
+          headers: { 'X-CSRF-Token': csrfToken }, 
           withCredentials: true
         });
 
@@ -218,211 +218,216 @@ const Join: React.FC<Props> = () => {
   };
 
   return (
+    <View style={commonStyles.containerWhite}>
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={commonStyles.KeyboardAvoiding}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={0} // 키보드 오버레이 오프셋 조정
     >
-      <Header title="회원가입" onBackPress={handleBackPress} style={commonStyles.headerContainer} />
-      <KeyboardAwareScrollView
-        contentContainerStyle={{ flexGrow: 1, paddingTop: 80, paddingBottom: 100 }}
-        keyboardShouldPersistTaps="handled"
-        enableOnAndroid={true}
-        extraScrollHeight={120} // 키보드가 올라올 때 추가로 스크롤 되는 높이 설정
-        enableAutomaticScroll={true}>
-        <View style={commonStyles.formContainer}>
-          <View style={commonStyles.innerContainerGray}>
-            {step === 1 && (
-              <>
-                <View style={commonStyles.logoBox}>
-                  <Image 
-                    source={require('../assets/images/ThingQFulllogo.png')}
-                    style={commonStyles.logoImage1}
-                  />
-                  <Text style={commonStyles.textGrayMediumCenter}>이용약관에 동의하시겠습니까?</Text>
-                  <View style={commonStyles.view3}>
-                    <BouncyCheckbox
-                      isChecked={allTermsAccepted}
-                      onPress={() => {
-                        const newValue = !allTermsAccepted;
-                        setAllTermsAccepted(newValue);
-                        setTerms1Accepted(newValue);
-                        setTerms2Accepted(newValue);
-                      }}
-                    />
-                    <Text style={commonStyles.text1}>모두 동의</Text>
-                  </View>
-                  <View style={commonStyles.view2}>
-                    <View style={commonStyles.view3}>
-                      <BouncyCheckbox
-                        isChecked={terms1Accepted}
-                        onPress={() => {
-                          const newValue = !terms1Accepted;
-                          setTerms1Accepted(newValue);
-                          setAllTermsAccepted(newValue && terms2Accepted);
-                        }}
-                      />
-                      <Text onPress={() => navigation.navigate('TermsScreen', { termType: 'agreement' })} style={commonStyles.textGrayMedium}>
-                        (필수) 서비스 이용 약관
-                      </Text>
-                    </View>
-                    <TouchableOpacity onPress={() => navigation.navigate('TermsScreen', { termType: 'agreement' })}>
-                      <Text> &gt; </Text>
-                    </TouchableOpacity>
-                  </View>
-                  <View style={commonStyles.view2}>
-                    <View style={commonStyles.view3}>
-                      <BouncyCheckbox
-                        isChecked={terms2Accepted}
-                        onPress={() => {
-                          const newValue = !terms2Accepted;
-                          setTerms2Accepted(newValue);
-                          setAllTermsAccepted(newValue && terms1Accepted);
-                        }}
-                      />
-                      <Text onPress={() => navigation.navigate('TermsScreen', { termType: 'privacy' })} style={commonStyles.textGrayMedium}>
-                        (필수) 개인정보 수집·이용 약관
-                      </Text>
-                    </View>
-                    <TouchableOpacity onPress={() => navigation.navigate('TermsScreen', { termType: 'privacy' })}>
-                      <Text> &gt; </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </>
-            )}
-            {step === 2 && (
-              <>
-                <Text style={commonStyles.textInputTop}>
-                  ID <Text style={commonStyles.redAsterisk}>*</Text>
-                </Text>
-                <View style={commonStyles.view1}>
-                  <TextInput
-                    ref={idInputRef}
-                    style={commonStyles.input1}
-                    placeholder="ID를 입력해주세요."
-                    value={id}
-                    onChangeText={setId}
-                    autoCapitalize="none"
-                    keyboardType="ascii-capable"
-                    textContentType="username"
-                    autoCorrect={false}
-                  />
-                  <HEButton
-                    title="중복확인"
-                    onPress={id_redundancy_check}
-                    style={commonStyles.smallButton}
-                  />
-                </View>
-                <Text style={commonStyles.textInputTop}>
-                  비밀번호 <Text style={commonStyles.redAsterisk}>*</Text>
-                </Text>
-                <TextInput
-                  ref={passwordInputRef}
-                  style={commonStyles.input}
-                  placeholder="영어, 숫자, 특수문자를 포함 8자 이상 입력해주세요."
-                  secureTextEntry
-                  value={password}
-                  onChangeText={setPassword}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-                <Text style={commonStyles.textInputTop}>
-                  비밀번호 확인 <Text style={commonStyles.redAsterisk}>*</Text>
-                </Text>
-                <TextInput
-                  ref={passwordCheckInputRef}
-                  style={commonStyles.input}
-                  placeholder="비밀번호를 한번 더 입력해주세요."
-                  secureTextEntry
-                  value={passwordCheck}
-                  onChangeText={setPasswordCheck}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-                <Text style={commonStyles.textInputTop}>
-                  이름 <Text style={commonStyles.redAsterisk}> *</Text>
-                </Text>
-                <TextInput
-                  ref={nameInputRef}
-                  style={commonStyles.input}
-                  placeholder="이름을 입력해주세요."
-                  value={name}
-                  onChangeText={setName}
-                  keyboardType="default"
-                  textContentType="name"
-                  autoCorrect={false}
-                  autoCapitalize="none"
-                />
-                <Text style={commonStyles.textInputTop}>
-                  E-mail <Text style={commonStyles.redAsterisk}> *</Text>
-                </Text>
-                <TextInput
-                  ref={emailInputRef}
-                  style={commonStyles.input}
-                  placeholder="E-mail을 입력해주세요."
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
+    <Header title="회원가입" onBackPress={handleBackPress} style={commonStyles.headerContainer} />
+    <KeyboardAwareScrollView
+      contentContainerStyle={commonStyles.keyboardAware}
+      keyboardShouldPersistTaps="handled"
+      enableOnAndroid={true}
+      extraScrollHeight={120} // 키보드가 올라올 때 추가로 스크롤 되는 높이 설
+      enableAutomaticScroll={true}>
+      <View style={commonStyles.formContainer}>
+        <View style={commonStyles.innerContainerGray}>
 
-                <Text style={commonStyles.textInputTop}>
-                  핸드폰 번호 <Text style={commonStyles.redAsterisk}>*</Text>
-                </Text>
-                <TextInput
-                  ref={phoneInputRef}
-                  style={commonStyles.input}
-                  placeholder="핸드폰 번호를 입력해주세요."
-                  value={phone}
-                  onChangeText={handlePhoneInput}
-                  keyboardType="number-pad"
-                  maxLength={11}
-                  autoCapitalize="none"
-                />
-              </>
-            )}
-            {step === 3 && (
-              <>
-                <Image 
+          {step === 1 && (
+            <>
+              <View style={commonStyles.logoBox}>
+                <Image
                   source={require('../assets/images/ThingQFulllogo.png')}
                   style={commonStyles.logoImage1}
                 />
-                <Text style={commonStyles.textInputTop}>비상연락망1 <Text style={commonStyles.redAsterisk}>*</Text></Text>
+                <Text style={commonStyles.textGrayMediumLeft}>이용약관에 동의하시겠습니까?</Text>
+                <View style={commonStyles.view3}>
+                  <BouncyCheckbox
+                    isChecked={allTermsAccepted}
+                    onPress={() => {
+                      const newValue = !allTermsAccepted;
+                        setAllTermsAccepted(newValue);
+                        setTerms1Accepted(newValue);
+                        setTerms2Accepted(newValue);
+                    }}
+                  />
+                  <Text style={commonStyles.textBlackMediumB}>모두 동의</Text>
+                </View>
+                <View style={commonStyles.view2}>
+                  <View style={commonStyles.view3}>
+                    <BouncyCheckbox
+                      isChecked={terms1Accepted}
+                      onPress={() => {
+                        const newValue = !terms1Accepted;
+                          setTerms1Accepted(newValue);
+                          setAllTermsAccepted(newValue && terms2Accepted);
+                      }}
+                    />
+                    <Text onPress={() => navigation.navigate('TermsScreen', { termType: 'agreement' })} style={commonStyles.textGrayMedium}>
+                      (필수) 서비스 이용 약관
+                    </Text>
+                  </View>
+                  <TouchableOpacity onPress={() => navigation.navigate('TermsScreen', { termType: 'agreement' })}>
+                    <Text> &gt; </Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={commonStyles.view2}>
+                  <View style={commonStyles.view3}>
+                    <BouncyCheckbox
+                      isChecked={terms2Accepted}
+                      onPress={() => {
+                        const newValue = !terms2Accepted;
+                          setTerms2Accepted(newValue);
+                          setAllTermsAccepted(newValue && terms1Accepted);
+                      }}
+                    />
+                    <Text onPress={() => navigation.navigate('TermsScreen', { termType: 'privacy' })} style={commonStyles.textGrayMedium}>
+                      (필수) 개인정보 수집·이용 약관
+                    </Text>
+                  </View>
+                  <TouchableOpacity onPress={() => navigation.navigate('TermsScreen', { termType: 'privacy' })}>
+                    <Text> &gt; </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </>
+          )}
+          
+          {step === 2 && (
+            <>
+              <Text style={commonStyles.textInputTop}>
+                ID <Text style={commonStyles.redAsterisk}>*</Text>
+              </Text>
+              <View style={commonStyles.view1}>
                 <TextInput
-                  ref={emergencyContact1InputRef}
-                  style={commonStyles.input}
-                  placeholder="비상연락망1 을 입력해주세요."
-                  value={emergencyContact1}
-                  onChangeText={setEmergencyContact1}
-                  keyboardType="number-pad"
-                  maxLength={11}
+                  ref={idInputRef}
+                  style={commonStyles.input1}
+                  placeholder="ID를 입력해주세요."
+                  value={id}
+                  onChangeText={setId}
                   autoCapitalize="none"
-                />              
-                <Text style={commonStyles.textInputTop}>비상연락망2 <Text style={commonStyles.redAsterisk}>*</Text></Text>
-                <TextInput
-                  ref={emergencyContact2InputRef}
-                  style={commonStyles.input}
-                  placeholder="비상연락망2 를 입력해주세요."
-                  value={emergencyContact2}
-                  onChangeText={setEmergencyContact2}
-                  keyboardType="number-pad"
-                  maxLength={11}
-                  autoCapitalize="none"
+                  keyboardType="ascii-capable"
+                  textContentType="username"
+                  autoCorrect={false}
                 />
-              </>
-            )}
-          </View>
-
+                <HEButton
+                  title="중복확인"
+                  onPress={id_redundancy_check}
+                  style={commonStyles.smallButton}
+                />
+              </View>
+              <Text style={commonStyles.textInputTop}>
+                비밀번호 <Text style={commonStyles.redAsterisk}>*</Text>
+              </Text>
+              <TextInput
+                ref={passwordInputRef}
+                style={commonStyles.input}
+                placeholder="영어, 숫자, 특수문자를 포함 8자 이상 입력해주세요."
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+              <Text style={commonStyles.textInputTop}>
+                비밀번호 확인 <Text style={commonStyles.redAsterisk}>*</Text>
+              </Text>
+              <TextInput
+                ref={passwordCheckInputRef}
+                style={commonStyles.input}
+                placeholder="비밀번호를 한번 더 입력해주세요."
+                secureTextEntry
+                value={passwordCheck}
+                onChangeText={setPasswordCheck}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+              <Text style={commonStyles.textInputTop}>
+                이름 <Text style={commonStyles.redAsterisk}> *</Text>
+              </Text>
+              <TextInput
+                ref={nameInputRef}
+                style={commonStyles.input}
+                placeholder="이름을 입력해주세요."
+                value={name}
+                onChangeText={setName}
+                keyboardType="default"
+                textContentType="name"
+                autoCorrect={false}
+                autoCapitalize="none"
+              />
+              <Text style={commonStyles.textInputTop}>
+                E-mail <Text style={commonStyles.redAsterisk}> *</Text>
+              </Text>
+              <TextInput
+                ref={emailInputRef}
+                style={commonStyles.input}
+                placeholder="E-mail을 입력해주세요."
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+              <Text style={commonStyles.textInputTop}>
+                핸드폰 번호 <Text style={commonStyles.redAsterisk}>*</Text>
+              </Text>
+              <TextInput
+                ref={phoneInputRef}
+                style={commonStyles.input}
+                placeholder="핸드폰 번호를 입력해주세요."
+                value={phone}
+                onChangeText={handlePhoneInput}
+                keyboardType="number-pad"
+                maxLength={11}
+                autoCapitalize="none"
+              />
+            </>
+          )}
+          
+          {step === 3 && (
+            <>
+              <Image
+                source={require('../assets/images/ThingQFulllogo.png')}
+                style={commonStyles.logoImage1}
+              />
+              <Text style={commonStyles.textInputTop}>비상연락망1 <Text style={commonStyles.redAsterisk}>*</Text></Text>
+              <TextInput
+                ref={emergencyContact1InputRef}
+                style={commonStyles.input}
+                placeholder="비상연락망1 을 입력해주세요."
+                value={emergencyContact1}
+                onChangeText={setEmergencyContact1}
+                keyboardType="number-pad"
+                maxLength={11}
+                autoCapitalize="none"
+              />
+              <Text style={commonStyles.textInputTop}>비상연락망2 <Text style={commonStyles.redAsterisk}>*</Text></Text>
+              <TextInput
+                ref={emergencyContact2InputRef}
+                style={commonStyles.input}
+                placeholder="비상연락망2 를 입력해주세요."
+                value={emergencyContact2}
+                onChangeText={setEmergencyContact2}
+                keyboardType="number-pad"
+                maxLength={11}
+                autoCapitalize="none"
+              />
+            </>
+          )}
         </View>
-      </KeyboardAwareScrollView>
-      <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 60, backgroundColor: '#3182f6', justifyContent: 'center', alignItems: 'center', zIndex: 10 }}>
-        <TouchableOpacity style={[commonStyles.fixedFooter, { width: '100%' }]} onPress={nextStep}>
-          <Text style={commonStyles.footerText}>다음</Text>
-        </TouchableOpacity>
       </View>
+     
+    </KeyboardAwareScrollView>
+    <View >
+      <TouchableOpacity style={commonStyles.fixedFooter} onPress={nextStep}>
+        <Text style={commonStyles.footerText}>다음</Text>
+      </TouchableOpacity>
+    </View>
+      
     </KeyboardAvoidingView>
+    </View>
   );
 };
 

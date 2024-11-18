@@ -60,11 +60,11 @@ const Report: React.FC<Props> = () => {
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.headerContainer}>
-      <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} title="신고하기" onBackPress={() => navigation.goBack()} />
+        <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} title="신고하기" onBackPress={() => navigation.goBack()} />
       </View>
 
       <View style={commonStyles.formContainer}>
-        <View style={commonStyles.innerContainer1}>
+        <View style={commonStyles.innerContainer}>
 
           {/* 경찰청 신고 */}
           <View style={commonStyles.box1}>
@@ -159,15 +159,16 @@ const Report: React.FC<Props> = () => {
 
         </View>
       </View>
-      <View style={styles.navBar}>
-        <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('Home')}>
-        <Icon name="home" size={24} color={getIconColor('Home')} />
+      
+      <View style={commonStyles.navBar}>
+        <TouchableOpacity style={[commonStyles.navButton, commonStyles.touchableAreaHorizontal]} onPress={() => navigation.navigate('Home')}>
+          <Icon name="home" size={24} color={getIconColor('Home')} />
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('History')}>
-        <Icon name="time-outline" size={24} color={getIconColor('History')} />
+        <TouchableOpacity style={[commonStyles.navButton, commonStyles.touchableAreaHorizontal]} onPress={() => navigation.navigate('History')}>
+          <Icon name="time-outline" size={24} color={getIconColor('History')} />
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('MyPage')}>
-        <Icon name="person-outline" size={24} color={getIconColor('MyPage')} />
+        <TouchableOpacity style={[commonStyles.navButton, commonStyles.touchableAreaHorizontal]} onPress={() => navigation.navigate('MyPage')}>
+          <Icon name="person-outline" size={24} color={getIconColor('MyPage')} />
         </TouchableOpacity>
       </View>
     </View>
