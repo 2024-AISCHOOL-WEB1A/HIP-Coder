@@ -11,8 +11,6 @@ import { FLASK_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-
-
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
 const UrlCheck: React.FC<Props> = () => {
@@ -171,50 +169,5 @@ const UrlCheck: React.FC<Props> = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  inputtype: {
-    marginTop: 1,
-    marginBottom: 10
-  },
-  modalBackground: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  activityIndicatorWrapper: {
-    backgroundColor: '#FFFFFF',
-    height: 100,
-    width: 200,
-    borderRadius: 10,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#3182f6',
-    textAlign: 'center',
-  },
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    borderTopWidth: 1,
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderColor: '#E0E0E0',
-    height: 60,
-  },
-  navButton: {
-    padding: 10,
-  },
-  touchableAreaHorizontal: {
-    paddingHorizontal: 50, // 좌우로 터치 가능한 영역을 확장하여 버튼 클릭이 더 쉽게 됩니다.
-    paddingVertical: 10,  // 상하 패딩은 줄여서, 좌우로만 영역을 확장.
-  },
-});
 
 export default UrlCheck;

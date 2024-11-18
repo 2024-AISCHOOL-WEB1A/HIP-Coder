@@ -12,11 +12,6 @@ const commonStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  containerGray: {
-    backgroundColor: '#f5f5f5',
-    flex: 1,
-    justifyContent: 'center',
-  },
 
   innerContainer:{
     paddingTop: 30,
@@ -31,7 +26,6 @@ const commonStyles = StyleSheet.create({
   innerContainerGray:{
     width: '100%',
     height: '100%',
-    paddingTop: 10,
     paddingLeft: 40,
     paddingRight: 40,
   },
@@ -71,7 +65,6 @@ const commonStyles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    padding: 10,
     backgroundColor: '#3182f6',
     justifyContent: 'center',
     alignItems: 'center',
@@ -127,7 +120,6 @@ const commonStyles = StyleSheet.create({
   fullWidthButton: {
     marginBottom: 20,
   },
-
   smallButton: {
     width: '25%',
     height: 50,

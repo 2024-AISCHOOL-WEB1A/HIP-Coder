@@ -123,25 +123,5 @@ const FindPw: React.FC = () => {
     );
 };
 
-const styles = StyleSheet.create({
-
-    navBar: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        borderTopWidth: 1,
-        alignItems: 'center',
-        backgroundColor: '#ffffff',
-        borderColor: '#E0E0E0',
-        height: 60,
-      },
-      navButton: {
-        padding: 10,
-      },
-      touchableAreaHorizontal: {
-        paddingHorizontal: 50, // 좌우로 터치 가능한 영역을 확장하여 버튼 클릭이 더 쉽게 됩니다.
-        paddingVertical: 10,  // 상하 패딩은 줄여서, 좌우로만 영역을 확장.
-      },
-})
-
 
 export default FindPw;
