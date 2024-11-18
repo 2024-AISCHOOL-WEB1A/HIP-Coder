@@ -196,7 +196,7 @@ const Home: React.FC = () => {
             </View>
             <View style={styles.cardTextContainer}>
               <Text style={styles.cardTitle}>QR 이미지 검사</Text>
-              <Text style={styles.cardDescription}>갤러리에서 QR 코드를 선택하여 안전하게 {'\n'}검사하세요!</Text>
+              <Text style={styles.cardDescription}>갤러리에서 QR 코드를 선택하여 안전하게 검사하세요!</Text>
             </View>
           </TouchableOpacity>
         </View>
