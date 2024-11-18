@@ -1,3 +1,4 @@
+
 package com.application;
 
 import android.app.Activity;
@@ -7,6 +8,11 @@ import android.util.Log;
 import android.util.Size;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
+import android.graphics.Color;
+import android.view.Gravity;
+import android.graphics.Rect;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraSelector;
@@ -32,6 +38,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import android.os.Looper;
 import java.util.concurrent.ExecutionException;
 
+
 public class CameraModule extends ReactContextBaseJavaModule {
 
     private static final String TAG = "CameraModule";
@@ -41,6 +48,11 @@ public class CameraModule extends ReactContextBaseJavaModule {
     private boolean isScanning = false;
     private Button closeButton;
     private boolean isCameraStopped = false;
+    private OverlayView overlayView;
+    private TextView headerTextView; // 상단 헤더
+    private TextView footerTextView; // 하단 푸터
+    private View headerBackgroundView; // 헤더 배경
+    private View footerBackgroundView; // 푸터 배경
 
     public CameraModule(ReactApplicationContext context) {
         super(context);
@@ -108,6 +120,72 @@ public class CameraModule extends ReactContextBaseJavaModule {
 
         ViewGroup rootView = (ViewGroup) activity.findViewById(android.R.id.content);
         rootView.addView(previewView);
+
+        // OverlayView 추가
+        overlayView = new OverlayView(activity);
+        rootView.addView(overlayView);
+
+        // 헤더 배경 추가
+        headerBackgroundView = new View(activity);
+        headerBackgroundView.setBackgroundColor(Color.BLACK);
+        ViewGroup.LayoutParams headerBackgroundParams = new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                400 // 헤더 공간 높이 (필요에 따라 조정)
+        );
+        headerBackgroundView.setLayoutParams(headerBackgroundParams);
+        rootView.addView(headerBackgroundView);
+
+        // 상단 헤더 추가
+        headerTextView = new TextView(activity);
+        headerTextView.setText("카메라를 QR코드로 향하게 하세요.");
+        headerTextView.setTextSize(18);
+        headerTextView.setTextColor(Color.WHITE);
+        headerTextView.setGravity(Gravity.CENTER);
+
+        ViewGroup.LayoutParams headerParams = new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        headerTextView.setLayoutParams(headerParams);
+        rootView.addView(headerTextView);
+
+        headerTextView.post(() -> {
+            // 헤더 위치를 아래로 이동
+            headerTextView.setY(headerTextView.getHeight() + 200);
+        });
+
+        // 푸터 배경 추가
+        footerBackgroundView = new View(activity);
+        footerBackgroundView.setBackgroundColor(Color.BLACK);
+        ViewGroup.LayoutParams footerBackgroundParams = new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                550 // 푸터 공간 높이 (필요에 따라 조정)
+        );
+        footerBackgroundView.setLayoutParams(footerBackgroundParams);
+        rootView.addView(footerBackgroundView);
+
+        footerBackgroundView.post(() -> {
+            footerBackgroundView.setY(rootView.getHeight() - footerBackgroundView.getHeight());
+        });
+
+        // 하단 푸터 추가
+        footerTextView = new TextView(activity);
+        footerTextView.setText("사각 테두리 안에 QR코드를 인식해주세요.");
+        footerTextView.setTextSize(16);
+        footerTextView.setTextColor(Color.WHITE);
+        footerTextView.setGravity(Gravity.CENTER);
+
+        ViewGroup.LayoutParams footerParams = new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        footerTextView.setLayoutParams(footerParams);
+        rootView.addView(footerTextView);
+
+        footerTextView.post(() -> {
+            int screenHeight = rootView.getHeight();
+            footerTextView.setY(screenHeight - footerTextView.getHeight() - 450);
+        });
     }
 
     private void setupCloseButton(Activity activity) {
@@ -153,6 +231,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
         isScanning = false; // 스캔 상태 초기화
 
         new Handler(Looper.getMainLooper()).post(() -> {
+            // PreviewView 제거
             if (previewView != null) {
                 ViewGroup rootView = (ViewGroup) previewView.getParent();
                 if (rootView != null) {
@@ -161,12 +240,55 @@ public class CameraModule extends ReactContextBaseJavaModule {
                 previewView = null;
             }
 
+            // OverlayView 제거
+            if (overlayView != null) {
+                ViewGroup rootView = (ViewGroup) overlayView.getParent();
+                if (rootView != null) {
+                    rootView.removeView(overlayView);
+                }
+                overlayView = null;
+            }
+
+            // OverlayView 제거
+            if (footerBackgroundView != null) {
+                ViewGroup rootView = (ViewGroup) footerBackgroundView.getParent();
+                if (rootView != null) {
+                    rootView.removeView(footerBackgroundView);
+                }
+                footerBackgroundView = null;
+            }
+
+            // OverlayView 제거
+            if (headerBackgroundView != null) {
+                ViewGroup rootView = (ViewGroup) headerBackgroundView.getParent();
+                if (rootView != null) {
+                    rootView.removeView(headerBackgroundView);
+                }
+                overlayView = null;
+            }
+
+            // CloseButton 제거
             if (closeButton != null) {
                 ViewGroup rootView = (ViewGroup) closeButton.getParent();
                 if (rootView != null) {
                     rootView.removeView(closeButton);
                 }
                 closeButton = null;
+            }
+            if (headerTextView != null) {
+                ViewGroup rootView = (ViewGroup) headerTextView.getParent();
+                if (rootView != null) {
+                    rootView.removeView(headerTextView);
+                }
+                headerTextView = null;
+            }
+
+            if (footerTextView != null) {
+                ViewGroup rootView = (ViewGroup) footerTextView.getParent();
+                if (rootView != null) {
+                    rootView.removeView(footerTextView);
+                }
+                footerTextView = null;
             }
 
             releaseBarcodeScanner();
@@ -197,7 +319,6 @@ public class CameraModule extends ReactContextBaseJavaModule {
         barcodeScanner = BarcodeScanning.getClient();
         Log.d(TAG, "resetCamera: 카메라 초기화 완료");
     }
-
     private void scanQRCode(ImageProxy image) {
         if (image == null) {
             return;
@@ -234,6 +355,8 @@ public class CameraModule extends ReactContextBaseJavaModule {
             image.close();
         }
     }
+
+
 
     private void sendEvent(String eventName, WritableMap params) {
         reactContext
