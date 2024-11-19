@@ -9,7 +9,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../../axios';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-
 const { width: screenWidth } = Dimensions.get('window');
 
 const Report: React.FC<Props> = () => {
@@ -21,7 +20,6 @@ const Report: React.FC<Props> = () => {
     const token = await AsyncStorage.getItem('accessToken');
     setIsLoggedIn(!!token);
   };
-
 
   const getIconColor = (screen: string) => {
     return route.name === screen ? '#3182f6' : '#9DA3B4';
@@ -39,7 +37,6 @@ const Report: React.FC<Props> = () => {
    useEffect(() => {
     checkIsLoggedIn();
   }, []);
-
 
   // 신고하기 클릭 시 외부 링크로 이동
   const handleLinkPress = (url: string) => {
@@ -63,11 +60,11 @@ const Report: React.FC<Props> = () => {
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.headerContainer}>
-      <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} title="신고하기" onBackPress={() => navigation.goBack()} />
+        <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} title="신고하기" onBackPress={() => navigation.goBack()} />
       </View>
 
       <View style={commonStyles.formContainer}>
-        <View style={commonStyles.innerContainer1}>
+        <View style={commonStyles.innerContainer}>
 
           {/* 경찰청 신고 */}
           <View style={commonStyles.box1}>
@@ -162,40 +159,22 @@ const Report: React.FC<Props> = () => {
 
         </View>
       </View>
-      <View style={styles.navBar}>
-        <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('Home')}>
-        <Icon name="home" size={24} color={getIconColor('Home')} />
+      
+      <View style={commonStyles.navBar}>
+        <TouchableOpacity style={[commonStyles.navButton, commonStyles.touchableAreaHorizontal]} onPress={() => navigation.navigate('Home')}>
+          <Icon name="home" size={24} color={getIconColor('Home')} />
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('History')}>
-        <Icon name="time-outline" size={24} color={getIconColor('History')} />
+        <TouchableOpacity style={[commonStyles.navButton, commonStyles.touchableAreaHorizontal]} onPress={() => navigation.navigate('History')}>
+          <Icon name="time-outline" size={24} color={getIconColor('History')} />
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('MyPage')}>
-        <Icon name="person-outline" size={24} color={getIconColor('MyPage')} />
+        <TouchableOpacity style={[commonStyles.navButton, commonStyles.touchableAreaHorizontal]} onPress={() => navigation.navigate('MyPage')}>
+          <Icon name="person-outline" size={24} color={getIconColor('MyPage')} />
         </TouchableOpacity>
       </View>
-
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    borderTopWidth: 1,
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderColor: '#E0E0E0',
-    height: 60,
-  },
-  navButton: {
-    padding: 10,
-  },
-  touchableAreaHorizontal: {
-    paddingHorizontal: 50, // 좌우로 터치 가능한 영역을 확장하여 버튼 클릭이 더 쉽게 됩니다.
-    paddingVertical: 10,  // 상하 패딩은 줄여서, 좌우로만 영역을 확장.
-  },
-})
 
 export default Report;
 

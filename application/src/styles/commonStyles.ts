@@ -12,11 +12,6 @@ const commonStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  containerGray: {
-    backgroundColor: '#f5f5f5',
-    flex: 1,
-    justifyContent: 'center',
-  },
 
   innerContainer:{
     paddingTop: 30,
@@ -31,7 +26,6 @@ const commonStyles = StyleSheet.create({
   innerContainerGray:{
     width: '100%',
     height: '100%',
-    paddingTop: 10,
     paddingLeft: 40,
     paddingRight: 40,
   },
@@ -57,6 +51,32 @@ const commonStyles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
 
+  navBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    borderTopWidth: 1,
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderColor: '#E0E0E0',
+    height: 60,
+  },
+  navButton: {
+    padding: 10,
+  },
+
+  touchableAreaHorizontal: {
+    paddingHorizontal: 50,
+    paddingVertical: 10,
+  },
+  KeyboardAvoiding: {
+    flex: 1,
+  },
+  keyboardAware :{
+    flexGrow: 1,
+    paddingTop: 60,
+    paddingBottom: 100,
+  },
+
   termsHeaderTitle:{
     fontFamily: 'Pretendard-Bold',
     fontSize: 20,
@@ -71,11 +91,12 @@ const commonStyles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    padding: 10,
     backgroundColor: '#3182f6',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 10,
   },
+
   footerText:{
     fontFamily: 'Pretendard-Medium',
     fontSize: 20,
@@ -127,7 +148,6 @@ const commonStyles = StyleSheet.create({
   fullWidthButton: {
     marginBottom: 20,
   },
-
   smallButton: {
     width: '25%',
     height: 50,
@@ -136,6 +156,29 @@ const commonStyles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 10,
+  },
+
+  modalBackground: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  activityIndicatorWrapper: {
+    backgroundColor: '#ffffff',
+    height: 100,
+    width: 200,
+    borderRadius: 10,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#3182f6',
+    textAlign: 'center',
   },
 
   checkBox:{
@@ -187,14 +230,7 @@ const commonStyles = StyleSheet.create({
 
   logoBox:{
     justifyContent: 'center',
-    paddingTop:'30%',
-  },
-  logoImage1: {
-    width: 150,
-    height: 150,
-    justifyContent: 'center',
-    resizeMode: 'contain',
-    alignSelf: 'center',
+    paddingTop:'15%',
   },
 
   logoImage: {
@@ -203,7 +239,16 @@ const commonStyles = StyleSheet.create({
     resizeMode: 'contain',
     alignSelf: 'center',
     marginTop: 40,
-    marginBottom: 10,
+    marginBottom: 40,
+  },
+
+  logoImage1: {
+    width: 120,
+    height: 120,
+    resizeMode: 'contain',
+    alignSelf: 'center',
+    marginTop: 10,
+    marginBottom: 30,
   },
 
   circleContainer: {
@@ -233,6 +278,7 @@ const commonStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   textNextToImageTitle: {
     fontFamily: 'Pretendard-Bold',
     textAlign: 'left',
@@ -291,10 +337,15 @@ const commonStyles = StyleSheet.create({
 
   reportFullImage : {
     width: '100%',
-    height: '60%',
+    height: '65%',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 60,
+  },
+  textBlackMediumB:{
+    fontFamily: 'Pretendard-Bold',
+    color: 'black',
+    fontSize: 16,
   },
 
   textMarginBottom: {
@@ -302,6 +353,7 @@ const commonStyles = StyleSheet.create({
     fontSize: 16,
     color: '#2c2b2b',
     marginBottom: 10,
+    paddingLeft: '2%',
   },
   textGrayM: {
     fontFamily: 'Pretendard-Bold',
@@ -329,6 +381,7 @@ const commonStyles = StyleSheet.create({
     color: 'black',
     fontSize: 16,
     paddingLeft: '2%',
+    marginBottom: 2,
   },
   textGraySmall:{
     fontFamily: 'Pretendard-Regular',
@@ -340,12 +393,12 @@ const commonStyles = StyleSheet.create({
     color: 'gray',
     fontSize: 16,
   },
-  textGrayMediumCenter:{
+  textGrayMediumLeft:{
     fontFamily: 'Pretendard-Regular',
     color: 'gray',
     fontSize: 16,
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 20,
   },
   redAsterisk: {
     color: 'red',

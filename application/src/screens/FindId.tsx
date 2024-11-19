@@ -100,20 +100,18 @@ const FindId: React.FC = () => {
       };
 
     return (
-        <View style={commonStyles.containerGray}>
+        <View style={commonStyles.containerWhite}>
             <View style={commonStyles.headerContainer}>
-                <Header
-                    title="ID 찾기"
-                    onBackPress={() => navigation.goBack()}
-                />
+                <Header title="ID 찾기" onBackPress={() => navigation.goBack()} />
             </View>
-                    <Image 
-                        source={require('../assets/images/ThingQFulllogo.png')}
-                        style={commonStyles.logoImage1}
-                    />
+                <Image 
+                    source={require('../assets/images/ThingQFulllogo.png')}
+                    style={commonStyles.logoImage}
+                />
+
             <View style={commonStyles.formContainer}>
                 <View style={commonStyles.innerContainerGray}>
-                    <Text style={commonStyles.textMarginBottom}>이름과 이메일을 입력하세요.</Text>
+                    <Text style={commonStyles.textMarginBottom}>ID를 찾으려면 아래 정보를 입력하세요.</Text>
                     <TextInput
                         value={name}
                         onChangeText={(text) => setName(text)}
@@ -123,7 +121,7 @@ const FindId: React.FC = () => {
                     <TextInput
                         value={email}
                         onChangeText={(text) => setEmail(text)}
-                        placeholder="이메일을 입력하세요."
+                        placeholder="E-mail을 입력하세요."
                         keyboardType="email-address"
                         style={commonStyles.input}
                     />
@@ -134,40 +132,20 @@ const FindId: React.FC = () => {
                     />
                 </View>
             </View>
-        <View style={styles.navBar}>
-            <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('Home')}>
-            <Icon name="home" size={24} color={getIconColor('Home')} />
+            
+        <View style={commonStyles.navBar}>
+            <TouchableOpacity style={[commonStyles.navButton, commonStyles.touchableAreaHorizontal]} onPress={() => navigation.navigate('Home')}>
+                <Icon name="home" size={24} color={getIconColor('Home')} />
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('History')}>
-            <Icon name="time-outline" size={24} color={getIconColor('History')} />
+            <TouchableOpacity style={[commonStyles.navButton, commonStyles.touchableAreaHorizontal]} onPress={() => navigation.navigate('History')}>
+                <Icon name="time-outline" size={24} color={getIconColor('History')} />
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.navButton, styles.touchableAreaHorizontal]} onPress={() => navigation.navigate('MyPage')}>
-            <Icon name="person-outline" size={24} color={getIconColor('MyPage')} />
+            <TouchableOpacity style={[commonStyles.navButton, commonStyles.touchableAreaHorizontal]} onPress={() => navigation.navigate('MyPage')}>
+                <Icon name="person-outline" size={24} color={getIconColor('MyPage')} />
             </TouchableOpacity>
         </View>
     </View>
     );
 };
-
-const styles = StyleSheet.create({
-
-    navBar: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        borderTopWidth: 1,
-        alignItems: 'center',
-        backgroundColor: '#ffffff',
-        borderColor: '#E0E0E0',
-        height: 60,
-      },
-      navButton: {
-        padding: 10,
-      },
-      touchableAreaHorizontal: {
-        paddingHorizontal: 50, // 좌우로 터치 가능한 영역을 확장하여 버튼 클릭이 더 쉽게 됩니다.
-        paddingVertical: 10,  // 상하 패딩은 줄여서, 좌우로만 영역을 확장.
-      },
-
-})
 
 export default FindId;
