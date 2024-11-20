@@ -281,3 +281,16 @@ def test_token():
     
     # 테스트 응답 반환
     return jsonify({"message": f"인증된 사용자: {user_id}"}), 200
+
+@urlscan_bp.route('/mainurl', methods=['POST'])
+def mainurl():
+    url_data = request.json.get('url')
+    prediction = predict_url(url_data)
+    scan_result = 'G' if prediction == 'good' else 'B'
+
+    response = jsonify({
+        'status': 'good' if scan_result == 'G' else 'bad',
+        'message': '이 URL은 안전합니다.' if scan_result == 'G' else '이 URL은 보안 위험이 있을 수 있습니다.',
+        'url': url_data
+    })
+    return response

@@ -18,23 +18,27 @@ const FindId: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const { csrfToken } = useCsrf();
     const route = useRoute();
+    const emailRegex = /^[\w-.]+@([\w-]+\.)+[a-zA-Z]{2,4}$/;
 
     const handleFindId = async () => {
         console.log('handleFindId called with name:', name, 'email:', email);
         if (!name || !email) {
             Alert.alert('오류', '이름과 이메일을 모두 입력해주세요.');
             return;
+        } else if (!emailRegex.test(email) || /@\w*\d/.test(email)) {
+            Alert.alert('경고', '유효한 이메일 주소를 입력해주세요.');
+            return;
         }
-
-        // 성공 메시지 표시 후 확인 버튼 클릭 시 메인 페이지로 즉시 이동
+    
+        // 성공 메시지 표시 후 바로 화면 이동 (메일 발송 비동기 처리)
         Alert.alert('성공', '인증 링크가 이메일로 전송되었습니다. 이메일을 확인해주세요.', [
             {
                 text: '확인',
                 onPress: () => navigation.navigate('Login'), // 메인 페이지로 즉시 이동
             },
         ]);
-
-        // 이메일 전송은 내부적으로 처리
+    
+        // 이메일 전송은 내부적으로 비동기 처리
         try {
             console.log('Sending request to /user/FindId with:', { USER_NAME: name, EMAIL: email });
             await api.post(
@@ -44,17 +48,18 @@ const FindId: React.FC = () => {
             );
             console.log('Email sent successfully');
         } catch (error) {
-            // console.error('아이디 찾기 오류:', error);
-            Alert.alert('경고', '아이디 찾기 오류 처리 중 오류가 발생했습니다.')
+            console.error('아이디 찾기 요청 중 오류가 발생했습니다.', error);
+    
+            // 오류 메시지 처리 (화면 전환 후에 처리되므로 사용자에게 영향을 주지 않음)
             if (error.response && error.response.status === 404) {
-                // console.error('입력하신 이름과 이메일에 해당하는 사용자를 찾을 수 없습니다.');
-                Alert.alert('경고', '입력하신 이름과 이메일에 해당하는 사용자를 찾을 수 없습니다.')
+                Alert.alert('경고', '입력하신 이름과 이메일에 해당하는 사용자를 찾을 수 없습니다.');
             } else {
-                Alert.alert('경고', '아이디 찾기 요청 중 오류가 발생했습니다.')
-                // console.error('아이디 찾기 요청 중 오류가 발생했습니다.');
+                Alert.alert('경고', '아이디 찾기 요청 중 오류가 발생했습니다.');
             }
         }
     };
+    
+    
 
     const processUrl = async (url: string) => {
         try {

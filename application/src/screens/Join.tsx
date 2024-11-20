@@ -49,6 +49,27 @@ const Join: React.FC<Props> = () => {
   const emergencyContact2InputRef = useRef<TextInput>(null);
   const [loading, setLoading] = useState(false);
 
+  // 페이지 포커스 시 상태 초기화
+  useFocusEffect(
+    React.useCallback(() => {
+      // 모든 입력값과 단계를 초기화
+      setStep(1);
+      setId('');
+      setPassword('');
+      setPasswordCheck('');
+      setName('');
+      setEmail('');
+      setPhone('');
+      setEmergencyContact1('');
+      setEmergencyContact2('');
+      setIdck(false);
+      setTerms1Accepted(false);
+      setTerms2Accepted(false);
+      setAllTermsAccepted(false);
+    }, [])
+  );
+  
+
   // 뒤로가기 버튼 처리
   useFocusEffect(
     React.useCallback(() => {
@@ -102,6 +123,19 @@ const Join: React.FC<Props> = () => {
 
       if (res.status === 200) {
         Alert.alert('회원가입 성공', '로그인 페이지로 이동합니다.');
+        setStep(1);
+        setId('');
+        setPassword('');
+        setPasswordCheck('');
+        setName('');
+        setEmail('');
+        setPhone('');
+        setEmergencyContact1('');
+        setEmergencyContact2('');
+        setIdck(false);
+        setTerms1Accepted(false);
+        setTerms2Accepted(false);
+        setAllTermsAccepted(false);
         navigation.navigate('Login');
       }
     } catch (error) {
@@ -209,6 +243,9 @@ const Join: React.FC<Props> = () => {
         return;
       } if (!/^[0-9]{11}$/.test(emergencyContact2)) {
         Alert.alert('경고', '핸드폰 번호는 숫자 11자리여야 합니다.');
+        return;
+      } if (emergencyContact1 === emergencyContact2) {
+        Alert.alert('경고', '비상연락망1과 비상연락망2가 같을 수 없습니다.');
         return;
       }
       handleJoin();

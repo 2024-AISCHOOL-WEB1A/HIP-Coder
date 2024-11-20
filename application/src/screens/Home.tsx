@@ -52,7 +52,6 @@ const Home: React.FC = () => {
           setUrlCount(response.data.total_url_count || 0);
           setQrCount(response.data.total_qr_count || 0);
         }, 0)
-
       }
     } catch (error: any) {
       console.error('카운트 데이터를 가져오는 중 오류 발생:', error);

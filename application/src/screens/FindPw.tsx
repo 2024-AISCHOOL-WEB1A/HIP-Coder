@@ -18,51 +18,53 @@ const FindPw: React.FC = () => {
     const [isEmailSent, setIsEmailSent] = useState<boolean>(false);
     const { csrfToken } = useCsrf();
     const route = useRoute();
+    const emailRegex = /^[\w-.]+@([\w-]+\.)+[a-zA-Z]{2,4}$/;
 
-    const handleFindPw = async () => {
-        if (!userId || !userName || !email) {
-            Alert.alert('오류', '모든 필드를 입력해주세요.');
-            return;
-        }
+const handleFindId = async () => {
+    console.log('handleFindId called with name:', name, 'email:', email);
+    
+    // 이름과 이메일 입력 확인
+    if (!name || !email) {
+        Alert.alert('오류', '이름과 이메일을 모두 입력해주세요.');
+        return; // 입력 오류 시 여기서 종료
+    }
 
-        // 메일 전송 성공 메시지를 먼저 띄우고 페이지 이동
+    // 이메일 형식 검증
+    if (!emailRegex.test(email) || /@\w*\d/.test(email)) {
+        Alert.alert('경고', '유효한 이메일 주소를 입력해주세요.');
+        return; // 이메일 형식 오류 시 여기서 종료
+    }
+
+    // 이메일 전송 시도 (입력값이 올바른 경우에만 실행됨)
+    try {
+        console.log('Sending request to /user/FindId with:', { USER_NAME: name, EMAIL: email });
+        const response = await api.post(
+            '/user/FindId',
+            { USER_NAME: name, EMAIL: email },
+            { headers: { 'X-CSRF-Token': csrfToken }, withCredentials: true }
+        );
+
+        // 백엔드 요청 성공 시에만 성공 Alert를 띄우고 화면 전환
+        console.log('Email sent successfully:', response.data);
         Alert.alert('성공', '인증 링크가 이메일로 전송되었습니다. 이메일을 확인해주세요.', [
             {
                 text: '확인',
                 onPress: () => {
-                    navigation.navigate('Login');
-                    sendEmail(); // 이메일 전송은 내부적으로 진행
-                },
+                    navigation.navigate('Login'); // 메인 페이지로 즉시 이동
+                }
             },
         ]);
-        setIsEmailSent(true);
-    };
-
-    const getIconColor = (screen: string) => {
-        return route.name === screen ? '#3182f6' : '#9DA3B4';
-      };
-
-    const sendEmail = async () => {
-        try {
-            // 이메일 전송 요청
-            console.log('Sending request to /user/forgot-password with:', { id: userId, name: userName, email: email });
-            await api.post(
-                '/user/FindPw',
-                { id: userId, name: userName, email: email },
-                { headers: { 'X-CSRF-Token': csrfToken }, withCredentials: true }
-            );
-            // 이메일 전송 후 성공 로그
-            console.log('Email sent successfully');
-        } catch (error) {
-            console.error('비밀번호 찾기 오류:', error);
-            if (error.response && error.response.status === 404) {
-                Alert.alert('오류', '입력하신 아이디, 이름 또는 이메일에 해당하는 사용자를 찾을 수 없습니다.');
-            } else {
-                Alert.alert('오류', '비밀번호 찾기 요청 중 오류가 발생했습니다.');
-            }
-            setIsEmailSent(false);
+    } catch (error) {
+        console.error('아이디 찾기 요청 중 오류가 발생했습니다.', error);
+        
+        // 오류 발생 시 적절한 경고 메시지를 표시
+        if (error.response && error.response.status === 404) {
+            Alert.alert('경고', '입력하신 이름과 이메일에 해당하는 사용자를 찾을 수 없습니다.');
+        } else {
+            Alert.alert('경고', '아이디 찾기 요청 중 오류가 발생했습니다.');
         }
-    };
+    }
+};
 
     return (
         <View style={commonStyles.containerWhite}>
