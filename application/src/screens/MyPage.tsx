@@ -286,20 +286,20 @@ const MyPage: React.FC = () => {
           <Text style={styles.sectionTitle}>프로필 정보</Text>
           <View style={styles.card}>
             <Text style={styles.emergencyContactTitle}>이름</Text>
-            <TextInput style={[styles.input, styles.fullInput, { backgroundColor: '#F0F0F0' }]} placeholder="이름" value={profileData.name} editable={false} />
+            <TextInput style={[styles.input, styles.fullInput, { backgroundColor: '#F0F0F0' }]} value={profileData.name} editable={false} />
             <Text style={styles.emergencyContactTitle}>핸드폰 번호</Text>
             <TextInput
               style={[styles.input, styles.fullInput, { backgroundColor: '#F0F0F0' }]}
-              placeholder="핸드폰번호"
+              
               value={profileData.phone}
               editable={false} // 수정 모드에서도 수정되지 않도록 설정
             />
             <Text style={styles.emergencyContactTitle}>이메일 주소</Text>
-            <TextInput style={[styles.input, { backgroundColor: '#F0F0F0' }]} placeholder="이메일 주소" value={profileData.email} editable={false} />
+            <TextInput style={[styles.input, { backgroundColor: '#F0F0F0' }]}  value={profileData.email} editable={false} />
             <Text style={styles.emergencyContactTitle}>비상연락망(1)</Text>
             <TextInput
               style={[styles.input, { backgroundColor: isEditing ? '#FFFFFF' : '#F0F0F0' }]}
-              placeholder="비상연락망(1)"
+              
               value={isEditing ? unformatPhoneNumber(profileData.emergencyContact1) : profileData.emergencyContact1}
               onChangeText={(text) => {
                 if (text.length <= 11) {
@@ -312,7 +312,7 @@ const MyPage: React.FC = () => {
             <Text style={styles.emergencyContactTitle}>비상연락망(2)</Text>
             <TextInput
               style={[styles.input, { backgroundColor: isEditing ? '#FFFFFF' : '#F0F0F0' }]}
-              placeholder="비상연락망(2)"
+              
               value={isEditing ? unformatPhoneNumber(profileData.emergencyContact2) : profileData.emergencyContact2}
               onChangeText={(text) => {
                 if (text.length <= 11) {
