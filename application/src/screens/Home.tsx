@@ -156,7 +156,7 @@ const Home: React.FC = () => {
             <View style={styles.categoryIconContainer}>
               <Icon name={isLoggedIn ? "document-text-outline" : "person-add-outline"} size={24} color="#fff" />
             </View>
-            <Text style={styles.categoryText}>{isLoggedIn ? '내 정보' : '회원가입'}</Text>
+            <Text style={styles.categoryText}>{isLoggedIn ? '내정보' : '회원가입'}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.categoryButton} onPress={isLoggedIn ? handleLogout : handleLogin}>
@@ -199,7 +199,14 @@ const Home: React.FC = () => {
               <Text style={styles.cardDescription}>갤러리에서 QR 코드를 선택하여 안전하게 검사하세요!</Text>
             </View>
           </TouchableOpacity>
+
+
+          <View style={styles.bannerContainer}>
+            <Image source={require('../assets/images/qrdownbanner.png')} style={styles.bannerQRCode} />
+          </View>        
+
         </View>
+
 
         {/* <TouchableOpacity style={styles.testButton} onPress={() => navigation.navigate('Test')}>
           <Text style={styles.testButtonText}>테스트 지우지마세요!</Text>
@@ -283,7 +290,8 @@ const styles = StyleSheet.create({
   counterContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 32,
+    marginTop: 8,
+    marginBottom: 40,
     padding: 16,
     borderRadius: 16,
     backgroundColor: '#ffffff',
@@ -297,13 +305,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   counterTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontFamily: 'Pretendard-Bold',
     color: '#4A4A4A',
     marginBottom: 8,
   },
   counterValue: {
-    fontSize: 24,
+    fontSize: 20,
     fontFamily: 'Pretendard-Bold',
     color: '#4A4A4A',
   },
@@ -312,7 +320,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   counterUnit: {
-    fontSize: 18,
+    fontSize: 20,
     fontFamily: 'Pretendard-Bold',
     color: '#4A4A4A',
     marginLeft: 4,
@@ -336,7 +344,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   categoryText: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: 'Pretendard-Medium',
     color: '#000',
     textAlign: 'center',
@@ -389,6 +397,19 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
   },
+
+  bannerQRCode: {
+    width: '100%', 
+    height: 100, 
+    marginTop: 12,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+
   testButton: {
     backgroundColor: '#3182f6',
     paddingVertical: 16,
