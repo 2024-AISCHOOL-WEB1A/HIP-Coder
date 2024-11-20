@@ -19,8 +19,6 @@ from config.jwt import decode_jwt_token
 
 load_dotenv()
 
-flask_url = os.getenv('FLASK_URL')
-
 # 로깅 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -28,8 +26,7 @@ urlscan_bp = Blueprint('urlscan', __name__)
 
 # 신뢰 URL 로드
 def load_trust_urls_from_db():
-    connection =  db_con()
-    
+    connection = db_con()
     try:
         query = "SELECT URL FROM SAFE_SITE WHERE SAFE_TYPE = 'G'"
         trust_urls_df = pd.read_sql(query, connection)
@@ -41,7 +38,6 @@ def load_trust_urls_from_db():
         return []
     finally:
         connection.close()
-
 
 trust_urls = load_trust_urls_from_db()
 
@@ -96,11 +92,10 @@ def predict_url(url):
         domain = extract_domain(url)
         logging.info(f"추출된 도메인: {domain}")
 
-        
         if domain in trust_urls:
             logging.info(f"URL '{url}'는 신뢰할 수 있는 도메인 '{domain}'과 일치하므로 'good'으로 분류됩니다.")
-            return 'good'   
-        
+            return 'good'
+
         new_url = [url]
         new_feature_df = pd.DataFrame(new_url, columns=['url']).apply(lambda x: extract_features(x['url']), axis=1)
         new_vec = vectorizer.transform(new_url)
@@ -115,7 +110,7 @@ def predict_url(url):
         logging.error("URL 예측 중 오류 발생: %s", str(e), exc_info=True)
         return None
 
-# QR 코드 검사 엔드포인트
+# QR 코드 검사 및 URL 판별 엔드포인트
 @urlscan_bp.route('/test', methods=['POST'])
 def test():
     if 'photo' not in request.files:
@@ -130,37 +125,52 @@ def test():
             # 이미지 읽기
             image = cv2.imread(temp_file.name)
             if image is None:
-                logging.error("이미지를 읽지 못했습니다.")
                 return jsonify({'error': 'Failed to read image'}), 500
 
-            # OpenCV의 QRCodeDetector를 사용해 QR 코드 인식
+            # OpenCV QRCodeDetector로 QR 코드 추출
             qr_detector = cv2.QRCodeDetector()
             qr_data, vertices_array, _ = qr_detector.detectAndDecode(image)
 
-            # QR 코드가 인식되지 않은 경우
             if vertices_array is None or len(vertices_array) == 0:
                 logging.warning('QR 코드가 인식되지 않았습니다.')
                 return jsonify({'error': 'No QR code detected'}), 400
 
-            # QR 코드 데이터가 추출된 경우
+            # QR 코드에서 URL 추출 성공
             logging.info(f'QR 코드에서 추출한 URL: {qr_data}')
 
-            # Authorization 헤더 전달
+            # URL의 안전성 판별
+            prediction = predict_url(qr_data)
+            scan_result = 'G' if prediction == 'good' else 'B'
+
+            # 데이터베이스 저장 (유저 ID는 기본값으로 비회원 설정)
+            user_id = "비회원"
             auth_header = request.headers.get("Authorization")
-            headers = {"Authorization": auth_header} if auth_header else {}
+            if auth_header:
+                try:
+                    token = auth_header.split(" ")[1]
+                    decoded_token = decode_jwt_token(token)
+                    if decoded_token:
+                        user_id = decoded_token.get('id', '비회원')
+                except Exception as e:
+                    logging.error(f"JWT 디코딩 중 오류 발생: {e}")
 
-            # /scan 엔드포인트에 POST 요청 시 Authorization 헤더 전달
-            response = requests.post(f'{flask_url}/scan', json={'url': qr_data, 'category': "IMG"}, headers=headers)
+            # 검사 결과 저장
+            save_scan_result(user_id, qr_data, scan_result, "IMG")
 
-            if response.status_code != 200:
-                logging.error(f"/scan 엔드포인트에 요청 중 오류 발생: {response.status_code}")
-                return jsonify({'error': 'Failed to send URL to /scan'}), 500
-            
-            return response.json()
+            # 응답 생성
+            response = {
+                'status': 'good' if scan_result == 'G' else 'bad',
+                'message': '이 URL은 안전합니다.' if scan_result == 'G' else '이 URL은 보안 위험이 있을 수 있습니다.',
+                'url': qr_data
+            }
+
+            logging.info(f"URL 판별 결과: {response}")
+            return jsonify(response)
 
     except Exception as e:
         logging.error(f"예외 발생: {str(e)}", exc_info=True)
         return jsonify({'error': '서버 오류 발생'}), 500
+
     finally:
         # 임시 파일 삭제
         if os.path.exists(temp_file.name):
@@ -186,15 +196,12 @@ def save_scan_result(user_id, url_data, scan_result, category):
 def update_count_logs(scan_result):
     """
     COUNT_LOGS 테이블에 데이터를 추가하는 함수
-    G일 경우 QR 하나 추가, B일 경우 QR과 URL을 각각 하나씩 추가
     """
     try:
         connection = db_con()
         with connection.cursor() as cursor:
-            # G일 경우 QR 로그 추가
             if scan_result == 'G':
                 cursor.execute("INSERT INTO COUNT_LOGS (TYPE, COUNT_VALUE) VALUES ('QR', 1)")
-            # B일 경우 QR와 URL 로그 각각 추가
             elif scan_result == 'B':
                 cursor.execute("INSERT INTO COUNT_LOGS (TYPE, COUNT_VALUE) VALUES ('QR', 1)")
                 cursor.execute("INSERT INTO COUNT_LOGS (TYPE, COUNT_VALUE) VALUES ('URL', 1)")
@@ -202,17 +209,14 @@ def update_count_logs(scan_result):
     except Exception as e:
         logging.error(f"COUNT_LOGS 테이블 업데이트 중 오류 발생: {e}")
     finally:
-        if 'connection' in locals():
-            connection.close()        
+        connection.close()
 
 @urlscan_bp.route('/scan', methods=['POST'])
 def scanurl():
-    print("Headers:", request.headers)
+    logging.info("Request received at /scan")
     auth_header = request.headers.get("Authorization")
-    print("Received Authorization header:", auth_header)
-
     url_data = request.json.get('url')
-    cat = request.json.get('category')  # 프론트엔드에서 전달받은 category 값
+    cat = request.json.get('category')
 
     if not url_data:
         logging.warning("URL이 제공되지 않았습니다.")
@@ -220,7 +224,6 @@ def scanurl():
 
     logging.info(f"요청받은 URL: {url_data} | 카테고리: {cat}")
 
-    # URL 안전성 검사 - good or bad 예측
     prediction = predict_url(url_data)
     scan_result = 'G' if prediction == 'good' else 'B'
 
@@ -230,54 +233,37 @@ def scanurl():
         'url': url_data
     })
 
-    # COUNT_LOGS 테이블 업데이트
     update_count_logs(scan_result)
 
-    # JWT 토큰이 있는 경우에만 가져와서 디코딩 처리
-    logging.info(f"Authorization 헤더: {auth_header}")
-
-    user_id = "비회원"  # 기본값으로 비회원 설정
-
+    user_id = "비회원"
     if auth_header:
         try:
-            token = auth_header.split(" ")[1]  # 'Bearer <토큰>'에서 <토큰>만 추출
-            logging.info(f"JWT 토큰 추출: {token}")
+            token = auth_header.split(" ")[1]
             decoded_token = decode_jwt_token(token)
             if decoded_token:
                 user_id = decoded_token.get('id', '비회원')
-                logging.info(f"user_id 추출: {user_id}")
-            else:
-                logging.warning("토큰 디코딩 실패로 비회원 처리")
         except Exception as e:
             logging.error(f"JWT 디코딩 중 오류 발생: {e}")
 
-    # 검사 결과 저장 시 QR_CAT도 함께 저장
-    save_scan_result(user_id, url_data, scan_result, cat)  # QR_CAT으로 받은 category 값도 저장
-
+    save_scan_result(user_id, url_data, scan_result, cat)
     return response
 
 @urlscan_bp.route('/tt', methods=['POST'])
 def test_token():
     logging.info("Received request on /tt endpoint")
-    
-    # 요청 헤더에 포함된 Authorization 헤더 확인
     auth_header = request.headers.get("Authorization")
-    logging.info(f"Received Authorization header: {auth_header}")
-    
-    user_id = "비회원"  # 기본값 설정
-    
+    user_id = "비회원"
     if auth_header:
         try:
             token = auth_header.split(" ")[1]
-            logging.info(f"JWT 토큰 추출: {token}")
             decoded_token = decode_jwt_token(token)
             if decoded_token:
                 user_id = decoded_token.get('id', '비회원')
-                logging.info(f"디코딩된 사용자 ID: {user_id}")
-            else:
-                logging.warning("토큰 디코딩 실패 - 비회원 처리")
         except Exception as e:
             logging.error(f"JWT 디코딩 중 오류 발생: {e}")
-    
-    # 테스트 응답 반환
     return jsonify({"message": f"인증된 사용자: {user_id}"}), 200
+
+@urlscan_bp.route('/tata', methods=['GET'])
+def tata():
+    logging.info("Request received at /tata endpoint")
+    return jsonify({'test': 'test'})
