@@ -24,7 +24,7 @@ import ReportImage from './src/screens/ReportImage';
 
 const Stack = createStackNavigator();
 const { ExitAppModule } = NativeModules; // 네이티브 모듈 가져오기
-LogBox.ignoreAllLogs(true);
+// LogBox.ignoreAllLogs(true);
 
 const App: React.FC = () => {
   const { csrfToken, setCsrfToken } = useCsrf();
