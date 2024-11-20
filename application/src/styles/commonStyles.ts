@@ -166,7 +166,7 @@ const commonStyles = StyleSheet.create({
   },
   activityIndicatorWrapper: {
     backgroundColor: '#ffffff',
-    height: 100,
+    height: 150,
     width: 200,
     borderRadius: 10,
     display: 'flex',
@@ -174,11 +174,55 @@ const commonStyles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#3182f6',
-    textAlign: 'center',
+  warningModalWrapper: {
+    backgroundColor: '#ffffff',
+    height: 300,
+    width: 300,
+    borderRadius: 25,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+  },
+  warningImage: {
+    justifyContent: 'center',
+    width: 70,
+    height: 70,
+  },
+  modalButton:{
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexDirection: 'row',
+    width: 200,
+    height: 40,
+    // backgroundColor: 'red',
+    borderColor: '#ffffff',
+    borderWidth: 1,
+    borderRadius: 15,
+  },
+  modalButtonGray: {
+    backgroundColor: '#e0e0e0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 95,
+    height: 40,
+    borderRadius: 15,
+  },
+  modalButtonBlue: {
+    backgroundColor: '#3182f6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 95,
+    height: 40,
+    borderRadius: 15,
+  },
+  modalButtonRed: {
+    backgroundColor: '#ed1c24',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 95,
+    height: 40,
+    borderRadius: 15,
   },
 
   checkBox:{
@@ -334,7 +378,6 @@ const commonStyles = StyleSheet.create({
     borderRadius: 25,
     resizeMode: 'cover',
   },
-
   reportFullImage : {
     width: '100%',
     height: '65%',
@@ -345,6 +388,16 @@ const commonStyles = StyleSheet.create({
   textBlackMediumB:{
     fontFamily: 'Pretendard-Bold',
     color: 'black',
+    fontSize: 16,
+  },
+  textGrayMediumB:{
+    fontFamily: 'Pretendard-Bold',
+    color: '#353535',
+    fontSize: 16,
+  },
+  textWhiteMediumB: {
+    fontFamily: 'Pretendard-Bold',
+    color: '#ffffff',
     fontSize: 16,
   },
 
@@ -365,7 +418,7 @@ const commonStyles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
     color: '#3182f6',
-    marginBottom: 10,
+    marginTop: 20,
   },
   textBlackMedium: {
     fontFamily: 'Pretendard-Regular',
@@ -375,6 +428,15 @@ const commonStyles = StyleSheet.create({
     paddingRight: 20,
     marginTop: 20,
     marginBottom: 20,
+  },
+  textBlackCenter: {
+    justifyContent: 'center',
+    textAlign: 'center',
+    fontFamily: 'Pretendard-Regular',
+    fontSize: 16,
+    color: 'black',
+    marginTop: 25,
+    marginBottom: 25,
   },
   textInputTop:{
     fontFamily: 'Pretendard-Regular',

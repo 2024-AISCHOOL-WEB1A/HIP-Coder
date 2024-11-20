@@ -171,7 +171,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
         // 하단 푸터 추가
         footerTextView = new TextView(activity);
         footerTextView.setText("사각 테두리 안에 QR코드를 인식해주세요.");
-        footerTextView.setTextSize(16);
+        footerTextView.setTextSize(18);
         footerTextView.setTextColor(Color.WHITE);
         footerTextView.setGravity(Gravity.CENTER);
 
@@ -184,7 +184,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
 
         footerTextView.post(() -> {
             int screenHeight = rootView.getHeight();
-            footerTextView.setY(screenHeight - footerTextView.getHeight() - 450);
+            footerTextView.setY(screenHeight - footerTextView.getHeight() - 400);
         });
     }
 

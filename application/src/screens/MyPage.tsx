@@ -285,14 +285,17 @@ const MyPage: React.FC = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>프로필 정보</Text>
           <View style={styles.card}>
+            <Text style={styles.emergencyContactTitle}>이름</Text>
             <TextInput style={[styles.input, styles.fullInput, { backgroundColor: '#F0F0F0' }]} placeholder="이름" value={profileData.name} editable={false} />
+            <Text style={styles.emergencyContactTitle}>핸드폰 번호</Text>
             <TextInput
               style={[styles.input, styles.fullInput, { backgroundColor: '#F0F0F0' }]}
               placeholder="핸드폰번호"
               value={profileData.phone}
               editable={false} // 수정 모드에서도 수정되지 않도록 설정
             />
-            <TextInput style={[styles.input, { backgroundColor: '#F0F0F0' }]} placeholder="이메일" value={profileData.email} editable={false} />
+            <Text style={styles.emergencyContactTitle}>이메일 주소</Text>
+            <TextInput style={[styles.input, { backgroundColor: '#F0F0F0' }]} placeholder="이메일 주소" value={profileData.email} editable={false} />
             <Text style={styles.emergencyContactTitle}>비상연락망(1)</Text>
             <TextInput
               style={[styles.input, { backgroundColor: isEditing ? '#FFFFFF' : '#F0F0F0' }]}
@@ -358,7 +361,7 @@ const MyPage: React.FC = () => {
         {/* 검사 이력 섹션 */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>검사 이력</Text>
-          <View style={styles.card}>
+          <View style={[styles.card, styles.historyCard]}>
             <Text style={styles.historyLabel}>최근 검사 이력을 확인하세요!</Text>
             <Text style={styles.historyDescription}>검사 결과를 통해 위험을 예방하세요.</Text>
             <TouchableOpacity style={styles.historyButton} onPress={() => navigation.navigate('History')}>
@@ -366,8 +369,8 @@ const MyPage: React.FC = () => {
                 <Text style={styles.historyButtonText}>검사 이력 보기</Text>
                 <Icon name="search-outline" size={24} color="#FFFFFF" />
               </View>
-              <Text style={styles.qrCodeText}>검사 이력 (최근 3개월)</Text>
-              <Text style={styles.qrCodeText}>QR코드 / URL 검사 결과</Text>
+              {/* <Text style={styles.qrCodeText}>최근 3개월 검사 이력</Text> */}
+              <Text style={styles.qrCodeText}>QR코드 / URL / 이미지 검사 결과</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -447,6 +450,22 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  historyCard: {
+    backgroundColor: '#E6F1FF',
+    borderRadius: 18,
+    padding: 20,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  historyLabel: {
+    fontSize: 16,
+    color: '#3182f6',
+    fontFamily: 'Pretendard-SemiBold',
   },
   historyButton: {
     backgroundColor: '#4B8DF8',
