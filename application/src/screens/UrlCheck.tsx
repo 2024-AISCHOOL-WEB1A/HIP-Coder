@@ -204,7 +204,7 @@ const UrlCheck: React.FC<Props> = () => {
             {isSafeUrl ? (
               <>
                 <Image 
-                  source={require('../assets/images/Safe.png')} 
+                  source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/Safe.png'}}
                   style={commonStyles.warningImage} 
                 />
                 <Text style={commonStyles.textBlackCenter}>이 URL은 안전한 URL입니다.{'\n'}이동하시겠습니까?</Text>
@@ -229,7 +229,7 @@ const UrlCheck: React.FC<Props> = () => {
               // 위험한 URL일 경우 Danger.png
               <>
                 <Image 
-                  source={require('../assets/images/Danger.png')} 
+                  source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/Danger.png'}}
                   style={commonStyles.warningImage} 
                 />
                 <Text style={commonStyles.textBlackCenter}>이 URL은 피싱 위험이 있습니다.{'\n'}그래도 접속하시겠습니까?</Text>
@@ -262,7 +262,7 @@ const UrlCheck: React.FC<Props> = () => {
       <View style={commonStyles.formContainer}>
         <View style={commonStyles.innerContainer}>
           <Image 
-            source={require('../assets/images/ThingQFulllogo.png')}
+            source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/ThingQFulllogo.png'}}
             style={commonStyles.logoImage1}
           />
           <Text style={commonStyles.textMarginBottom}>검사할 URL을 입력하세요.</Text>

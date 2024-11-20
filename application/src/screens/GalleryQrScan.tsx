@@ -160,7 +160,8 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation, route }) => {
           <View style={commonStyles.warningModalWrapper}>
             {isSafeUrl ? (
               <>
-                <Image source={require('../assets/images/Safe.png')} style={commonStyles.warningImage} />
+                <Image source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/Safe.png'}}
+                 style={commonStyles.warningImage} />
                 <Text style={commonStyles.textBlackCenter}>이 URL은 안전한 URL입니다.{'\n'}이동하시겠습니까?</Text>
                 <View style={commonStyles.modalButton}>
                   <TouchableOpacity style={commonStyles.modalButtonGray} onPress={() => setShowWarningModal(false)}>
@@ -179,7 +180,8 @@ const GalleryQrScan: React.FC<GalleryQrScanProps> = ({ navigation, route }) => {
               </>
             ) : (
               <>
-                <Image source={require('../assets/images/Danger.png')} style={commonStyles.warningImage} />
+                <Image source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/Danger.png'}}
+                 style={commonStyles.warningImage} />
                 <Text style={commonStyles.textBlackCenter}>이 URL은 피싱 위험이 있습니다.{'\n'}그래도 접속하시겠습니까?</Text>
                 <View style={commonStyles.modalButton}>
                   <TouchableOpacity style={commonStyles.modalButtonRed} onPress={() => setShowWarningModal(false)}>

@@ -105,7 +105,7 @@ const FindId: React.FC = () => {
                 <Header title="ID 찾기" onBackPress={() => navigation.goBack()} />
             </View>
                 <Image 
-                    source={require('../assets/images/ThingQFulllogo.png')}
+                   source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/ThingQFulllogo.png'}}
                     style={commonStyles.logoImage}
                 />
 

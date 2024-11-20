@@ -116,7 +116,7 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
             </TouchableOpacity>
           </View>
           <View style={styles.profileSection}>
-            <Image source={require('../assets/images/ThingQFulllogo.png')} style={styles.logoImage} />
+            <Image source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/ThingQFulllogo.png'}} style={styles.logoImage} />
             {isLoggedIn ? (
               <Text style={styles.welcomeText}>{`${username}님, 환영합니다!`}</Text>
             ) : (

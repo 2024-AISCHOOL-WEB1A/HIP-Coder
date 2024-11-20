@@ -111,7 +111,7 @@ const Login: React.FC<Props> = () => {
         <View style={styles.innerContainer}>
           <View style={styles.textContainer}>
             <Image
-              source={require('../assets/images/ThingQFulllogo.png')}
+             source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/ThingQFulllogo.png'}}
               style={styles.logo}
             />
             <View style={styles.spacer} />
@@ -147,7 +147,7 @@ const Login: React.FC<Props> = () => {
               style={[styles.link, styles.linkRight]}
               onPress={() => navigation.navigate('FindId')}
             >
-              아이디 찾기 |
+              아이디 찾기  |
             </Text>
             <Text
               style={[styles.link, styles.linkRight]}

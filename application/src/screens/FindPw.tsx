@@ -71,7 +71,7 @@ const FindPw: React.FC = () => {
             </View>
             <View style={commonStyles.formContainer}>
                 <Image
-                    source={require('../assets/images/ThingQFulllogo.png')}
+                    source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/ThingQFulllogo.png'}}
                     style={commonStyles.logoImage}
                      />
                 <View style={commonStyles.innerContainerGray}>

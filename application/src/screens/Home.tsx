@@ -106,7 +106,7 @@ const Home: React.FC = () => {
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.mainTitleContainer}>
-          <Image source={require('../assets/images/ThingQFulllogo.png')} style={styles.mainTitleImage} />
+          <Image source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/ThingQFulllogo.png'}} style={styles.mainTitleImage} />
         </View>
 
         <View style={styles.counterContainer}>
@@ -172,7 +172,7 @@ const Home: React.FC = () => {
 
           <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('QrScan')}>
             <View style={styles.cardIconContainer}>
-              <Image source={require('../assets/images/free-icon-scan.png')} style={styles.iconImage} />
+              <Image source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/free-icon-scan.png'}} style={styles.iconImage} />
             </View>
             <View style={styles.cardTextContainer}>
               <Text style={styles.cardTitle}>QR 코드 검사</Text>
@@ -182,7 +182,7 @@ const Home: React.FC = () => {
 
           <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('UrlCheck')}>
             <View style={styles.cardIconContainer}>
-              <Image source={require('../assets/images/free-icon-url.png')} style={styles.iconImage} />
+              <Image source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/free-icon-url.png'}} style={styles.iconImage} />
             </View>
             <View style={styles.cardTextContainer}>
               <Text style={styles.cardTitle}>URL 검사</Text>
@@ -192,7 +192,7 @@ const Home: React.FC = () => {
 
           <TouchableOpacity style={styles.card} onPress={handleGalleryQrScanNavigation}>
             <View style={styles.cardIconContainer}>
-              <Image src='https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/free-icon-gallery.png' style={styles.iconImage} />
+              <Image source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/free-icon-gallery.png'}} style={styles.iconImage} />
             </View>
             <View style={styles.cardTextContainer}>
               <Text style={styles.cardTitle}>QR 이미지 검사</Text>
@@ -202,7 +202,7 @@ const Home: React.FC = () => {
 
 
           <View style={styles.bannerContainer}>
-            <Image src='https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/qrdownbanner.png' style={styles.bannerQRCode} />
+            <Image source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/qrdownbanner.png'}} style={styles.bannerQRCode} />
           </View>        
 
         </View>
