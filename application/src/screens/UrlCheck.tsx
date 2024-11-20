@@ -89,38 +89,38 @@ const UrlCheck: React.FC<Props> = () => {
   };
 
   // URL 열기 함수
-  const openURL = async (inputUrl: string) => {
-    let formattedURL = inputUrl.trim().replace(/,/g, '');
-    // const isValidURL = (url: string) => {
-    const isValidURL = (url: string): boolean => {
+  // const openURL = async (inputUrl: string) => {
+  //   let formattedURL = inputUrl.trim().replace(/,/g, '');
+  //   // const isValidURL = (url: string) => {
+  //   const isValidURL = (url: string): boolean => {
     
-      const urlRegex = /^(https?:\/\/)?([\w\-]+\.)+[a-zA-Z]{2,}(\/\S*)?$/;
-      return urlRegex.test(url);
-    };
+  //     const urlRegex = /^(https?:\/\/)?([\w\-]+\.)+[a-zA-Z]{2,}(\/\S*)?$/;
+  //     return urlRegex.test(url);
+  //   };
 
-    if (!isValidURL(formattedURL)) {
-      Alert.alert('잘못된 URL 형식입니다.');
-      return;
-    }
+  //   if (!isValidURL(formattedURL)) {
+  //     Alert.alert('잘못된 URL 형식입니다.');
+  //     return;
+  //   }
 
-    if (!/^https?:\/\//i.test(formattedURL)) {
-      formattedURL = `https://www.${formattedURL}`;
-    }
+  //   if (!/^https?:\/\//i.test(formattedURL)) {
+  //     formattedURL = `https://www.${formattedURL}`;
+  //   }
 
-      // canOpenURL을 사용해 URL이 열 수 있는지 확인
-    const canOpen = await Linking.canOpenURL(formattedURL);
-    if (!canOpen) {
-      Alert.alert('이 URL을 열 수 없습니다.');
-      return;
-    }
+  //     // canOpenURL을 사용해 URL이 열 수 있는지 확인
+  //   const canOpen = await Linking.canOpenURL(formattedURL);
+  //   if (!canOpen) {
+  //     Alert.alert('이 URL을 열 수 없습니다.');
+  //     return;
+  //   }
 
-    try {
-      await Linking.openURL(formattedURL);
-    } catch (error) {
-      Alert.alert(`URL을 열 수 없습니다: ${formattedURL}`);
-      console.error('URL 열기 오류:', error);
-    }
-  };
+  //   try {
+  //     await Linking.openURL(formattedURL);
+  //   } catch (error) {
+  //     Alert.alert(`URL을 열 수 없습니다: ${formattedURL}`);
+  //     console.error('URL 열기 오류:', error);
+  //   }
+  // };
 
   //     // 서버 응답 확인
   //     console.log('서버 응답 데이터:', response.data);
@@ -150,31 +150,31 @@ const UrlCheck: React.FC<Props> = () => {
   //   }
   // };
 
-  // // URL 열기 함수
-  // const openURL = async (inputUrl: string) => {
-  //   let formattedURL = inputUrl.trim().replace(/,/g, '');
+  // URL 열기 함수
+  const openURL = async (inputUrl: string) => {
+    let formattedURL = inputUrl.trim().replace(/,/g, '');
 
-  //   const isValidURL = (url: string) => {
-  //     const urlRegex = /^(https?:\/\/)?([\w\-]+\.)+[a-zA-Z]{2,}(\/\S*)?$/;
-  //     return urlRegex.test(url);
-  //   };
+    const isValidURL = (url: string) => {
+      const urlRegex = /^(https?:\/\/)?([\w\-]+\.)+[a-zA-Z]{2,}(\/\S*)?$/;
+      return urlRegex.test(url);
+    };
 
-  //   if (!isValidURL(formattedURL)) {
-  //     Alert.alert('잘못된 URL 형식입니다.');
-  //     return;
-  //   }
+    if (!isValidURL(formattedURL)) {
+      Alert.alert('잘못된 URL 형식입니다.');
+      return;
+    }
 
-  //   if (!/^https?:\/\//i.test(formattedURL)) {
-  //     formattedURL = `https://www.${formattedURL}`;
-  //   }
+    if (!/^https?:\/\//i.test(formattedURL)) {
+      formattedURL = `https://www.${formattedURL}`;
+    }
 
-  //   try {
-  //     await Linking.openURL(formattedURL);
-  //   } catch (error) {
-  //     Alert.alert(`URL을 열 수 없습니다: ${formattedURL}`);
-  //     console.error('URL 열기 오류:', error);
-  //   }
-  // };
+    try {
+      await Linking.openURL(formattedURL);
+    } catch (error) {
+      Alert.alert(`URL을 열 수 없습니다: ${formattedURL}`);
+      console.error('URL 열기 오류:', error);
+    }
+  };
 
   return (
     <View style={commonStyles.container}>

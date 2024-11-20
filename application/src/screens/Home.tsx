@@ -192,7 +192,7 @@ const Home: React.FC = () => {
 
           <TouchableOpacity style={styles.card} onPress={handleGalleryQrScanNavigation}>
             <View style={styles.cardIconContainer}>
-              <Image source={require('../assets/images/free-icon-gallery.png')} style={styles.iconImage} />
+              <Image src='https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/free-icon-gallery.png' style={styles.iconImage} />
             </View>
             <View style={styles.cardTextContainer}>
               <Text style={styles.cardTitle}>QR 이미지 검사</Text>
@@ -202,7 +202,7 @@ const Home: React.FC = () => {
 
 
           <View style={styles.bannerContainer}>
-            <Image source={require('../assets/images/qrdownbanner.png')} style={styles.bannerQRCode} />
+            <Image src='https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/qrdownbanner.png' style={styles.bannerQRCode} />
           </View>        
 
         </View>
