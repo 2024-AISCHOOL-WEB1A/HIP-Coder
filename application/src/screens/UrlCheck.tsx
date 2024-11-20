@@ -64,9 +64,6 @@ const UrlCheck: React.FC<Props> = () => {
         },
       });
 
-      // 서버 응답 확인
-      console.log('서버 응답 데이터:', response.data);
-
       const status = response.data.status;
 
       if (status === 'good') {

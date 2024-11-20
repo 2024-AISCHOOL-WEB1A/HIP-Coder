@@ -334,7 +334,6 @@ const commonStyles = StyleSheet.create({
     borderRadius: 25,
     resizeMode: 'cover',
   },
-
   reportFullImage : {
     width: '100%',
     height: '65%',
