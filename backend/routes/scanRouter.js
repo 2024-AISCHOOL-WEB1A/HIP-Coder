@@ -49,8 +49,8 @@ router.post('/upload', async (req, res) => {
 router.get('/checkurl', async (req, res) => {
 
     const API_KEY = process.env.SAFE_API_KEY;
-    const url_check = 'http://example.com/malicious' // 임시 URL
-
+    const url_check = 'vmedvsadvdsatsascdsac.com' // 임시 URL
+    console.log(url_check)
     const apiUrl = `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${API_KEY}`;
     const payload = {
         client: {

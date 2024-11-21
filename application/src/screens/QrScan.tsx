@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { NativeModules, NativeEventEmitter, View, Text, Alert, StyleSheet, Linking } from 'react-native';
+import { NativeModules, NativeEventEmitter, View, Text, Alert, StyleSheet, Linking, ActivityIndicator, Modal } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { FLASK_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import commonStyles from '../styles/commonStyles';
 
 const { CameraModule } = NativeModules;
 const eventEmitter = new NativeEventEmitter(CameraModule);
@@ -12,6 +13,8 @@ const QRScannerScreen = () => {
   const navigation = useNavigation();
   const [isCameraActive, setCameraActive] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
+  const [loading, setLoading] = useState(false); // 로딩 상태 추가
+  const [scanResult, setScanResult] = useState(null);
 
   useEffect(() => {
     console.log("useEffect: 이벤트 리스너 설정 중...");
@@ -66,13 +69,14 @@ const QRScannerScreen = () => {
   };
 
   const sendUrlToBackend = async (inputUrl) => {
+    setLoading(true); // 로딩 활성화
     console.log("sendUrlToBackend: 서버로 URL 전송 시도 - URL:", inputUrl);
     try {
       const token = await AsyncStorage.getItem('accessToken');
       let formattedURL = inputUrl.trim();
 
       if (!/^https?:\/\//i.test(formattedURL)) {
-        formattedURL = `https://www.${formattedURL}`;
+        formattedURL = `https://${formattedURL}`;
       }
 
       const response = await axios.post(`${FLASK_URL}/scan`, {
@@ -86,6 +90,8 @@ const QRScannerScreen = () => {
 
       console.log('서버 응답 데이터:', response.data);
       const { status, url } = response.data;
+
+      setScanResult({ status, url });
 
       if (status === 'good') {
         Alert.alert('알림', '안전한 사이트입니다! 링크로 이동합니다.', [
@@ -105,6 +111,8 @@ const QRScannerScreen = () => {
     } catch (error) {
       console.error('sendUrlToBackend: 서버 전송 오류:', error);
       Alert.alert('오류', 'QR 코드 URL을 분류하는 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false); // 로딩 비활성화
     }
   };
 
@@ -148,6 +156,20 @@ const QRScannerScreen = () => {
 
   return (
     <View style={styles.container}>
+      {/* 검사 중 모달 */}
+      <Modal
+        visible={loading}
+        transparent={true}
+        animationType="fade"
+      >
+        <View style={commonStyles.modalBackground}>
+          <View style={commonStyles.activityIndicatorWrapper}>
+            <ActivityIndicator size="large" color="#3182f6" />
+            <Text style={commonStyles.loadingText}>URL을 확인 중입니다.</Text>
+          </View>
+        </View>
+      </Modal>
+
       {isCameraActive ? (
         <Text style={styles.text}>QR 코드를 스캔 중입니다...</Text>
       ) : (
