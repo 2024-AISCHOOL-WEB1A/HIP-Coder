@@ -8,7 +8,7 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
-import { useNavigation, CommonActions } from '@react-navigation/native';
+import { useNavigation, CommonActions, useFocusEffect } from '@react-navigation/native';
 import CustomButton from '../components/IJButton';
 import Header from '../components/Header';
 import api from '../../axios';
@@ -87,6 +87,13 @@ const Login: React.FC<Props> = () => {
       }
     }
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setId('')
+      setPassword('')
+    }, [])
+  )
 
   const handleBackPress = () => {
     // 뒤로가기 버튼 누르면 홈 화면으로 이동하도록 스택 초기화

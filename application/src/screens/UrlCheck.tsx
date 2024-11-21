@@ -165,7 +165,7 @@ const UrlCheck: React.FC<Props> = () => {
     }
 
     if (!/^https?:\/\//i.test(formattedURL)) {
-      formattedURL = `https://www.${formattedURL}`;
+      formattedURL = `https://${formattedURL}`;
     }
 
     try {
