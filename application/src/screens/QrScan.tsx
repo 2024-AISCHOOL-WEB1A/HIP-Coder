@@ -49,15 +49,8 @@ const QRScannerScreen = () => {
 
     await sendUrlToBackend(url);
 
-    console.log("handleQRScanSuccess: 카메라 종료 요청");
-    CameraModule.cancelScan();
-
-    console.log("handleQRScanSuccess: Home 화면으로 이동 시작");
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Home' }],
-    });
-    console.log("handleQRScanSuccess: Home 화면으로 이동 완료");
+    console.log("handleQRScanSuccess: 스캔 성공 후 모달 표시");
+    setShowWarningModal(true); // 결과 모달 표시
   };
 
   const handleCameraClose = () => {
@@ -92,7 +85,6 @@ const QRScannerScreen = () => {
       console.log('서버 응답 데이터:', response.data);
       const { status } = response.data;
 
-      // 결과 상태 업데이트
       setFormattedURL(formattedURL);
       if (status === 'good') {
         setIsSafeUrl(true);
@@ -106,16 +98,22 @@ const QRScannerScreen = () => {
       Alert.alert('오류', 'QR 코드 URL을 분류하는 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
-      setShowWarningModal(true); // 모달 표시
     }
   };
 
-  const openURL = async (inputUrl) => {
+  const openURL = async () => {
     try {
-      await Linking.openURL(inputUrl);
+      await Linking.openURL(formattedURL);
+      console.log("openURL: URL 열기 성공 - 카메라 종료 및 홈 화면으로 이동");
+      CameraModule.cancelScan(); // 카메라 종료
+      setShowWarningModal(false); // 모달 닫기
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
     } catch (error) {
-      Alert.alert(`URL을 열 수 없습니다: ${inputUrl}`);
-      console.error('URL 열기 오류:', error);
+      Alert.alert(`URL을 열 수 없습니다: ${formattedURL}`);
+      console.error('openURL: URL 열기 오류:', error);
     }
   };
 
@@ -188,16 +186,16 @@ const QRScannerScreen = () => {
                 <View style={commonStyles.modalButton}>
                   <TouchableOpacity
                     style={commonStyles.modalButtonGray}
-                    onPress={() => setShowWarningModal(false)}
+                    onPress={() => {
+                      setShowWarningModal(false);
+                      CameraModule.cancelScan(); // 카메라 종료
+                    }}
                   >
                     <Text style={commonStyles.textGrayMediumB}>취소</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={commonStyles.modalButtonBlue}
-                    onPress={() => {
-                      openURL(formattedURL);
-                      setShowWarningModal(false);
-                    }}
+                    onPress={openURL}
                   >
                     <Text style={commonStyles.textWhiteMediumB}>이동</Text>
                   </TouchableOpacity>
@@ -213,16 +211,16 @@ const QRScannerScreen = () => {
                 <View style={commonStyles.modalButton}>
                   <TouchableOpacity
                     style={commonStyles.modalButtonRed}
-                    onPress={() => setShowWarningModal(false)}
+                    onPress={() => {
+                      setShowWarningModal(false);
+                      CameraModule.cancelScan(); // 카메라 종료
+                    }}
                   >
                     <Text style={commonStyles.textWhiteMediumB}>취소</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={commonStyles.modalButtonGray}
-                    onPress={() => {
-                      openURL(formattedURL);
-                      setShowWarningModal(false);
-                    }}
+                    onPress={openURL}
                   >
                     <Text style={commonStyles.textGrayMediumB}>이동</Text>
                   </TouchableOpacity>
