@@ -290,7 +290,7 @@ def mainurl():
 
     response = jsonify({
         'status': scan_result,
-        'message': '안전한 URL입니다.' if scan_result == 'G' else '이 URL은 보안 위험이 있을 수 있습니다.',
+        'message': '이 URL은 안전합니다.' if scan_result == 'G' else '이 URL은 보안 위험이 있을 수 있습니다.',
         'url': url_data
     })
     return response
