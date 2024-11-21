@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, TextInput, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useNavigation, useRoute, CommonActions } from '@react-navigation/native';
 import CustomButton from '../components/IJButton';
@@ -42,6 +42,7 @@ const MyPage: React.FC = () => {
   const route = useRoute();
   const { csrfToken } = useCsrf();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const scrollViewRef = useRef<ScrollView>(null); // ScrollView 참조 생성
 
   // 전화번호 포맷 함수
   const formatPhoneNumber = (number: string): string => {
@@ -81,7 +82,14 @@ const MyPage: React.FC = () => {
   useEffect(() => {
     checkIsLoggedIn();
     mypagelist();
-  }, []);
+    const unsubscribe = navigation.addListener('focus', () => {
+      // 페이지에 다시 진입할 때 스크롤 최상단으로 이동
+      if (scrollViewRef.current) {
+        scrollViewRef.current.scrollTo({ y: 0, animated: false });
+      }
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const mypagelist = async () => {
     try {
@@ -281,7 +289,7 @@ const MyPage: React.FC = () => {
   return (
     <View style={styles.container}>
       <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} title="내정보" onBackPress={() => navigation.goBack()} />
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView ref={scrollViewRef} contentContainerStyle={styles.scrollContainer}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>프로필 정보</Text>
           <View style={styles.card}>
