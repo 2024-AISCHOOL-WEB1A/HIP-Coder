@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NativeModules, NativeEventEmitter, View, Text, Alert, StyleSheet, Linking, ActivityIndicator, Modal } from 'react-native';
+import { NativeModules, NativeEventEmitter, View, Text, Alert, StyleSheet, Linking, ActivityIndicator, Modal, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { FLASK_URL } from '@env';
@@ -13,8 +13,10 @@ const QRScannerScreen = () => {
   const navigation = useNavigation();
   const [isCameraActive, setCameraActive] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
-  const [loading, setLoading] = useState(false); // 로딩 상태 추가
-  const [scanResult, setScanResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [isSafeUrl, setIsSafeUrl] = useState<boolean | null>(null);
+  const [formattedURL, setFormattedURL] = useState<string>('');
 
   useEffect(() => {
     console.log("useEffect: 이벤트 리스너 설정 중...");
@@ -30,7 +32,7 @@ const QRScannerScreen = () => {
       qrScanListener.remove();
       cameraCloseListener.remove();
       if (isCameraActive) {
-        stopScan(); // 활성 상태일 때만 카메라 종료
+        stopScan();
       }
     };
   }, []);
@@ -48,7 +50,7 @@ const QRScannerScreen = () => {
     await sendUrlToBackend(url);
 
     console.log("handleQRScanSuccess: 카메라 종료 요청");
-    CameraModule.cancelScan(); // 카메라 종료 요청
+    CameraModule.cancelScan();
 
     console.log("handleQRScanSuccess: Home 화면으로 이동 시작");
     navigation.reset({
@@ -69,8 +71,7 @@ const QRScannerScreen = () => {
   };
 
   const sendUrlToBackend = async (inputUrl) => {
-    setLoading(true); // 로딩 활성화
-    console.log("sendUrlToBackend: 서버로 URL 전송 시도 - URL:", inputUrl);
+    setLoading(true);
     try {
       const token = await AsyncStorage.getItem('accessToken');
       let formattedURL = inputUrl.trim();
@@ -89,22 +90,14 @@ const QRScannerScreen = () => {
       });
 
       console.log('서버 응답 데이터:', response.data);
-      const { status, url } = response.data;
+      const { status } = response.data;
 
-      setScanResult({ status, url });
-
+      // 결과 상태 업데이트
+      setFormattedURL(formattedURL);
       if (status === 'good') {
-        Alert.alert('알림', '안전한 사이트입니다! 링크로 이동합니다.', [
-          { text: 'OK', onPress: () => Linking.openURL(url) }
-        ]);
+        setIsSafeUrl(true);
       } else if (status === 'bad') {
-        Alert.alert(
-          '경고', '이 URL은 위험할 수 있습니다. 그래도 접속하시겠습니까?',
-          [
-            { text: 'URL 열기', onPress: () => Linking.openURL(url) },
-            { text: '취소', style: 'cancel' }
-          ]
-        );
+        setIsSafeUrl(false);
       } else {
         Alert.alert('오류', '예측 결과를 확인할 수 없습니다.');
       }
@@ -112,7 +105,17 @@ const QRScannerScreen = () => {
       console.error('sendUrlToBackend: 서버 전송 오류:', error);
       Alert.alert('오류', 'QR 코드 URL을 분류하는 중 오류가 발생했습니다.');
     } finally {
-      setLoading(false); // 로딩 비활성화
+      setLoading(false);
+      setShowWarningModal(true); // 모달 표시
+    }
+  };
+
+  const openURL = async (inputUrl) => {
+    try {
+      await Linking.openURL(inputUrl);
+    } catch (error) {
+      Alert.alert(`URL을 열 수 없습니다: ${inputUrl}`);
+      console.error('URL 열기 오류:', error);
     }
   };
 
@@ -157,15 +160,75 @@ const QRScannerScreen = () => {
   return (
     <View style={styles.container}>
       {/* 검사 중 모달 */}
-      <Modal
-        visible={loading}
-        transparent={true}
-        animationType="fade"
-      >
+      <Modal visible={loading} transparent={true} animationType="fade">
         <View style={commonStyles.modalBackground}>
           <View style={commonStyles.activityIndicatorWrapper}>
             <ActivityIndicator size="large" color="#3182f6" />
             <Text style={commonStyles.loadingText}>URL을 확인 중입니다.</Text>
+          </View>
+        </View>
+      </Modal>
+
+      {/* 결과 모달 */}
+      <Modal
+        visible={showWarningModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowWarningModal(false)}
+      >
+        <View style={commonStyles.modalBackground}>
+          <View style={commonStyles.warningModalWrapper}>
+            {isSafeUrl ? (
+              <>
+                <Image
+                  source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/Safe.png' }}
+                  style={commonStyles.warningImage}
+                />
+                <Text style={commonStyles.textBlackCenter}>이 URL은 안전합니다. 이동하시겠습니까?</Text>
+                <View style={commonStyles.modalButton}>
+                  <TouchableOpacity
+                    style={commonStyles.modalButtonGray}
+                    onPress={() => setShowWarningModal(false)}
+                  >
+                    <Text style={commonStyles.textGrayMediumB}>취소</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={commonStyles.modalButtonBlue}
+                    onPress={() => {
+                      openURL(formattedURL);
+                      setShowWarningModal(false);
+                    }}
+                  >
+                    <Text style={commonStyles.textWhiteMediumB}>이동</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            ) : (
+              <>
+                <Image
+                  source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/Danger.png' }}
+                  style={commonStyles.warningImage}
+                />
+                <Text style={commonStyles.textBlackCenter}>이 URL은 위험할 수 있습니다. 접속하시겠습니까?</Text>
+                <View style={commonStyles.modalButton}>
+                  <TouchableOpacity
+                    style={commonStyles.modalButtonRed}
+                    onPress={() => setShowWarningModal(false)}
+                  >
+                    <Text style={commonStyles.textWhiteMediumB}>취소</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={commonStyles.modalButtonGray}
+                    onPress={() => {
+                      openURL(formattedURL);
+                      setShowWarningModal(false);
+                    }}
+                  >
+                    <Text style={commonStyles.textGrayMediumB}>이동</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
           </View>
         </View>
       </Modal>
