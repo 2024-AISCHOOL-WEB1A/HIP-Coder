@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, TextInput, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useNavigation, useRoute, CommonActions } from '@react-navigation/native';
 import CustomButton from '../components/IJButton';
@@ -42,6 +42,7 @@ const MyPage: React.FC = () => {
   const route = useRoute();
   const { csrfToken } = useCsrf();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const scrollViewRef = useRef<ScrollView>(null); // ScrollView 참조 생성
 
   // 전화번호 포맷 함수
   const formatPhoneNumber = (number: string): string => {
@@ -81,7 +82,14 @@ const MyPage: React.FC = () => {
   useEffect(() => {
     checkIsLoggedIn();
     mypagelist();
-  }, []);
+    const unsubscribe = navigation.addListener('focus', () => {
+      // 페이지에 다시 진입할 때 스크롤 최상단으로 이동
+      if (scrollViewRef.current) {
+        scrollViewRef.current.scrollTo({ y: 0, animated: false });
+      }
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const mypagelist = async () => {
     try {
@@ -281,25 +289,25 @@ const MyPage: React.FC = () => {
   return (
     <View style={styles.container}>
       <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} title="내정보" onBackPress={() => navigation.goBack()} />
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView ref={scrollViewRef} contentContainerStyle={styles.scrollContainer}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>프로필 정보</Text>
           <View style={styles.card}>
             <Text style={styles.emergencyContactTitle}>이름</Text>
-            <TextInput style={[styles.input, styles.fullInput, { backgroundColor: '#F0F0F0' }]} placeholder="이름" value={profileData.name} editable={false} />
+            <TextInput style={[styles.input, styles.fullInput, { backgroundColor: '#F0F0F0' }]} value={profileData.name} editable={false} />
             <Text style={styles.emergencyContactTitle}>핸드폰 번호</Text>
             <TextInput
               style={[styles.input, styles.fullInput, { backgroundColor: '#F0F0F0' }]}
-              placeholder="핸드폰번호"
+              
               value={profileData.phone}
               editable={false} // 수정 모드에서도 수정되지 않도록 설정
             />
             <Text style={styles.emergencyContactTitle}>이메일 주소</Text>
-            <TextInput style={[styles.input, { backgroundColor: '#F0F0F0' }]} placeholder="이메일 주소" value={profileData.email} editable={false} />
+            <TextInput style={[styles.input, { backgroundColor: '#F0F0F0' }]}  value={profileData.email} editable={false} />
             <Text style={styles.emergencyContactTitle}>비상연락망(1)</Text>
             <TextInput
               style={[styles.input, { backgroundColor: isEditing ? '#FFFFFF' : '#F0F0F0' }]}
-              placeholder="비상연락망(1)"
+              
               value={isEditing ? unformatPhoneNumber(profileData.emergencyContact1) : profileData.emergencyContact1}
               onChangeText={(text) => {
                 if (text.length <= 11) {
@@ -312,7 +320,7 @@ const MyPage: React.FC = () => {
             <Text style={styles.emergencyContactTitle}>비상연락망(2)</Text>
             <TextInput
               style={[styles.input, { backgroundColor: isEditing ? '#FFFFFF' : '#F0F0F0' }]}
-              placeholder="비상연락망(2)"
+              
               value={isEditing ? unformatPhoneNumber(profileData.emergencyContact2) : profileData.emergencyContact2}
               onChangeText={(text) => {
                 if (text.length <= 11) {

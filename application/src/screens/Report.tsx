@@ -70,7 +70,7 @@ const Report: React.FC<Props> = () => {
           <View style={commonStyles.box1}>
             <View style={commonStyles.circleContainer}>
               <Image
-                source={require('../assets/images/Police.png')}
+                source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/Police.png'}}
                 style={commonStyles.circleImage}
               />
             </View>
@@ -82,7 +82,7 @@ const Report: React.FC<Props> = () => {
               <TouchableOpacity onPress={() => handleLinkPress('https://ecrm.police.go.kr/minwon/main')}>
                 <View style={commonStyles.reportButtonContainer}>
                   <Image
-                    source={require('../assets/images/Report.png')}
+                    source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/Report.png'}}
                     style={commonStyles.reportIcon}
                   />
                   <Text style={commonStyles.textNextToImage}>신고하기</Text>
@@ -95,7 +95,7 @@ const Report: React.FC<Props> = () => {
           <View style={commonStyles.box1}>
             <View style={commonStyles.circleContainer}>
               <Image
-                source={require('../assets/images/Fss.png')}
+                source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/Fss.png'}}
                 style={commonStyles.circleImage}
               />
             </View>
@@ -107,7 +107,7 @@ const Report: React.FC<Props> = () => {
               <TouchableOpacity onPress={() => handleLinkPress('https://www.fss.or.kr/fss/main/sub1.do?menuNo=201093')}>
                 <View style={commonStyles.reportButtonContainer}>
                   <Image
-                    source={require('../assets/images/Report.png')}
+                    source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/Report.png'}}
                     style={commonStyles.reportIcon}
                   />
                   <Text style={commonStyles.textNextToImage}>신고하기</Text>
@@ -120,7 +120,7 @@ const Report: React.FC<Props> = () => {
           <View style={commonStyles.box1}>
             <View style={commonStyles.circleContainer}>
               <Image
-                source={require('../assets/images/Kisa.png')}
+                source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/Kisa.png'}}
                 style={commonStyles.circleImage}
               />
             </View>
@@ -132,7 +132,7 @@ const Report: React.FC<Props> = () => {
               <TouchableOpacity onPress={() => handleLinkPress('https://www.boho.or.kr/kr/consult/consultForm.do?menuNo=205035&mConNo=94')}>
                 <View style={commonStyles.reportButtonContainer}>
                   <Image
-                    source={require('../assets/images/Report.png')}
+                    source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/Report.png'}}
                     style={commonStyles.reportIcon}
                   />
                   <Text style={commonStyles.textNextToImage}>신고하기</Text>
@@ -144,7 +144,7 @@ const Report: React.FC<Props> = () => {
           {/* box2 클릭 시 이미지 1을 보여주는 ReportImage 화면으로 이동 */}
           <TouchableOpacity onPress={handleBox2Click} style={commonStyles.box2Banner1}>
             <Image
-              source={require('../assets/images/Banner1.png')}
+              source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/Banner1.png'}}
               style={commonStyles.boxImageBanner1}
             />
           </TouchableOpacity>
@@ -152,7 +152,7 @@ const Report: React.FC<Props> = () => {
           {/* box2Banner2 클릭 시 이미지 2를 보여주는 ReportImage 화면으로 이동 */}
           <TouchableOpacity onPress={handleBox2Banner2Click} style={commonStyles.box2Banner2}>
             <Image
-              source={require('../assets/images/Banner2.png')}
+              source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/Banner2.png'}}
               style={commonStyles.boxImageBanner2}
             />
           </TouchableOpacity>

@@ -18,7 +18,7 @@ interface Props {
 }
 
 const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&`~!@#$%^&*()_\-+=\\|{}[\]:;"'<>,.\/?])[A-Za-z\d@$!%*?&`~!@#$%^&*()_\-+=\\|{}[\]:;"'<>,.\/?]{8,}$/;
-const idRegex = /^[a-zA-Z0-9]*$/;
+const idRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{5,}$/;
 
 const Join: React.FC<Props> = () => {
   const [step, setStep] = useState(1);
@@ -47,6 +47,28 @@ const Join: React.FC<Props> = () => {
   const phoneInputRef = useRef<TextInput>(null);
   const emergencyContact1InputRef = useRef<TextInput>(null);
   const emergencyContact2InputRef = useRef<TextInput>(null);
+  const [loading, setLoading] = useState(false);
+
+  // 페이지 포커스 시 상태 초기화
+  useFocusEffect(
+    React.useCallback(() => {
+      // 모든 입력값과 단계를 초기화
+      setStep(1);
+      setId('');
+      setPassword('');
+      setPasswordCheck('');
+      setName('');
+      setEmail('');
+      setPhone('');
+      setEmergencyContact1('');
+      setEmergencyContact2('');
+      setIdck(false);
+      setTerms1Accepted(false);
+      setTerms2Accepted(false);
+      setAllTermsAccepted(false);
+    }, [])
+  );
+  
 
   // 뒤로가기 버튼 처리
   useFocusEffect(
@@ -101,6 +123,19 @@ const Join: React.FC<Props> = () => {
 
       if (res.status === 200) {
         Alert.alert('회원가입 성공', '로그인 페이지로 이동합니다.');
+        setStep(1);
+        setId('');
+        setPassword('');
+        setPasswordCheck('');
+        setName('');
+        setEmail('');
+        setPhone('');
+        setEmergencyContact1('');
+        setEmergencyContact2('');
+        setIdck(false);
+        setTerms1Accepted(false);
+        setTerms2Accepted(false);
+        setAllTermsAccepted(false);
         navigation.navigate('Login');
       }
     } catch (error) {
@@ -119,12 +154,14 @@ const Join: React.FC<Props> = () => {
 
   const id_redundancy_check = async () => {
     if (id.length > 4 && idRegex.test(id)) {
+      setLoading(true);
       try {
         const res = await api.post('/user/idcheck', { idck: id }, {
           headers: { 'X-CSRF-Token': csrfToken }, 
           withCredentials: true
         });
-
+        setLoading(false);
+  
         if (res.data.message === '중복') {
           setIdck(false);
           Alert.alert('중복', '이미 사용 중인 아이디입니다.');
@@ -133,11 +170,12 @@ const Join: React.FC<Props> = () => {
           Alert.alert('사용 가능한 아이디', '사용 가능한 아이디입니다.');
         }
       } catch (error) {
+        setLoading(false);
         console.error('아이디 중복 확인 중 오류:', error);
         Alert.alert('오류', '아이디 중복 확인 중 오류가 발생했습니다.');
       }
     } else {
-      Alert.alert('경고', '아이디는 5자 이상이며 영어와 숫자만 포함해야 합니다.');
+      Alert.alert('경고', '아이디는 5글자 이상, 영어와 숫자를 모두 포함해야 합니다.');
     }
   };
 
@@ -200,6 +238,15 @@ const Join: React.FC<Props> = () => {
       } if (!emergencyContact2) {
         Alert.alert('경고', '비상연락망2을 입력해주세요.')
         return;
+      } if (!/^[0-9]{11}$/.test(emergencyContact1)) {
+        Alert.alert('경고', '핸드폰 번호는 숫자 11자리여야 합니다.');
+        return;
+      } if (!/^[0-9]{11}$/.test(emergencyContact2)) {
+        Alert.alert('경고', '핸드폰 번호는 숫자 11자리여야 합니다.');
+        return;
+      } if (emergencyContact1 === emergencyContact2) {
+        Alert.alert('경고', '비상연락망1과 비상연락망2가 같을 수 없습니다.');
+        return;
       }
       handleJoin();
     }
@@ -238,7 +285,7 @@ const Join: React.FC<Props> = () => {
             <>
               <View style={commonStyles.logoBox}>
                 <Image
-                  source={require('../assets/images/ThingQFulllogo.png')}
+                  source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/ThingQFulllogo.png'}}
                   style={commonStyles.logoImage1}
                 />
                 <Text style={commonStyles.textGrayMediumLeft}>이용약관에 동의하시겠습니까?</Text>
@@ -389,7 +436,7 @@ const Join: React.FC<Props> = () => {
           {step === 3 && (
             <>
               <Image
-                source={require('../assets/images/ThingQFulllogo.png')}
+                source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/ThingQFulllogo.png'}}
                 style={commonStyles.logoImage1}
               />
               <Text style={commonStyles.textInputTop}>비상연락망1 <Text style={commonStyles.redAsterisk}>*</Text></Text>

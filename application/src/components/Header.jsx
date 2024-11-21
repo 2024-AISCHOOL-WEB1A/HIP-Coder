@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList, Animated, Im
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker'
 
 interface HeaderProps {
   title?: string;
@@ -36,6 +36,26 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
     }
   }, [isLoggedIn]);
 
+  const handleGalleryQrScanNavigation = () => {
+    const options = { mediaType: 'photo', quality: 1 };
+    launchImageLibrary(options, (response: ImagePickerResponse) => {
+      if (response.didCancel) {
+        console.log('이미지 선택이 취소되었습니다.');
+        // 이미지 선택이 취소되었을 때 페이지 이동 없이 함수 종료
+        return;
+      } else if (response.errorMessage) {
+        console.log('에러: ', response.errorMessage);
+      } else if (response.assets && response.assets.length > 0) {
+        const uri = response.assets[0].uri;
+        if (uri) {
+          console.log('선택한 이미지 URI:', uri);
+          // 이미지를 성공적으로 선택했을 때 GalleryQrScan 페이지로 이동, 선택한 이미지 URI를 함께 전달
+          navigation.navigate('GalleryQrScan' , { imageUri: uri });
+        }
+      }
+    });
+  };
+
   const menuItems = useMemo(() => {
     if (isLoggedIn) {
       return [
@@ -44,7 +64,7 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
         { label: '내정보', icon: 'person-outline', action: () => navigation.navigate('MyPage') },
         { label: 'QR 스캔', icon: 'scan-outline', action: () => navigation.navigate('QrScan') },
         { label: 'URL 검사', icon: 'link-outline', action: () => navigation.navigate('UrlCheck') },
-        { label: 'QR 이미지 검사', icon: 'images-outline', action: () => navigation.navigate('GalleryQrScan') },
+        { label: 'QR 이미지 검사', icon: 'images-outline', action: handleGalleryQrScanNavigation },
       ];
     } else {
       return [
@@ -66,7 +86,7 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
         },
         { label: 'QR 스캔', icon: 'scan-outline', action: () => navigation.navigate('QrScan') },
         { label: 'URL 검사', icon: 'link-outline', action: () => navigation.navigate('UrlCheck') },
-        { label: 'QR 이미지 검사', icon: 'images-outline', action: () => navigation.navigate('GalleryQrScan') },
+        { label: 'QR 이미지 검사', icon: 'images-outline', action: handleGalleryQrScanNavigation },
       ];
     }
   }, [isLoggedIn]);
@@ -116,7 +136,7 @@ const Header: React.FC<HeaderProps> = ({ title = '', onBackPress, isLoggedIn, on
             </TouchableOpacity>
           </View>
           <View style={styles.profileSection}>
-            <Image source={require('../assets/images/ThingQFulllogo.png')} style={styles.logoImage} />
+            <Image source={{ uri: 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/ThingQFulllogo.png'}} style={styles.logoImage} />
             {isLoggedIn ? (
               <Text style={styles.welcomeText}>{`${username}님, 환영합니다!`}</Text>
             ) : (

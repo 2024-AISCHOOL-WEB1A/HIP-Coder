@@ -10,8 +10,8 @@ const ReportImage: React.FC = () => {
 
   // imageType에 따라 다른 이미지를 렌더링
   const imageSource = imageType === 'image1'
-    ? require('../assets/images/Police1.png')
-    : require('../assets/images/Kisa1.png');
+    ? 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/Police1.png'
+    : 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/Kisa1.png'
 
   // 이미지 클릭 시 Report.tsx로 돌아가는 함수
   const handleImagePress = () => {
@@ -20,7 +20,7 @@ const ReportImage: React.FC = () => {
 
   return (
     <View style={commonStyles.containerWhite}>
-      <Image source={imageSource} style={commonStyles.reportFullImage} />
+      <Image source={{ uri: imageSource}} style={commonStyles.reportFullImage} />
 
       <TouchableOpacity style={commonStyles.fixedFooter} onPress={handleImagePress}>
         <Text style={commonStyles.footerText}>닫기</Text>

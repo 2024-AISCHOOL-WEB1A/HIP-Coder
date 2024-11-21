@@ -84,59 +84,64 @@ router.get('/checkurl', async (req, res) => {
 });
 
 /** 검사내역 불러오기 */
-router.post('/scanlist', authenticateToken, (req, res) => {
-    const user_idx = req.userId;
-
-    if (!user_idx) {
+router.post('/scanlist', authenticateToken, async (req, res) => {
+    try {
+      const user_idx = req.userId;
+  
+      if (!user_idx) {
         return res.status(401).json({ success: false, error: '인증에 실패했습니다.' });
+      }
+  
+      const sql = 'SELECT * FROM SCAN_QR WHERE USER_IDX = ? ORDER BY SCAN_DATE DESC';
+  
+      // 쿼리 실행 - async/await 사용
+      const [rows] = await conn.query(sql, [user_idx]);
+  
+      if (rows.length === 0) {
+        return res.json({ success: true, message: [] });
+      } else {
+        return res.json({ success: true, message: rows });
+      }
+    } catch (err) {
+      console.error('DB Count Error:', err);
+      return res.status(500).json({ success: false, error: 'DB Count Error' });
     }
-
-    const sql = 'SELECT * FROM SCAN_QR WHERE USER_IDX = ? ORDER BY SCAN_DATE DESC';
-
-    conn.query(sql, [user_idx], (err, r) => {
-        if (err) {
-            console.error('DB Count Error', err);
-            return res.status(500).json({ success: false, error: 'DB Count Error' });
-        } else if (r.length === 0) {
-            return res.json({ success: true, message: [] });
-        } else {
-            res.json({ success: true, message: r });
-        }
-    });
-});
+  });
 
 
 /** 검사 내역 카운팅 */
-router.get('/counting', (req, res) => {
+router.get('/counting', async (req, res) => {
     const sql = `SELECT TYPE, SUM(COUNT_VALUE) AS total_count
                  FROM COUNT_LOGS
                  GROUP BY TYPE`;
-
-    conn.query(sql, (err, results) => {
-        if (err) {
-            console.error('집계 실패:', err);
-            res.status(500).json({ message: '집계 실패', error: err });
-        } else {
-            // 집계 결과를 통해 URL과 QR 카운트를 구분합니다.
-            let totalUrlCount = 0;
-            let totalQrCount = 0;
-
-            results.forEach(result => {
-                if (result.TYPE === 'URL') {
-                    totalUrlCount = result.total_count;
-                } else if (result.TYPE === 'QR') {
-                    totalQrCount = result.total_count;
-                }
-            });
-
-            // 클라이언트에 JSON 응답으로 집계 결과 전송
-            res.status(200).json({
-                total_url_count: totalUrlCount,
-                total_qr_count: totalQrCount
-            });
+  
+    try {
+      // 프라미스 기반의 쿼리 호출, 결과는 rows로 받습니다.
+      const [rows] = await conn.query(sql);
+  
+      // 집계 결과를 통해 URL과 QR 카운트를 구분합니다.
+      let totalUrlCount = 0;
+      let totalQrCount = 0;
+  
+      rows.forEach((result) => {
+        if (result.TYPE === 'URL') {
+          totalUrlCount = result.total_count;
+        } else if (result.TYPE === 'QR') {
+          totalQrCount = result.total_count;
         }
-    });
-});
+      });
+  
+      // 클라이언트에 JSON 응답으로 집계 결과 전송
+      res.status(200).json({
+        total_url_count: totalUrlCount,
+        total_qr_count: totalQrCount,
+      });
+  
+    } catch (err) {
+      console.error('집계 실패:', err);
+      res.status(500).json({ message: '집계 실패', error: err });
+    }
+  });
 
 
 

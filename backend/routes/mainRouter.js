@@ -2,10 +2,12 @@ const  {log} = require('console')
 const express = require('express')
 const router = express.Router()
 const conn = require('../config/db')
+const path = require('path')
 
 // 메인
 router.get('/', (req, res) => {
     log('test')
+    res.sendFile(path.join(__dirname, 'a.html'))
 })
 
 
