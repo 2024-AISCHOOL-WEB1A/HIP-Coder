@@ -4,3 +4,4 @@ package-lock.json
 venv
 local.properties
 __pycache__
+get-pip.py
