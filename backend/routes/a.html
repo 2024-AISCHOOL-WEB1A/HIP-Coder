@@ -211,7 +211,12 @@
             </div>
             <p class="footer">URL을 입력하면 서비스 약관 및 개인정보 보호정책에 동의하는 것입니다.</p>
         </form>
+        <br><br><div>
+    
+            <a style="text-decoration: none; color: #3182f6;" href="https://drive.google.com/uc?export=download&id=1-bmPoeQYt0EkGRhHkrUGi-_UnGOQM0ou" target="_blank">THING Q 다운로드</a>
+        </div>
     </div>
+
 
     <div class="loading" id="loading">
         <div class="loading-content">
@@ -226,98 +231,118 @@
         </div>
     </div>
 
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // 로딩 및 결과 모달 초기 상태 설정
             document.getElementById('loading').style.display = 'none';
             document.getElementById('resultModal').style.display = 'none';
+    
+            // input 필드에 엔터 키가 눌렸을 때 analyzeButton을 클릭
+            document.getElementById('urlInput').addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); // 기본 엔터 동작을 막음 (페이지 새로고침 방지)
+                    document.getElementById('analyzeButton').click(); // analyzeButton 클릭
+                }
+            });
         });
-
-        document.getElementById('analyzeButton').addEventListener('click', async function() {
-    const url = document.getElementById('urlInput').value;
-    const loading = document.getElementById('loading');
-    const resultModal = document.getElementById('resultModal');
-    const modalContent = document.getElementById('modalContent');
-    const urlPattern = /^(https?:\/\/)?([\w-]+(\.[\w-]+)+)([\/?].*)?$/
-
-    if (!url) {
-        alert('URL을 입력해주세요.');
-        return;
-    } else if (!urlPattern.test(url)) {
-        alert('유효하지 않은 URL 형식입니다. 올바른 형식으로 입력해주세요.');
-        return;
-    }
-
-    loading.style.display = 'flex';
-
-    try {
-        const response = await fetch('http://localhost:5000/mainurl', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ url: url })
-        });
-
-        loading.style.display = 'none';
-
-        if (response.ok) {
-            const data = await response.json();
-            console.log(data)
-            let iconUrl = '';
-            let buttonColor = '';
-
-            if (data.status == 'G') {
-                iconUrl = 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/Safe.png';
-                buttonColor = '#3182f6';
-            } else if (data.status == 'B') {
-                iconUrl = 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/Danger.png';
-                buttonColor = '#e53e3e';
+    
+        // URL 검사 버튼 클릭 시 analyzeUrl 함수 호출
+        document.getElementById('analyzeButton').addEventListener('click', analyzeUrl);
+    
+        async function analyzeUrl() {
+            const url = document.getElementById('urlInput').value;
+            const loading = document.getElementById('loading');
+            const resultModal = document.getElementById('resultModal');
+            const modalContent = document.getElementById('modalContent');
+            const urlPattern = /^(https?:\/\/)?([\w-]+(\.[\w-]+)+)([\/?].*)?$/;
+    
+            // URL 유효성 검사
+            if (!url) {
+                alert('URL을 입력해주세요.');
+                return;
+            } else if (!urlPattern.test(url)) {
+                alert('유효하지 않은 URL 형식입니다. 올바른 형식으로 입력해주세요.');
+                return;
             }
-
-            modalContent.innerHTML = `
-                <div class="modal-icon">
-                    <img src="${iconUrl}" alt="검사 아이콘" style="width: 50px; height: 50px; margin-bottom: 20px;">
-                </div>                    
-                <p>검사 결과: ${data.message}</p>
-                <button id="closeModalButton" style="background-color: ${buttonColor}; color: white; font-weight: bold; padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; transition: background-color 0.3s;">닫기</button>
-            `;
-        } else {
-            modalContent.innerHTML = `
-                <p>오류가 발생했습니다: ${response.status}</p>
-                <button id="closeModalButton" style="background-color: #3182f6; color: white; font-weight: bold; padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; transition: background-color 0.3s;">닫기</button>
-            `;
+    
+            // 로딩 화면 표시
+            loading.style.display = 'flex';
+    
+            try {
+                // 서버에 요청 보내기
+                const response = await fetch('https://hip-coder.com/flask/mainurl', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url: url })
+                });
+    
+                // 로딩 화면 숨기기
+                loading.style.display = 'none';
+    
+                // 서버 응답 처리
+                if (response.ok) {
+                    const data = await response.json();
+                    let iconUrl = '';
+                    let buttonColor = '';
+    
+                    if (data.status === 'G') {
+                        iconUrl = 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/Safe.png';
+                        buttonColor = '#3182f6';
+                    } else if (data.status === 'B') {
+                        iconUrl = 'https://jsh-1.s3.ap-northeast-2.amazonaws.com/hipcoder/Danger.png';
+                        buttonColor = '#e53e3e';
+                    }
+    
+                    // 결과 모달 내용 업데이트
+                    modalContent.innerHTML = `
+                        <div class="modal-icon">
+                            <img src="${iconUrl}" alt="검사 아이콘" style="width: 50px; height: 50px; margin-bottom: 20px;">
+                        </div>                    
+                        <p>검사 결과: ${data.message}</p>
+                        <button id="closeModalButton" style="background-color: ${buttonColor}; color: white; font-weight: bold; padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; transition: background-color 0.3s;">닫기</button>
+                    `;
+                } else {
+                    modalContent.innerHTML = `
+                        <p>오류가 발생했습니다: ${response.status}</p>
+                        <button id="closeModalButton" style="background-color: #3182f6; color: white; font-weight: bold; padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; transition: background-color 0.3s;">닫기</button>
+                    `;
+                }
+    
+                // 결과 모달 표시
+                resultModal.style.display = 'flex';
+    
+                // 모달 닫기 버튼 클릭 이벤트 추가
+                document.getElementById('closeModalButton').addEventListener('click', function() {
+                    resultModal.style.display = 'none';
+                });
+    
+            } catch (error) {
+                loading.style.display = 'none';
+                modalContent.innerHTML = `
+                    <p>요청 중 오류가 발생했습니다.</p>
+                    <button id="closeModalButton" style="background-color: #3182f6; color: white; font-weight: bold; padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; transition: background-color 0.3s;">닫기</button>
+                `;
+                resultModal.style.display = 'flex';
+    
+                // 모달 닫기 버튼 클릭 이벤트 추가
+                document.getElementById('closeModalButton').addEventListener('click', function() {
+                    resultModal.style.display = 'none';
+                });
+    
+                console.error('Error:', error);
+            }
         }
-
-        resultModal.style.display = 'flex';
-
-        // 모달이 열린 후에 closeModalButton을 다시 정의합니다.
-        document.getElementById('closeModalButton').addEventListener('click', function() {
-            resultModal.style.display = 'none';
-        });
-
-    } catch (error) {
-        loading.style.display = 'none';
-        modalContent.innerHTML = `
-            <p>요청 중 오류가 발생했습니다.</p>
-            <button id="closeModalButton" style="background-color: #3182f6; color: white; font-weight: bold; padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; transition: background-color 0.3s;">닫기</button>
-        `;
-        resultModal.style.display = 'flex';
-
-        // 모달이 열린 후에 closeModalButton을 다시 정의합니다.
-        document.getElementById('closeModalButton').addEventListener('click', function() {
-            resultModal.style.display = 'none';
-        });
-
-        console.error('Error:', error);
-    }
-});
-
-
+    
+        // body 전체에서 모달 닫기 버튼 클릭 처리
         document.body.addEventListener('click', function(event) {
             if (event.target && event.target.id === 'closeModalButton') {
                 document.getElementById('resultModal').style.display = 'none';
             }
         });
     </script>
+    
 </body>
 </html>
